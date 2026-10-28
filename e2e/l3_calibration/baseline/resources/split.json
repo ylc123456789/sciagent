@@ -1,0 +1,23 @@
+{
+  "dataset_id": "cifar10",
+  "version": "cifar-10-python (official; archive md5 c58f30108f718f92721af3b95e74349a)",
+  "split_method": "deterministic: concatenate data_batch_1..data_batch_5 in file order (50000 samples); first 45000 = train, last 5000 = calibration; test_batch = official test (10000)",
+  "splits": {
+    "train": {
+      "source": "data_batch_1..5",
+      "indices": "0..44999",
+      "count": 45000
+    },
+    "calibration": {
+      "source": "data_batch_1..5",
+      "indices": "45000..49999",
+      "count": 5000
+    },
+    "test": {
+      "source": "test_batch",
+      "indices": "0..9999",
+      "count": 10000
+    }
+  },
+  "test_use_boundary": "test is the official test set; use it only for final evaluation after the method, checkpoint, fit parameters and metric definitions are frozen."
+}

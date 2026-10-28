@@ -1,0 +1,36 @@
+{
+  "protocol_id": "l3-calibration-public-v1",
+  "run_id": null,
+  "product_commit": null,
+  "input_manifest_sha256": null,
+  "model_and_environment": {},
+  "completion_category": "pending_independent_review",
+  "product_chain_result": null,
+  "hard_gates_passed": null,
+  "independent_recalculation": {
+    "accuracy": null,
+    "nll": null,
+    "chosen_calibration_metric": null,
+    "prediction_replay_scope": "not_run",
+    "evidence": []
+  },
+  "scores_0_to_2": {
+    "sources_and_method": null,
+    "comparison_and_splits": null,
+    "implementation_and_evidence": null,
+    "conclusion_quality": null,
+    "completion_and_convergence": null
+  },
+  "human_interventions": [],
+  "costs": {
+    "model_requests": null,
+    "model_tokens": null,
+    "training_seconds": null,
+    "run_execution_seconds": null,
+    "wall_seconds": null,
+    "permission_wait_seconds": null
+  },
+  "untriggered_paths": [],
+  "limitations": [],
+  "research_quality_passed": null
+}
