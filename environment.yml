@@ -1,0 +1,22 @@
+name: ResAgent2
+channels:
+  - defaults
+dependencies:
+  - python=3.12
+  - pip
+  - pydantic>=2.12,<3
+  - pytest>=9,<10
+  - pip:
+      - defusedxml>=0.7,<0.8
+      - -e ./packages/contracts
+      - -e ./packages/runtime
+      - -e ./packages/components
+      - -e ./packages/capabilities
+      - -e ./packages/orchestrator
+      - -e ./packages/agents/executor
+      - -e ./packages/agents/coding
+      - -e ./packages/agents/experiment
+      - -e ./packages/agents/scientific
+      - -e ./apps/cli
+variables:
+  PYTHONNOUSERSITE: "1"

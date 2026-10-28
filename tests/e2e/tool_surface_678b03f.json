@@ -1,0 +1,20 @@
+{
+  "coding/run_verification": "f7effc4a92b837da5f9a15b0494a2d5c0446b54d64ff498fc314ba92e19f6b8a",
+  "experiment/run_command": "a4d8df80913e9d4b53bd383b13f54266d4d94b35271e87d2d1517c5c7b0e606b",
+  "runtime/ask_user": "05d94131e304b690ab17272bffe3168ee0a07886cd97ae7c4e8859a692c0a3a4",
+  "runtime/finish": "c2ca826e2c7c96b049beca72e85cec5c5e4908a469649db634de681123c0b2b8",
+  "scientific/ask_user": "68a372e022259e91faf3df1cb1e184ea32617508a8fa0822a09a718d7edfec2d",
+  "scientific/finish": "06ede06e42b524416b10955fcddc571cf51d05fd1c05b6951c3fa8f47276c319",
+  "scientific/request_work": "8062874419cf5f40d0bade7d7e70ae83a7120fb1ceb341e5e58ce000bc383c14",
+  "shared/audit_env": "9410d995b857f2723ecba7011d12a7fb15a3cc89936ebc23d01e20ac748872f2",
+  "shared/create_file": "995322f44453784a32ab5609eb773714b1ce663cf1d73e316b4ab937b2bed3a8",
+  "shared/git_diff": "f25b5720c076147eb4414b78c9c293bc9bfb275b52a6b1f0edf0e2cdcfd78167",
+  "shared/list_files": "daf940b971ffc38c9a4bba848188609756e8ca38b7cfd674455d8580c84f1bec",
+  "shared/literature_search": "8c073602923434d94bcb98516974e72e520d6473ad0abcc48159e52fffe683a7",
+  "shared/prepare_environment": "4517a2d3770c69da7141deb8e4052e4e8f144d65e79d23aa7e72cb5f22ec6fe4",
+  "shared/read_artifact": "0f01b1769b72d7d11d50f8c6ccdc4332f93d0eaffd9fcb9ef0194eb569fcbd6e",
+  "shared/read_file": "a844ded3d398a863612c2bcfdce48d853ef3b323d738b82c88aa1436a10f6535",
+  "shared/replace_text": "9af2d51546ce5da4c4b9df9b11a29b5e8655a793652dec420ca9568c13e96137",
+  "shared/run_setup": "4754b4a37f25cf73a549d87e5a71681fde60d1e4cd518ba2879e99f228b52032",
+  "shared/search_text": "cbcdf5f95c936324b8ea201595dd11662b66ea730d8251d682f14561fa440b35"
+}
