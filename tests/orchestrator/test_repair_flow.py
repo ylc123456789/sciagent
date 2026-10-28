@@ -8,17 +8,17 @@ Verifies two things:
 """
 
 from __future__ import annotations
-from resagent2_executor import default_execution_registry
+from sciagent_executor import default_execution_registry
 from e2e.scheduler_fixtures import executor_bindings
 
 from e2e.native_fixtures import tool_turns
 
-from resagent2_contracts import RunPermissions, ExecutionLimits
+from sciagent_contracts import RunPermissions, ExecutionLimits
 
 import json
 import pytest
 
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner,
     AgentResult,
     ArtifactCandidate,
@@ -36,7 +36,7 @@ from resagent2_contracts import (
     WorkflowPatch,
     WorkflowProposal,
 )
-from resagent2_orchestrator import (
+from sciagent_orchestrator import (
     DeterministicWorkInterpreter,
     DeterministicWorkflowCompiler,
     InMemoryRunStore,
@@ -46,8 +46,8 @@ from resagent2_orchestrator import (
     ScriptedModulePort,
     WorkflowScheduler,
 )
-from resagent2_runtime import InMemorySessionStore, ScriptedLLMClient
-from resagent2_scientific import ScientificAgent
+from sciagent_runtime import InMemorySessionStore, ScriptedLLMClient
+from sciagent_scientific import ScientificAgent
 
 
 def _registry() -> WorkflowAgentRegistry:
@@ -81,7 +81,7 @@ def _finish() -> dict:
 
 
 def test_candidate_rejects_empty_graph() -> None:
-    from resagent2_orchestrator.workflow_validation import validate_workflow_candidate
+    from sciagent_orchestrator.workflow_validation import validate_workflow_candidate
 
     proposal = WorkflowProposal(
         work_request_id="work_1",

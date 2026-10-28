@@ -7,8 +7,8 @@ from httpx import HTTPStatusError, Request, Response, TransportError
 
 import pytest
 
-from resagent2_runtime import ComposedContext, ModelProfile, OpenAICompatibleClient
-from resagent2_runtime.models import AgentAction
+from sciagent_runtime import ComposedContext, ModelProfile, OpenAICompatibleClient
+from sciagent_runtime.models import AgentAction
 
 
 class _FakeResponse:
@@ -112,7 +112,7 @@ def test_client_reserves_schema_and_output_tokens(monkeypatch) -> None:
     ok = _FakeResponse(
         {"choices": [{"message": {"content": json.dumps({"tool": "finish"})}}]}
     )
-    with mock.patch("resagent2_runtime.llm.send_request", return_value=ok) as urlopen_mock:
+    with mock.patch("sciagent_runtime.llm.send_request", return_value=ok) as urlopen_mock:
         client.next_action(_context(), AgentAction)
     request = urlopen_mock.call_args.args[0]
     assert json.loads(request.content)["max_tokens"] == 1_000
@@ -124,9 +124,9 @@ def test_transient_llm_failure_is_retried(monkeypatch) -> None:
         {"choices": [{"message": {"content": json.dumps({"tool": "finish"})}}]}
     )
     with (
-        mock.patch("resagent2_runtime.llm.time.sleep"),
+        mock.patch("sciagent_runtime.llm.time.sleep"),
         mock.patch(
-            "resagent2_runtime.llm.send_request", side_effect=[TransportError("boom"), ok]
+            "sciagent_runtime.llm.send_request", side_effect=[TransportError("boom"), ok]
         ) as urlopen_mock,
     ):
         result = client.next_action(_context(), AgentAction)
@@ -150,7 +150,7 @@ def test_trace_writes_jsonl_when_enabled(monkeypatch, tmp_path) -> None:
     ok = _FakeResponse(
         {"choices": [{"message": {"content": json.dumps({"tool": "finish"})}}]}
     )
-    with mock.patch("resagent2_runtime.llm.send_request", return_value=ok):
+    with mock.patch("sciagent_runtime.llm.send_request", return_value=ok):
         result = client.next_action(_context(), AgentAction)
 
     assert result == {"tool": "finish"}
@@ -183,7 +183,7 @@ def test_trace_metadata_level_omits_full_text(monkeypatch, tmp_path) -> None:
     ok = _FakeResponse(
         {"choices": [{"message": {"content": json.dumps({"tool": "finish"}), "reasoning_content": "visible rationale"}}]}
     )
-    with mock.patch("resagent2_runtime.llm.send_request", return_value=ok):
+    with mock.patch("sciagent_runtime.llm.send_request", return_value=ok):
         client.next_action(_context(), AgentAction)
 
     trace_file = tmp_path / "traces" / "llm_traces.jsonl"
@@ -220,7 +220,7 @@ def test_full_trace_preserves_provider_reasoning(monkeypatch, tmp_path) -> None:
             ]
         }
     )
-    with mock.patch("resagent2_runtime.llm.send_request", return_value=response):
+    with mock.patch("sciagent_runtime.llm.send_request", return_value=response):
         client.next_action(_context(), AgentAction)
 
     trace_file = tmp_path / "traces" / "llm_traces.jsonl"
@@ -241,8 +241,8 @@ def test_trace_preserves_bad_json_response(monkeypatch, tmp_path) -> None:
         {"choices": [{"message": {"content": "not valid json"}}]}
     )
     with (
-        mock.patch("resagent2_runtime.llm.time.sleep"),
-        mock.patch("resagent2_runtime.llm.send_request", return_value=bad),
+        mock.patch("sciagent_runtime.llm.time.sleep"),
+        mock.patch("sciagent_runtime.llm.send_request", return_value=bad),
     ):
         with pytest.raises(json.JSONDecodeError, match="Expecting value"):
             client.next_action(_context(), AgentAction)
@@ -257,8 +257,8 @@ def test_trace_preserves_bad_json_response(monkeypatch, tmp_path) -> None:
 def test_transient_failure_exhausts_retries(monkeypatch) -> None:
     client = _client(monkeypatch)
     with (
-        mock.patch("resagent2_runtime.llm.time.sleep"),
-        mock.patch("resagent2_runtime.llm.send_request", side_effect=TransportError("boom")),
+        mock.patch("sciagent_runtime.llm.time.sleep"),
+        mock.patch("sciagent_runtime.llm.send_request", side_effect=TransportError("boom")),
     ):
         with pytest.raises(RuntimeError, match="3 attempts"):
             client.next_action(_context(), AgentAction)
@@ -268,7 +268,7 @@ def test_attempt_limit_caps_transient_retries(monkeypatch) -> None:
     client = _client(monkeypatch)
     client.set_attempt_limit(1)
     with mock.patch(
-        "resagent2_runtime.llm.send_request", side_effect=TransportError("boom")
+        "sciagent_runtime.llm.send_request", side_effect=TransportError("boom")
     ) as urlopen_mock:
         with pytest.raises(RuntimeError, match="after 1 attempts"):
             client.next_action(_context(), AgentAction)
@@ -282,8 +282,8 @@ def test_client_error_counts_one_attempt_after_prior_retry(monkeypatch) -> None:
         {"choices": [{"message": {"content": json.dumps({"tool": "finish"})}}]}
     )
     with (
-        mock.patch("resagent2_runtime.llm.time.sleep"),
-        mock.patch("resagent2_runtime.llm.send_request", side_effect=[TransportError("boom"), ok]),
+        mock.patch("sciagent_runtime.llm.time.sleep"),
+        mock.patch("sciagent_runtime.llm.send_request", side_effect=[TransportError("boom"), ok]),
     ):
         client.next_action(_context(), AgentAction)
     assert client.last_attempts == 2
@@ -293,7 +293,7 @@ def test_client_error_counts_one_attempt_after_prior_retry(monkeypatch) -> None:
         request=Request("POST", "https://example.com"),
         response=Response(400, content=b"invalid"),
     )
-    with mock.patch("resagent2_runtime.llm.send_request", side_effect=error):
+    with mock.patch("sciagent_runtime.llm.send_request", side_effect=error):
         with pytest.raises(RuntimeError, match="LLM HTTP 400"):
             client.next_action(_context(), AgentAction)
     assert client.last_attempts == 1
@@ -308,9 +308,9 @@ def test_malformed_json_returns_to_caller_without_identical_retry(monkeypatch) -
         {"choices": [{"message": {"content": json.dumps({"tool": "finish"})}}]}
     )
     with (
-        mock.patch("resagent2_runtime.llm.time.sleep"),
+        mock.patch("sciagent_runtime.llm.time.sleep"),
         mock.patch(
-            "resagent2_runtime.llm.send_request", side_effect=[malformed, ok]
+            "sciagent_runtime.llm.send_request", side_effect=[malformed, ok]
         ) as urlopen_mock,
     ):
         with pytest.raises(json.JSONDecodeError):
@@ -324,8 +324,8 @@ def test_non_string_content_is_a_controlled_failure(monkeypatch, content) -> Non
     client = _client(monkeypatch)
     bad = _FakeResponse({"choices": [{"message": {"content": content}}]})
     with (
-        mock.patch("resagent2_runtime.llm.time.sleep"),
-        mock.patch("resagent2_runtime.llm.send_request", return_value=bad),
+        mock.patch("sciagent_runtime.llm.time.sleep"),
+        mock.patch("sciagent_runtime.llm.send_request", return_value=bad),
     ):
         with pytest.raises(RuntimeError, match="3 attempts"):
             client.next_action(_context(), AgentAction)
@@ -344,8 +344,8 @@ def test_full_trace_preserves_non_string_content(monkeypatch, tmp_path) -> None:
     )
     bad = _FakeResponse({"choices": [{"message": {"content": ["a", "b"]}}]})
     with (
-        mock.patch("resagent2_runtime.llm.time.sleep"),
-        mock.patch("resagent2_runtime.llm.send_request", return_value=bad),
+        mock.patch("sciagent_runtime.llm.time.sleep"),
+        mock.patch("sciagent_runtime.llm.send_request", return_value=bad),
     ):
         with pytest.raises(RuntimeError, match="3 attempts"):
             client.next_action(_context(), AgentAction)
@@ -368,8 +368,8 @@ def test_metadata_trace_handles_non_string_content(monkeypatch, tmp_path) -> Non
     )
     bad = _FakeResponse({"choices": [{"message": {"content": {"tool": "finish"}}}]})
     with (
-        mock.patch("resagent2_runtime.llm.time.sleep"),
-        mock.patch("resagent2_runtime.llm.send_request", return_value=bad),
+        mock.patch("sciagent_runtime.llm.time.sleep"),
+        mock.patch("sciagent_runtime.llm.send_request", return_value=bad),
     ):
         with pytest.raises(RuntimeError, match="3 attempts"):
             client.next_action(_context(), AgentAction)
@@ -385,7 +385,7 @@ def test_metadata_trace_handles_non_string_content(monkeypatch, tmp_path) -> Non
 def test_trace_storage_failure_preserves_model_outcome(
     monkeypatch, tmp_path, caplog, failure,
 ):
-    from resagent2_runtime.budget import MemoryUsage, execution_budget
+    from sciagent_runtime.budget import MemoryUsage, execution_budget
 
     client = _client(monkeypatch)
     client.trace_level = "full"
@@ -403,7 +403,7 @@ def test_trace_storage_failure_preserves_model_outcome(
     usage = MemoryUsage()
     with (
         execution_budget(max_llm_calls=3, timeout_seconds=30, usage=usage),
-        mock.patch("resagent2_runtime.llm.send_request", side_effect=[response]) as provider,
+        mock.patch("sciagent_runtime.llm.send_request", side_effect=[response]) as provider,
     ):
         if failure == "http400":
             with pytest.raises(RuntimeError, match="LLM HTTP 400: original rejection"):
@@ -429,6 +429,6 @@ def test_trace_serialization_failure_preserves_model_response(monkeypatch, tmp_p
     circular["private"] = circular
     client.set_trace_context(diagnostic=circular)
     response = _FakeResponse({"choices": [{"message": {"content": json.dumps({"tool": "finish"})}}]})
-    with mock.patch("resagent2_runtime.llm.send_request", return_value=response):
+    with mock.patch("sciagent_runtime.llm.send_request", return_value=response):
         assert client.next_action(_context(), AgentAction) == {"tool": "finish"}
     assert "Could not write optional LLM trace (ValueError)." in caplog.text

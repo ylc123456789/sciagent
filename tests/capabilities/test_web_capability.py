@@ -7,14 +7,14 @@ import hashlib
 import httpx
 import pytest
 
-from resagent2_contracts import AgentOwner, SessionStatus
-from resagent2_orchestrator import ArtifactRegistry
-from resagent2_components import (
+from sciagent_contracts import AgentOwner, SessionStatus
+from sciagent_orchestrator import ArtifactRegistry
+from sciagent_components import (
     DeepSeekWebSearchBackend, WebFetchError, WebPage, WebPageFetcher, WebSearchError,
     WebSearchItem, WebSearchResult, RegisteredArtifactReader,
 )
-from resagent2_capabilities import WebFetchInput, WebFetchTool, WebSearchInput, WebSearchTool
-from resagent2_runtime import AgentState
+from sciagent_capabilities import WebFetchInput, WebFetchTool, WebSearchInput, WebSearchTool
+from sciagent_runtime import AgentState
 
 
 def _state():
@@ -107,7 +107,7 @@ def test_search_schema_rejects_invalid_query_before_execution(query):
 
 
 def test_search_schema_exposes_provider_limit_without_truncating_unicode():
-    from resagent2_runtime.tool_calling import native_tool_schemas
+    from sciagent_runtime.tool_calling import native_tool_schemas
     schema = native_tool_schemas((WebSearchTool(_Backend()),))[0]["function"]["parameters"]["properties"]["query"]
     assert schema["maxLength"] == 128
     assert WebSearchInput(query="  " + "搜" * 128 + "  ").query == "搜" * 128
@@ -216,8 +216,8 @@ def test_html_links_survive_freeze_and_exact_read(tmp_path, monkeypatch):
 
 
 def test_corrupt_compressed_search_body_returns_failure_without_artifact(monkeypatch, tmp_path):
-    from resagent2_runtime import ServiceRequestClient, http
-    from resagent2_runtime.budget import execution_budget
+    from sciagent_runtime import ServiceRequestClient, http
+    from sciagent_runtime.budget import execution_budget
     calls = []
     def respond(request):
         calls.append(request)

@@ -1,6 +1,6 @@
 """Behavioral acceptance for hierarchy, ordinary input and explicit interruption."""
 from dataclasses import replace
-from resagent2_executor import default_execution_registry
+from sciagent_executor import default_execution_registry
 from e2e.scheduler_fixtures import executor_bindings
 from datetime import UTC, datetime
 import json
@@ -8,20 +8,20 @@ from pydantic import BaseModel
 import pytest
 
 from e2e.native_fixtures import tool_turns
-from resagent2_contracts import (AgentOwner, AgentPermissions, AgentResult, AttemptStatus,
+from sciagent_contracts import (AgentOwner, AgentPermissions, AgentResult, AttemptStatus,
     ModuleStatus, ResearchRequest, RunBudget, RunPermissions, RunStatus, SessionStatus,
     TaskProposal, TaskStatus, WorkflowAgentKind,
     WorkflowAgentRegistry, WorkflowProposal, WorkRequestStatus, task_session_id)
-from resagent2_runtime import (AgentLoop, AgentDefinition, AskUserTool, FinishTool,
+from sciagent_runtime import (AgentLoop, AgentDefinition, AskUserTool, FinishTool,
     AllowListPermissionPolicy, CompletionDecision, InMemorySessionStore, ScriptedLLMClient)
-from resagent2_runtime.cancellation import current_cancellation
-from resagent2_runtime.controls import RunControlInbox
-from resagent2_components.materials import request_task_context
-from resagent2_runtime.models import ContextSection
-from resagent2_orchestrator import (ResearchController, WorkflowScheduler, ModuleBinding,
+from sciagent_runtime.cancellation import current_cancellation
+from sciagent_runtime.controls import RunControlInbox
+from sciagent_components.materials import request_task_context
+from sciagent_runtime.models import ContextSection
+from sciagent_orchestrator import (ResearchController, WorkflowScheduler, ModuleBinding,
     InMemoryRunStore, DeterministicWorkflowCompiler, DeterministicWorkInterpreter)
-from resagent2_scientific import ScientificAgent
-from resagent2_capabilities.delegation import UpdateWorkInput, UpdateWorkTool, WorkAnswer
+from sciagent_scientific import ScientificAgent
+from sciagent_capabilities.delegation import UpdateWorkInput, UpdateWorkTool, WorkAnswer
 
 def action(tool, **arguments):
     return {"tool": tool, "arguments": arguments}
@@ -65,7 +65,7 @@ class MarkTool:
     input_model = MarkInput
     def __init__(self, effects): self.effects = effects
     def execute(self, state, arguments):
-        from resagent2_runtime import ToolObservation
+        from sciagent_runtime import ToolObservation
         self.effects.append(arguments.value)
         return ToolObservation(summary="Marker written", value=arguments.value)
 
@@ -111,7 +111,7 @@ def test_ordinary_input_pairs_unstarted_batch_then_parent_clarifies_same_child(t
             if not self.contexts:
                 inbox.submit("run_live", "input", "New user requirement")
             return super().next_tool_call(*args, **kwargs)
-    from resagent2_runtime.models import ToolCallTurn
+    from sciagent_runtime.models import ToolCallTurn
     batch = ToolCallTurn(tool_calls=[{"id": "call_"+value, "name": "mark", "arguments": json.dumps({"value":value})}
                                    for value in ("first", "second")])
     child_client = ChildClient([batch, *tool_turns([action("finish", report="Done")])])
@@ -162,9 +162,9 @@ def test_explicit_interrupt_invalidates_late_child_reply_and_terminates_work(tmp
 
 def test_parent_can_read_interrupted_command_through_same_task_artifact_handoff(tmp_path):
     from dataclasses import replace
-    from resagent2_components import RegisteredArtifactReader, preserve_execution_record
-    from resagent2_orchestrator.handoffs import read_json
-    from resagent2_runtime.cancellation import OperationCancelled
+    from sciagent_components import RegisteredArtifactReader, preserve_execution_record
+    from sciagent_orchestrator.handoffs import read_json
+    from sciagent_runtime.cancellation import OperationCancelled
 
     facts = {"operation": "process", "command": "python train.py", "pid": 321,
              "exit_code": -15, "stdout_path": "partial.stdout", "stderr_path": "partial.stderr",
@@ -230,7 +230,7 @@ def test_parent_can_read_interrupted_command_through_same_task_artifact_handoff(
 
 
 def test_user_forward_requires_received_source_and_preserves_source_reference(tmp_path):
-    from resagent2_contracts import AgentRequest, BusinessInput, TaskBudget
+    from sciagent_contracts import AgentRequest, BusinessInput, TaskBudget
     event = BusinessInput(event_id="original", text="Exact original words", source="user", created_at=datetime(2020,1,1,tzinfo=UTC))
     req = AgentRequest(run_id="run_forward", agent=AgentOwner.SCIENTIFIC, work_request_id="work_root",
         task_id="task_root", attempt_number=1, instruction="Do work", budget=TaskBudget(max_llm_calls=10,timeout_seconds=60),
@@ -250,10 +250,10 @@ def test_user_forward_requires_received_source_and_preserves_source_reference(tm
 def test_interrupt_while_waiting_keeps_prior_command_record_readable_to_parent(tmp_path):
     from dataclasses import replace
     from e2e.native_fixtures import ParentQuestionClient
-    from resagent2_components import preserve_execution_record
-    from resagent2_runtime import ToolObservation
-    from resagent2_orchestrator.handoffs import read_json
-    from resagent2_contracts import VerificationResult
+    from sciagent_components import preserve_execution_record
+    from sciagent_runtime import ToolObservation
+    from sciagent_orchestrator.handoffs import read_json
+    from sciagent_contracts import VerificationResult
 
     facts = dict(command="python prepare.py", exit_code=0, timed_out=False,
         stdout_path="prepared.stdout", stderr_path="prepared.stderr", duration_seconds=0.1)
@@ -313,7 +313,7 @@ def test_input_between_last_agent_return_and_owner_receiving_is_not_swallowed(tm
 
 def test_escalation_reference_forwards_real_user_answer_and_child_history_stays_part_three(tmp_path):
     from e2e.native_fixtures import ParentQuestionClient, tool_turn
-    from resagent2_contracts import UserAnswer
+    from sciagent_contracts import UserAnswer
     class Parent(ParentQuestionClient):
         def next_tool_call(self, context, schemas, turns, *, max_input_tokens):
             questions = json.loads(context.pending_notifications or "[]")
@@ -486,7 +486,7 @@ def test_input_during_completion_receiving_reconsiders_frozen_opinion(tmp_path, 
 def test_input_publication_cannot_cross_terminal_commit_using_stale_ui_snapshot(tmp_path):
     from concurrent.futures import ThreadPoolExecutor
     from threading import Event
-    from resagent2_cli.main import _submit_control
+    from sciagent_cli.main import _submit_control
 
     controller = build(tmp_path, ScriptedLLMClient(tool_turns([scientific_finish()])),
                        Child(ScriptedLLMClient([]), []))
@@ -526,7 +526,7 @@ def test_answer_values_require_a_specific_question(values):
 
 
 def test_controller_rejects_orphan_answer_without_mutation_or_resume(tmp_path):
-    from resagent2_contracts import ControlSignal
+    from sciagent_contracts import ControlSignal
     child = Child(ScriptedLLMClient(tool_turns([
         action("ask_user", text="Need parent choice", requested_fields=["choice"]),
     ])), [])
@@ -756,9 +756,9 @@ def test_bound_root_report_is_retained_when_new_input_defers_recovered_completio
 
 
 def test_paused_checkpoint_preserves_newly_registered_scientific_refs(tmp_path, monkeypatch):
-    from resagent2_components import WebPage
-    from resagent2_orchestrator.artifacts import ScientificArtifactRegistration
-    from resagent2_runtime import ToolCallTurn, NativeToolCall
+    from sciagent_components import WebPage
+    from sciagent_orchestrator.artifacts import ScientificArtifactRegistration
+    from sciagent_runtime import ToolCallTurn, NativeToolCall
     class Fetcher:
         calls = 0
         def fetch(self, url):

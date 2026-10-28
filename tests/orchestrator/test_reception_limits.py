@@ -5,10 +5,10 @@ from pathlib import Path
 import pytest
 
 from e2e.native_fixtures import tool_turns
-from resagent2_contracts import AgentResult, ArtifactCandidate, ModuleStatus, RunStatus, SessionRef
-from resagent2_orchestrator import JsonRunStore
-from resagent2_runtime import ScriptedLLMClient
-from resagent2_runtime.cancellation import current_cancellation
+from sciagent_contracts import AgentResult, ArtifactCandidate, ModuleStatus, RunStatus, SessionRef
+from sciagent_orchestrator import JsonRunStore
+from sciagent_runtime import ScriptedLLMClient
+from sciagent_runtime.cancellation import current_cancellation
 from test_live_lifecycle import build, request, scientific_finish, work
 
 
@@ -76,7 +76,7 @@ def test_interrupt_large_result_restarts_only_receiving_with_stable_ids(tmp_path
 
     # Re-read disk state through a fresh scheduler/controller owner, retaining
     # native root Session storage; no execution result is requested again.
-    from resagent2_orchestrator import ResearchController, WorkflowScheduler
+    from sciagent_orchestrator import ResearchController, WorkflowScheduler
     scheduler = WorkflowScheduler(bindings=controller.scheduler.bindings,
         store=JsonRunStore(tmp_path / "state"), artifact_root=registry.root, data_root=tmp_path / "data")
     fresh = ResearchController(scientific_port=controller.scientific_port,
@@ -168,7 +168,7 @@ def test_new_input_during_root_receiving_pause_reaches_original_input_gate(tmp_p
 
 
 def test_reception_deadline_keeps_original_result_without_retry(tmp_path, monkeypatch):
-    from resagent2_orchestrator import controller as controller_module, scheduler as scheduler_module
+    from sciagent_orchestrator import controller as controller_module, scheduler as scheduler_module
 
     class Clock:
         value = datetime.now(UTC)
@@ -208,7 +208,7 @@ def test_reception_deadline_keeps_original_result_without_retry(tmp_path, monkey
 
 
 def test_root_publication_deadline_retains_timeout_not_missing_artifact(tmp_path, monkeypatch):
-    from resagent2_runtime.budget import DeadlineExceededError
+    from sciagent_runtime.budget import DeadlineExceededError
     client = ScriptedLLMClient(tool_turns([scientific_finish()]))
     controller = controller_with_disk(tmp_path, client, OutputPort(0))
     registry = controller.scheduler.artifact_registry
@@ -234,8 +234,8 @@ def test_root_publication_deadline_retains_timeout_not_missing_artifact(tmp_path
 @pytest.mark.parametrize("legacy", [False, True])
 @pytest.mark.parametrize("retirement_crash", [False, True])
 def test_frozen_final_report_is_superseded_after_new_input(tmp_path, monkeypatch, frozen, legacy, retirement_crash):
-    from resagent2_orchestrator import ResearchController, WorkflowScheduler
-    from resagent2_components.artifacts import RegisteredArtifactReader
+    from sciagent_orchestrator import ResearchController, WorkflowScheduler
+    from sciagent_components.artifacts import RegisteredArtifactReader
 
     first, second = scientific_finish(), scientific_finish()
     second["arguments"]["artifacts"][0]["content"]["statement"] = "Reconsidered after new requirement"
@@ -313,7 +313,7 @@ def test_frozen_final_report_is_superseded_after_new_input(tmp_path, monkeypatch
 
 
 def test_committed_final_report_only_finishes_acknowledgment_after_crash(tmp_path, monkeypatch):
-    from resagent2_orchestrator import ResearchController, WorkflowScheduler
+    from sciagent_orchestrator import ResearchController, WorkflowScheduler
     class ProcessCrash(BaseException):
         pass
 

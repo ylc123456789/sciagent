@@ -6,10 +6,10 @@ import time
 
 import pytest
 
-from resagent2_components.process import ProcessRunner, output_tail
-from resagent2_components.workspace import WorkspaceBoundary
-from resagent2_contracts import WorkspaceAccess, WorkspaceGrant
-from resagent2_runtime.budget import execution_budget
+from sciagent_components.process import ProcessRunner, output_tail
+from sciagent_components.workspace import WorkspaceBoundary
+from sciagent_contracts import WorkspaceAccess, WorkspaceGrant
+from sciagent_runtime.budget import execution_budget
 
 
 pytestmark = pytest.mark.skipif(sys.platform != "linux", reason="fixed Linux Bash execution")
@@ -25,7 +25,7 @@ def runner(tmp_path):
 
 def run_shell(runner, script, **kwargs):
     return runner.run_shell(
-        script, log_dir=".resagent2/shell", index=1, timeout_seconds=5, **kwargs,
+        script, log_dir=".sciagent/shell", index=1, timeout_seconds=5, **kwargs,
     )
 
 
@@ -97,9 +97,9 @@ def test_multiline_heredoc_and_receipt_preserve_script_bytes(runner, tmp_path):
 def test_workspace_and_environment_filtering(runner, tmp_path):
     result = run_shell(
         runner,
-        "printf '%s\\n' \"$PWD\" \"$RESAGENT_TEST_VALUE\" \"$RESAGENT_PREFIX\" "
-        "\"${RESAGENT_TEST_API_KEY-unset}\"",
-        extra_env={"RESAGENT_TEST_VALUE": "available", "RESAGENT_PREFIX": "explicit", "RESAGENT_TEST_API_KEY": "hidden"},
+        "printf '%s\\n' \"$PWD\" \"$SCIAGENT_TEST_VALUE\" \"$SCIAGENT_PREFIX\" "
+        "\"${SCIAGENT_TEST_API_KEY-unset}\"",
+        extra_env={"SCIAGENT_TEST_VALUE": "available", "SCIAGENT_PREFIX": "explicit", "SCIAGENT_TEST_API_KEY": "hidden"},
     )
     assert result.exit_code == 0
     assert Path(result.stdout_path).read_text().splitlines() == [
@@ -115,7 +115,7 @@ def test_workspace_and_environment_filtering(runner, tmp_path):
 def test_approval_stays_stable_across_launcher_metadata(
     runner, monkeypatch, name, first, second,
 ):
-    import resagent2_components.process as component
+    import sciagent_components.process as component
     monkeypatch.setenv(name, first)
     approved = runner.shell_context()
     monkeypatch.setenv(name, second)
@@ -142,7 +142,7 @@ def test_approval_still_rejects_changed_path_before_execution(runner, monkeypatc
     with pytest.raises(PermissionError, match="configuration changed"):
         run_shell(runner, "touch should-not-exist", expected_context=approved)
     assert not (runner.boundary.root / "should-not-exist").exists()
-    assert not (runner.boundary.root / ".resagent2").exists()
+    assert not (runner.boundary.root / ".sciagent").exists()
 
 
 def test_legacy_shell_flags_are_rejected_before_launch(runner):
@@ -152,7 +152,7 @@ def test_legacy_shell_flags_are_rejected_before_launch(runner):
     with pytest.raises(PermissionError, match="configuration changed"):
         run_shell(runner, "touch should-not-exist", expected_context=approved)
     assert not (runner.boundary.root / "should-not-exist").exists()
-    assert not (runner.boundary.root / ".resagent2").exists()
+    assert not (runner.boundary.root / ".sciagent").exists()
 
 
 def test_inherited_shell_startup_and_exported_functions_are_not_executed(runner, tmp_path):
@@ -198,17 +198,17 @@ def test_shell_obeys_shared_deadline_and_keeps_partial_logs(runner, tmp_path):
 
 
 def test_shell_rejects_non_linux_before_starting_process(runner, monkeypatch):
-    monkeypatch.setattr("resagent2_components.process.sys.platform", "darwin")
+    monkeypatch.setattr("sciagent_components.process.sys.platform", "darwin")
     with pytest.raises(RuntimeError, match="only on Linux"):
         run_shell(runner, "printf never")
-    assert not (runner.boundary.root / ".resagent2").exists()
+    assert not (runner.boundary.root / ".sciagent").exists()
 
 
 @pytest.mark.parametrize("script", [" \n\t", "printf hi\x00"])
 def test_shell_rejects_invalid_script_before_starting_process(runner, script):
     with pytest.raises(ValueError, match="nonempty.*NUL"):
         run_shell(runner, script)
-    assert not (runner.boundary.root / ".resagent2").exists()
+    assert not (runner.boundary.root / ".sciagent").exists()
 
 
 def test_output_tail_reads_only_bounded_suffix(tmp_path, monkeypatch):

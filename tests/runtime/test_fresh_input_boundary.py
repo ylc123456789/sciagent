@@ -6,13 +6,13 @@ import json
 import pytest
 
 from e2e.native_fixtures import tool_turns
-from resagent2_contracts import AgentPermissions, AgentRequest, RecordedAnswer, TaskBudget
-from resagent2_runtime import (
+from sciagent_contracts import AgentPermissions, AgentRequest, RecordedAnswer, TaskBudget
+from sciagent_runtime import (
     AgentDefinition, AgentLoop, CompletionDecision, ContextSection, FinishTool,
     InMemorySessionStore, PermissionDecision, ScriptedLLMClient, ToolObservation,
 )
-from resagent2_runtime.lifecycle import model_boundary
-from resagent2_runtime.models import RuntimeModel
+from sciagent_runtime.lifecycle import model_boundary
+from sciagent_runtime.models import RuntimeModel
 
 
 class Arguments(RuntimeModel):
@@ -126,7 +126,7 @@ def test_input_during_permission_check_prevents_even_creating_old_approval():
 
 @pytest.mark.parametrize("mode", ["approved", "outdated", "interrupted"])
 def test_resumed_operation_keeps_original_call_receipt_with_new_runtime_notice(mode):
-    from resagent2_runtime.cancellation import CancellationToken, bind_cancellation, check_cancelled
+    from sciagent_runtime.cancellation import CancellationToken, bind_cancellation, check_cancelled
 
     loop, spec, write, store, paused, resume = paused_case()
     resume = resume.model_copy(update={"runtime_notices": [{

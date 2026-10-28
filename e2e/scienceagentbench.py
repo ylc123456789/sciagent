@@ -204,8 +204,8 @@ def _identity(public):
 
 def run(*, manifest, output, run_id=None, max_llm_calls=200, timeout_seconds=7200,
         max_tasks=8, max_attempts=2, max_work_depth=3, approval_mode="manual", execution_mode="live-model"):
-    from resagent2_cli.composition import build_application
-    from resagent2_contracts import ArtifactImport, ResearchRequest, RunBudget, RunPermissions, ExecutionLimits, WorkspaceSpec, WorkspaceSourceKind, WorkspaceAccess
+    from sciagent_cli.composition import build_application
+    from sciagent_contracts import ArtifactImport, ResearchRequest, RunBudget, RunPermissions, ExecutionLimits, WorkspaceSpec, WorkspaceSourceKind, WorkspaceAccess
 
     manifest, public = _public(manifest)
     output = _no_links(output)
@@ -242,7 +242,7 @@ def run(*, manifest, output, run_id=None, max_llm_calls=200, timeout_seconds=720
     receipt = {"run_id": run_id, "benchmark": "ScienceAgentBench", "public": public,
         "execution_mode": execution_mode, "status": result.status.value, "started_at": started.isoformat(),
         "returned_at": datetime.now(UTC).isoformat(), "budget": request.budget.model_dump(mode="json"),
-        "execution_limits": request.execution_limits.model_dump(mode="json"), "model": os.environ.get("RESAGENT2_MODEL", "deepseek-v4-flash"),
+        "execution_limits": request.execution_limits.model_dump(mode="json"), "model": os.environ.get("SCIAGENT_MODEL", "deepseek-v4-flash"),
         "usage": result.usage.model_dump(mode="json"), "answers": [item.model_dump(mode="json") for item in result.answers],
         "pending_question": result.pending_question.model_dump(mode="json") if result.pending_question else None}
     _write_receipt(output / "run.json", receipt)
@@ -253,7 +253,7 @@ def run(*, manifest, output, run_id=None, max_llm_calls=200, timeout_seconds=720
 
 def export_program(run, destination):
     """Select the accepted top-level result, copying exact Registry bytes."""
-    from resagent2_components import RegisteredArtifactReader
+    from sciagent_components import RegisteredArtifactReader
     if run.status.value != "completed" or run.final_opinion is None or run.final_report_artifact_id not in run.artifacts:
         raise ValueError("only accepted completed research runs may export")
 
@@ -301,7 +301,7 @@ def export_program(run, destination):
 
 
 def export_saved(*, data_root, run_id, output):
-    from resagent2_orchestrator import JsonRunStore
+    from sciagent_orchestrator import JsonRunStore
     run = JsonRunStore(Path(data_root) / "state").load(run_id)
     ref = export_program(run, output)
     receipt = {"run_id": run_id, "status": run.status.value, "program_artifact_id": ref.id, "program_sha256": ref.sha256,
@@ -365,7 +365,7 @@ def grade(*, annotations, annotations_sha256, dataset_revision, benchmark, insta
     # rebuilds instance images so another candidate cannot reuse stale code.
     row = dict(row, instance_id=str(instance_id))
     _write_receipt(output / "example.json", row)
-    grading_run_id = "resagent2_" + uuid4().hex
+    grading_run_id = "sciagent_" + uuid4().hex
     worker = "\n".join([
         "import fcntl, hashlib, json, tempfile",
         "from pathlib import Path",
@@ -375,7 +375,7 @@ def grade(*, annotations, annotations_sha256, dataset_revision, benchmark, insta
         "e = json.loads(Path('../example.json').read_text())",
         "c = docker.from_env()",
         "daemon = hashlib.sha256(c.info()['ID'].encode()).hexdigest()[:24]",
-        "lock = open(Path(tempfile.gettempdir()) / ('resagent2-sab-' + daemon + '-' + e['instance_id'] + '.lock'), 'a')",
+        "lock = open(Path(tempfile.gettempdir()) / ('sciagent-sab-' + daemon + '-' + e['instance_id'] + '.lock'), 'a')",
         "fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)",
         "build_base_images(c, [e], " + repr(str(benchmark)) + ", " + repr(str(predictions)) + ", False)",
         "run_instances([e], " + repr(str(benchmark)) + ", " + repr(str(predictions)) + ", 'base', False, True, 1, " + repr(grading_run_id) + ", 1800)",

@@ -1,11 +1,11 @@
 
-from resagent2_contracts import RunPermissions, ExecutionLimits
+from sciagent_contracts import RunPermissions, ExecutionLimits
 from datetime import UTC, datetime
 
 import pytest
 from pydantic import ValidationError
 
-from resagent2_contracts import (ArtifactCandidate, ArtifactRef, AgentOwner, Attempt, AttemptStatus, TaskAcceptanceSpec, WorkflowAgentKind, ErrorCode, ModuleError, AgentResult, ModuleStatus, PendingQuestion, QuestionDraft, RecordedAnswer, RunBudget, TaskBudget, TaskProposal, TaskStatus, UserAnswer, Workflow, WorkflowPatch, WorkflowProposal, WorkflowTask, WorkspaceGrant, WorkspaceAccess, WorkspaceRecord, WorkspaceSourceKind, WorkspaceSpec, AgentRequest, ResearchRequest, WarningRecord)
+from sciagent_contracts import (ArtifactCandidate, ArtifactRef, AgentOwner, Attempt, AttemptStatus, TaskAcceptanceSpec, WorkflowAgentKind, ErrorCode, ModuleError, AgentResult, ModuleStatus, PendingQuestion, QuestionDraft, RecordedAnswer, RunBudget, TaskBudget, TaskProposal, TaskStatus, UserAnswer, Workflow, WorkflowPatch, WorkflowProposal, WorkflowTask, WorkspaceGrant, WorkspaceAccess, WorkspaceRecord, WorkspaceSourceKind, WorkspaceSpec, AgentRequest, ResearchRequest, WarningRecord)
 
 
 NOW = datetime(2026, 8, 26, tzinfo=UTC)
@@ -83,7 +83,7 @@ def test_system_artifact_provenance_rejects_mismatched_kind_scope() -> None:
         )
 
 def test_research_request_does_not_accept_deployment_resources() -> None:
-    from resagent2_contracts import (ResearchRequest)
+    from sciagent_contracts import (ResearchRequest)
 
     assert "dataset_refs" not in ResearchRequest.model_fields
     with pytest.raises(ValidationError, match="dataset_refs"):
@@ -416,7 +416,7 @@ def test_models_reject_unknown_fields() -> None:
 
 @pytest.mark.parametrize("write_paths", [["."], ["data"]])
 def test_parent_read_workspaces_cannot_carry_write_authority(write_paths):
-    from resagent2_contracts import AgentPermissions
+    from sciagent_contracts import AgentPermissions
 
     grant = WorkspaceGrant(root="/authorized/source", source="local", access=WorkspaceAccess(
         read_paths=["."], write_paths=write_paths, denied_paths=["private"],

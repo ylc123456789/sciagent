@@ -5,21 +5,21 @@ from datetime import UTC, datetime
 
 import pytest
 
-from resagent2_capabilities import (
+from sciagent_capabilities import (
     CreateFileTool, DeletePathTool, ListFilesTool, ReadFileTool, ReplaceTextTool, SearchTextTool,
 )
-from resagent2_capabilities.permissions import OperationPermissionPolicy
-from resagent2_components import ReadOnlyWorkspaceBoundary, WorkspaceBoundary, WorkspacePermissionError
-from resagent2_components import material_index_context
-from resagent2_components.read_scope import request_read_boundary
-from resagent2_components.workspace import (
+from sciagent_capabilities.permissions import OperationPermissionPolicy
+from sciagent_components import ReadOnlyWorkspaceBoundary, WorkspaceBoundary, WorkspacePermissionError
+from sciagent_components import material_index_context
+from sciagent_components.read_scope import request_read_boundary
+from sciagent_components.workspace import (
     DeleteChangedError, FILESYSTEM_PATH_DESCRIPTION, MAIN_WORKSPACE_PATH_DESCRIPTION,
     _normalize_relative,
 )
-from resagent2_contracts import (
+from sciagent_contracts import (
     ActionSnapshot, AgentPermissions, AgentRequest, RecordedAnswer, TaskBudget, WorkspaceAccess, WorkspaceGrant,
 )
-from resagent2_runtime import AgentAction, AgentState
+from sciagent_runtime import AgentAction, AgentState
 
 
 def grant(root, *, read=(".",), write=(".",), denied=()):
@@ -124,12 +124,12 @@ def test_absolute_addresses_recheck_lexical_denials_before_resolving_aliases(tmp
 
 
 def test_absolute_addresses_recheck_resolved_denials_and_private_or_git_targets(tmp_path):
-    for name in ("denied", ".resagent2", ".git"):
+    for name in ("denied", ".sciagent", ".git"):
         (tmp_path / name).mkdir()
         (tmp_path / name / "file").write_text(name)
         (tmp_path / f"alias_{name}").symlink_to(tmp_path / name, target_is_directory=True)
     scope = WorkspaceBoundary(grant(tmp_path, denied=("denied",)))
-    for name in ("denied", ".resagent2", ".git"):
+    for name in ("denied", ".sciagent", ".git"):
         for path in (tmp_path / name / "file", tmp_path / f"alias_{name}/file"):
             if name == ".git":
                 assert scope.resolve_read_file(str(path)).read_text() == ".git"
@@ -200,8 +200,8 @@ def test_grant_and_system_namespaces_stay_relative(tmp_path):
     with pytest.raises(WorkspacePermissionError, match="relative"):
         _normalize_relative(str(tmp_path / "file"))
     with pytest.raises(WorkspacePermissionError, match="relative"):
-        scope.resolve_system_write(str(tmp_path / ".resagent2/output"))
-    assert scope.resolve_system_write(".resagent2/output") == tmp_path / ".resagent2/output"
+        scope.resolve_system_write(str(tmp_path / ".sciagent/output"))
+    assert scope.resolve_system_write(".sciagent/output") == tmp_path / ".sciagent/output"
 
 
 @pytest.mark.parametrize("tool", [ReadFileTool, ListFilesTool, SearchTextTool, CreateFileTool, ReplaceTextTool, DeletePathTool])
@@ -346,7 +346,7 @@ def test_executor_symlink_root_addresses_round_trip_across_tools(symlink_workspa
 @pytest.mark.parametrize("address_kind", ["alias", "physical"])
 def test_symlink_root_keeps_lexical_and_resolved_exclusions(symlink_workspace, address_kind):
     physical, alias = symlink_workspace
-    for name in ("public", "denied", ".resagent2", ".git"):
+    for name in ("public", "denied", ".sciagent", ".git"):
         (physical / name).mkdir()
         (physical / name / "source").write_text("keep")
     (physical / "denied_alias").symlink_to(physical / "public", target_is_directory=True)
@@ -354,7 +354,7 @@ def test_symlink_root_keeps_lexical_and_resolved_exclusions(symlink_workspace, a
     request = executor_request(grant(alias, denied=("denied", "denied_alias")))
     scope, reads = WorkspaceBoundary(request.workspace), request_read_boundary(request)
     root = alias if address_kind == "alias" else physical
-    for suffix in ("denied", "denied_alias", "public_alias", ".resagent2", ".git"):
+    for suffix in ("denied", "denied_alias", "public_alias", ".sciagent", ".git"):
         path = str(root / suffix / "source")
         if suffix == ".git":
             assert reads.resolve_read_file(path).read_text() == "keep"

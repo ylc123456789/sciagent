@@ -10,10 +10,10 @@ from types import SimpleNamespace
 
 import pytest
 
-from resagent2_components.process import ProcessRunner, run_process
-from resagent2_components.workspace import WorkspaceBoundary
-from resagent2_contracts import WorkspaceAccess, WorkspaceGrant
-from resagent2_runtime.cancellation import CancellationToken, OperationCancelled, bind_cancellation, check_cancelled
+from sciagent_components.process import ProcessRunner, run_process
+from sciagent_components.workspace import WorkspaceBoundary
+from sciagent_contracts import WorkspaceAccess, WorkspaceGrant
+from sciagent_runtime.cancellation import CancellationToken, OperationCancelled, bind_cancellation, check_cancelled
 
 
 @pytest.mark.skipif(os.name != "posix", reason="managed process trees are POSIX")
@@ -48,7 +48,7 @@ def test_explicit_interrupt_stops_detached_descendant_and_keeps_file(tmp_path, f
                 run_process([sys.executable, str(script)], cwd=tmp_path, timeout=30)
             else:
                 ProcessRunner(boundary).run_shell(
-                    f"{shlex.quote(sys.executable)} parent.py", log_dir=".resagent2/log",
+                    f"{shlex.quote(sys.executable)} parent.py", log_dir=".sciagent/log",
                     index=1, timeout_seconds=30,
                 )
         assert caught.value.stopped
@@ -79,7 +79,7 @@ def test_cancel_before_process_does_not_create_file(tmp_path):
 
 @pytest.mark.skipif(os.name != "posix", reason="managed process trees are POSIX")
 def test_interrupt_stops_pipe_writer_after_parent_exits_before_any_scan(tmp_path, monkeypatch):
-    from resagent2_components import process as process_module
+    from sciagent_components import process as process_module
 
     # Force the hard boundary: the short-lived parent exits before polling can
     # discover its detached child. Its unique inherited output pipe still owns
@@ -134,7 +134,7 @@ def test_interrupt_stops_pipe_writer_after_parent_exits_before_any_scan(tmp_path
 def test_cleanup_pipe_timeout_preserves_cancel_and_unconfirmed_stop(monkeypatch):
     import subprocess
     from io import BytesIO
-    from resagent2_components import process as process_module
+    from sciagent_components import process as process_module
 
     token = CancellationToken()
 
@@ -169,7 +169,7 @@ def test_cleanup_pipe_timeout_preserves_cancel_and_unconfirmed_stop(monkeypatch)
 @pytest.mark.skipif(os.name != "posix", reason="Linux pipe ownership")
 def test_pipe_cleanup_only_owns_writers_and_not_unrelated_reader():
     import subprocess
-    from resagent2_components import process as process_module
+    from sciagent_components import process as process_module
 
     read_fd, write_fd = os.pipe()
     reader = writer = None
@@ -198,7 +198,7 @@ def test_pipe_cleanup_only_owns_writers_and_not_unrelated_reader():
 
 
 def test_reused_descendant_pid_is_not_signalled(monkeypatch):
-    from resagent2_components import process as process_module
+    from sciagent_components import process as process_module
 
     class CompletedParent:
         pid = 999999998
@@ -219,7 +219,7 @@ def test_reused_descendant_pid_is_not_signalled(monkeypatch):
 
 
 def test_reaped_parent_pid_does_not_discover_new_unrelated_descendants(monkeypatch):
-    from resagent2_components import process as process_module
+    from sciagent_components import process as process_module
 
     monkeypatch.setattr(process_module, "_descendant_pids", lambda pid: pytest.fail("scanned reaped PID"))
     identities = {123: "previously_seen_identity"}

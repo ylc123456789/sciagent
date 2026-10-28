@@ -1,22 +1,22 @@
 """Uniform Task ownership and ordered, direct-parent update boundaries."""
-from resagent2_executor import default_execution_registry
+from sciagent_executor import default_execution_registry
 from e2e.scheduler_fixtures import executor_bindings
 from datetime import UTC, datetime, timedelta
 import json
 import pytest
 
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner, AgentResult, ArtifactCandidate, AttemptStatus, BusinessInput,
     ControlSignal, ExecutionLimits, ModuleStatus, ModuleError, ErrorCode, ResearchRequest, RunStatus, RunBudget, RunPermissions,
     SessionRef, SessionStatus, PendingQuestion, RecordedAnswer, TaskProposal, TaskStatus, WorkRequest, WorkRequestDraft,
     WorkRequestStatus, WorkflowAgentKind, WorkflowAgentRegistry, WorkflowPatch,
     task_session_id,
 )
-from resagent2_orchestrator import (
+from sciagent_orchestrator import (
     CompilationResult, DeterministicWorkInterpreter, InMemoryRunStore, ModuleBinding,
     ResearchController, WorkflowScheduler,
 )
-from resagent2_runtime.controls import RunControlInbox
+from sciagent_runtime.controls import RunControlInbox
 
 
 class DirectCompiler:
@@ -195,7 +195,7 @@ def test_received_input_order_does_not_depend_on_source_timestamps(tmp_path):
     assert run.input_ids("task_root") == ["first", "second", "question_old_timestamp"]
     request = engine.scheduler._module_request(run, run.task("task_root"), 1,
         parent_session_id=run.scientific_session.id)
-    from resagent2_components.materials import request_task_context
+    from sciagent_components.materials import request_task_context
     dialogue = request_task_context(request)["business_dialogue"]
     assert [entry["record"].get("event_id", entry["record"].get("question_id")) for entry in dialogue] == [
         "first", "second", "question_old_timestamp"]
@@ -288,7 +288,7 @@ def test_completed_target_rejects_entire_update_batch(tmp_path):
 
 
 def test_selected_child_update_preserves_sibling_context_and_exact_question_wait(tmp_path):
-    from resagent2_components.materials import request_task_context
+    from sciagent_components.materials import request_task_context
 
     engine, run, _ = paused_parent_with_two_children(tmp_path)
     run.append_input("task_root", BusinessInput(event_id="input_selective",
@@ -374,7 +374,7 @@ def test_stale_parent_update_cannot_release_children_and_empty_update_can_ack(tm
 def test_controller_rechecks_authoritative_delegation_limits(tmp_path, restriction):
     engine, run, _ = paused_parent_with_two_children(tmp_path)
     task = run.task("task_experiment")
-    from resagent2_contracts import Attempt
+    from sciagent_contracts import Attempt
     attempt = Attempt(number=1, status=AttemptStatus.RUNNING, started_at=datetime.now(UTC))
     task.attempts = [attempt]
     request = engine.scheduler._module_request(run, task, 1, parent_session_id=None)

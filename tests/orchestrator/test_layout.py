@@ -1,6 +1,6 @@
 import pytest
 
-from resagent2_orchestrator import RunLayout
+from sciagent_orchestrator import RunLayout
 
 
 def test_run_layout_resolves_standard_directories(tmp_path) -> None:
@@ -22,7 +22,7 @@ def test_run_layout_resolves_standard_directories(tmp_path) -> None:
 
 
 def test_run_layout_reads_data_root_env(tmp_path, monkeypatch) -> None:
-    monkeypatch.setenv("RESAGENT2_DATA_ROOT", str(tmp_path / "custom"))
+    monkeypatch.setenv("SCIAGENT_DATA_ROOT", str(tmp_path / "custom"))
     assert RunLayout.from_env().data_root == tmp_path / "custom"
 
 

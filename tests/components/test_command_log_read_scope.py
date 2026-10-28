@@ -4,11 +4,11 @@ from pathlib import Path
 
 import pytest
 
-from resagent2_capabilities import ReadFileTool, RunShellTool
-from resagent2_components import ProcessRunner, WorkspaceBoundary
-from resagent2_components.read_scope import request_read_boundary
-from resagent2_contracts import AgentPermissions, AgentRequest, TaskBudget, WorkspaceAccess, WorkspaceGrant
-from resagent2_runtime import AgentState
+from sciagent_capabilities import ReadFileTool, RunShellTool
+from sciagent_components import ProcessRunner, WorkspaceBoundary
+from sciagent_components.read_scope import request_read_boundary
+from sciagent_contracts import AgentPermissions, AgentRequest, TaskBudget, WorkspaceAccess, WorkspaceGrant
+from sciagent_runtime import AgentState
 
 
 @pytest.mark.parametrize("external_logs", [False, True])
@@ -19,7 +19,7 @@ def test_command_logs_share_exact_read_file_boundary(tmp_path, external_logs):
     request = AgentRequest(agent="executor", run_id="run_logs", work_request_id="work_logs",
         task_id="task_logs", attempt_number=1, instruction="Run the bounded check",
         permissions=AgentPermissions(execute_commands=True), budget=TaskBudget(max_llm_calls=2, timeout_seconds=20), workspace=grant)
-    output = tmp_path / "run" / "attempt" if external_logs else root / ".resagent2" / "task_logs"
+    output = tmp_path / "run" / "attempt" if external_logs else root / ".sciagent" / "task_logs"
     log_dir = str(output / "commands")
     read_boundary = request_read_boundary(request, command_log_dir=log_dir)
     shell = RunShellTool(ProcessRunner(WorkspaceBoundary(grant)), timeout_seconds=10,

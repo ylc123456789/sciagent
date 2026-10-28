@@ -2,8 +2,8 @@
 from datetime import UTC,datetime
 import pytest
 from pydantic import ValidationError
-from resagent2_contracts import AgentRequest,AgentPermissions,TaskBudget,RecordedAnswer,ActionSnapshot
-from resagent2_components import request_task_context
+from sciagent_contracts import AgentRequest,AgentPermissions,TaskBudget,RecordedAnswer,ActionSnapshot
+from sciagent_components import request_task_context
 
 
 def request(**kw):
@@ -45,7 +45,7 @@ def test_business_answers_reject_foreign_scope():
 
 def test_business_dialogue_uses_reception_order_not_untrusted_source_timestamps():
     from datetime import timedelta
-    from resagent2_contracts import BusinessInput
+    from sciagent_contracts import BusinessInput
     now=datetime.now(UTC)
     old=BusinessInput(event_id="input_old", text="Use random split", source="user", created_at=now)
     correction=BusinessInput(event_id="input_new", text="Withdraw random split; use sequential split", source="user", created_at=now-timedelta(days=1))
@@ -58,7 +58,7 @@ def test_business_dialogue_uses_reception_order_not_untrusted_source_timestamps(
 
 
 def test_shared_dialogue_projection_cannot_mix_operation_approval_into_business_requirements():
-    from resagent2_components.materials import ordered_business_dialogue
+    from sciagent_components.materials import ordered_business_dialogue
     approval = answer(1).model_copy(update={"action": ActionSnapshot(
         action_id="action_one", tool="run_shell", arguments={"command": "echo one"},
         run_id="run_test", task_id="task_root", attempt_number=1,

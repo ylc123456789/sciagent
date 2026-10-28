@@ -1,8 +1,8 @@
-from resagent2_executor import default_execution_registry
+from sciagent_executor import default_execution_registry
 
 from e2e.native_fixtures import tool_turns
 
-from resagent2_contracts import RunPermissions, ExecutionLimits
+from sciagent_contracts import RunPermissions, ExecutionLimits
 import json
 """Local ScriptedLLM validation of the Phase 7 real E2E scenario acceptance.
 
@@ -14,7 +14,7 @@ checks the same acceptance predicates used by ``e2e/real_e2e.py``.
 from datetime import UTC, datetime
 from pathlib import Path
 
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner,
     WorkflowAgentKind,
     WorkflowAgentRegistry,
@@ -24,15 +24,15 @@ from resagent2_contracts import (
     UserAnswer,
     WorkflowProposal,
 )
-from resagent2_orchestrator import (
+from sciagent_orchestrator import (
     DeterministicWorkInterpreter,
     DeterministicWorkflowCompiler,
     JsonRunStore,
     ResearchController,
     WorkflowScheduler,
 )
-from resagent2_runtime import JsonSessionStore, ScriptedLLMClient
-from resagent2_scientific import ScientificAgent
+from sciagent_runtime import JsonSessionStore, ScriptedLLMClient
+from sciagent_scientific import ScientificAgent
 
 from e2e.real_e2e import (
     _ask_resume_succeeded,

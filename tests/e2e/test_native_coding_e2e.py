@@ -2,7 +2,7 @@ from e2e.scheduler_fixtures import create_scheduler_run
 
 from e2e.native_fixtures import tool_turns
 
-from resagent2_contracts import AgentPermissions, RunPermissions, ExecutionLimits
+from sciagent_contracts import AgentPermissions, RunPermissions, ExecutionLimits
 import json
 from pathlib import Path
 import subprocess
@@ -13,8 +13,8 @@ from urllib.request import url2pathname
 
 from datetime import UTC, datetime
 
-from resagent2_coding import NativeCodingAgent
-from resagent2_contracts import (
+from sciagent_coding import NativeCodingAgent
+from sciagent_contracts import (
     AgentOwner,
     WorkflowAgentKind,
     ModuleStatus,
@@ -31,12 +31,12 @@ from resagent2_contracts import (
     WorkspaceSourceKind,
     WorkspaceSpec,
 )
-from resagent2_orchestrator import (
+from sciagent_orchestrator import (
     InMemoryRunStore,
     ModuleBinding,
     WorkflowScheduler,
 )
-from resagent2_runtime import ScriptedLLMClient
+from sciagent_runtime import ScriptedLLMClient
 
 
 
@@ -97,7 +97,7 @@ def test_scheduler_registers_native_coding_artifacts(tmp_path, monkeypatch) -> N
     run = scheduler.run_until_stable("run_native_e2e")
     assert run.status == RunStatus.PAUSED
     question = run.pending_question
-    from resagent2_contracts import RecordedAnswer
+    from sciagent_contracts import RecordedAnswer
     run.answers.append(RecordedAnswer(
         question_id=question.id, question_text=question.text,
         requested_fields=question.requested_fields, options=question.options,
@@ -184,7 +184,7 @@ def test_coding_resume_preserves_attempt_baseline(tmp_path, monkeypatch) -> None
     first = coding.invoke(request)
     assert first.status == ModuleStatus.NEEDS_USER_INPUT
 
-    from resagent2_contracts import RecordedAnswer
+    from sciagent_contracts import RecordedAnswer
     question = first.control.question
     answer = RecordedAnswer(
         question_id=question.id, question_text=question.text, requested_fields=question.requested_fields,

@@ -2,16 +2,16 @@
 
 from e2e.native_fixtures import tool_turns
 
-from resagent2_components import RegisteredArtifactReader
-from resagent2_components.literature import LiteraturePaper
-from resagent2_components.literature.fulltext import PdfText
-from resagent2_contracts import (
+from sciagent_components import RegisteredArtifactReader
+from sciagent_components.literature import LiteraturePaper
+from sciagent_components.literature.fulltext import PdfText
+from sciagent_contracts import (
     AgentOwner, AgentPermissions, AgentRequest, ArtifactCandidate, ScientificOpinion,
     TaskBudget, task_session_id,
 )
-from resagent2_orchestrator import ArtifactRegistry
-from resagent2_runtime import ScriptedLLMClient
-from resagent2_scientific import ScientificAgent
+from sciagent_orchestrator import ArtifactRegistry
+from sciagent_runtime import ScriptedLLMClient
+from sciagent_scientific import ScientificAgent
 
 
 def test_injected_parser_reads_frozen_pdf_and_registers_its_text(tmp_path):

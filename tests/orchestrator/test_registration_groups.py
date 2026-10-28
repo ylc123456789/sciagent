@@ -9,15 +9,15 @@ from urllib.request import url2pathname
 
 import pytest
 
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner, AgentResult, ArtifactCandidate, ResearchRequest, RunBudget,
     RunPermissions, WorkspaceGrant,
 )
-from resagent2_orchestrator import ArtifactRegistrationError, ArtifactRegistry, JsonRunStore, ResearchRun
-from resagent2_orchestrator import artifacts as implementation
-from resagent2_orchestrator.handoffs import receive_artifacts
-from resagent2_runtime.budget import DeadlineExceededError, execution_budget
-from resagent2_runtime.cancellation import CancellationToken, OperationCancelled, bind_cancellation
+from sciagent_orchestrator import ArtifactRegistrationError, ArtifactRegistry, JsonRunStore, ResearchRun
+from sciagent_orchestrator import artifacts as implementation
+from sciagent_orchestrator.handoffs import receive_artifacts
+from sciagent_runtime.budget import DeadlineExceededError, execution_budget
+from sciagent_runtime.cancellation import CancellationToken, OperationCancelled, bind_cancellation
 
 
 RUN_ID = "run_registration_group"

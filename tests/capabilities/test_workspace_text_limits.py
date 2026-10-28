@@ -6,16 +6,16 @@ from pathlib import Path
 
 import pytest
 
-from resagent2_capabilities import (
+from sciagent_capabilities import (
     CreateFileTool,
     ReadFileTool,
     ReplaceTextTool,
     SearchTextTool,
 )
-from resagent2_components import WorkspaceBoundary, WorkspacePermissionError
-from resagent2_components.text import MAX_WORKSPACE_TEXT_BYTES
-from resagent2_contracts import AgentOwner, WorkspaceAccess, WorkspaceGrant
-from resagent2_runtime import AgentState
+from sciagent_components import WorkspaceBoundary, WorkspacePermissionError
+from sciagent_components.text import MAX_WORKSPACE_TEXT_BYTES
+from sciagent_contracts import AgentOwner, WorkspaceAccess, WorkspaceGrant
+from sciagent_runtime import AgentState
 
 
 def _state():
@@ -210,7 +210,7 @@ def test_replace_preserves_unmodified_newlines_and_permissions(tmp_path):
 
 
 def test_search_reports_large_non_text_and_unreadable_files(tmp_path, monkeypatch):
-    from resagent2_capabilities.workspace import search_text
+    from sciagent_capabilities.workspace import search_text
 
     (tmp_path / "large.txt").write_bytes(b"needle" * 5)
     (tmp_path / "nul.bin").write_bytes(b"needle\x00")

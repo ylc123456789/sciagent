@@ -1,18 +1,18 @@
 """Tests for the Phase 7.5 ResearchController (DEVELOPMENT_PLAN §7.5)."""
-from resagent2_executor import default_execution_registry
+from sciagent_executor import default_execution_registry
 from e2e.scheduler_fixtures import executor_bindings
 from control_fixtures import question_signal, ScopedScriptedModulePort, ParentQuestionClient
 
 from e2e.native_fixtures import tool_turn, tool_turns
 
-from resagent2_contracts import RunPermissions, ExecutionLimits
+from sciagent_contracts import RunPermissions, ExecutionLimits
 
 from datetime import UTC, datetime
 import json
 
 import pytest
 
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner,
     AgentResult,
     ArtifactCandidate,
@@ -42,7 +42,7 @@ from resagent2_contracts import (
     WorkflowPatch,
     WorkflowProposal,
 )
-from resagent2_orchestrator import (
+from sciagent_orchestrator import (
     DeterministicWorkInterpreter,
     CompilationError,
     CompilationResult,
@@ -56,9 +56,9 @@ from resagent2_orchestrator import (
     ScriptedModulePort,
     WorkflowScheduler,
 )
-from resagent2_runtime import InMemorySessionStore, JsonSessionStore, PromptLLMClient, ScriptedLLMClient
-from resagent2_scientific import ScientificAgent
-from resagent2_orchestrator.handoffs import read_json, system_artifact
+from sciagent_runtime import InMemorySessionStore, JsonSessionStore, PromptLLMClient, ScriptedLLMClient
+from sciagent_scientific import ScientificAgent
+from sciagent_orchestrator.handoffs import read_json, system_artifact
 
 NOW = datetime(2026, 8, 28, tzinfo=UTC)
 
@@ -76,8 +76,8 @@ def _answer_projection(answer):
 @pytest.fixture
 def run_clock(monkeypatch):
     from datetime import timedelta
-    from resagent2_orchestrator import controller as controller_module
-    from resagent2_orchestrator import scheduler as scheduler_module
+    from sciagent_orchestrator import controller as controller_module
+    from sciagent_orchestrator import scheduler as scheduler_module
 
     class Clock:
         value = datetime.now(UTC)
@@ -92,13 +92,13 @@ def run_clock(monkeypatch):
 
     monkeypatch.setattr(controller_module, "datetime", Clock)
     monkeypatch.setattr(scheduler_module, "datetime", Clock)
-    monkeypatch.setattr("resagent2_runtime.loop.datetime", Clock)
+    monkeypatch.setattr("sciagent_runtime.loop.datetime", Clock)
     return Clock
 
 
 def test_user_wait_is_excluded_after_restart_without_resetting_budget(tmp_path, run_clock):
     from datetime import timedelta
-    from resagent2_orchestrator import OrchestrationError
+    from sciagent_orchestrator import OrchestrationError
 
     ask = {
         "tool": "ask_user",
@@ -167,8 +167,8 @@ def test_user_wait_is_excluded_after_restart_without_resetting_budget(tmp_path, 
 
 
 def test_repeated_interrupt_preserves_manual_wait_after_restart(tmp_path, run_clock):
-    from resagent2_runtime.cancellation import current_cancellation
-    from resagent2_runtime.controls import RunControlInbox
+    from sciagent_runtime.cancellation import current_cancellation
+    from sciagent_runtime.controls import RunControlInbox
 
     class TimedClient(ScriptedLLMClient):
         def next_tool_call(self, *args, **kwargs):
@@ -213,7 +213,7 @@ def test_repeated_interrupt_preserves_manual_wait_after_restart(tmp_path, run_cl
 
 
 def test_interrupt_waiting_root_question_counts_overlap_once(tmp_path, run_clock):
-    from resagent2_runtime.controls import RunControlInbox
+    from sciagent_runtime.controls import RunControlInbox
 
     class TimedClient(ScriptedLLMClient):
         def next_tool_call(self, *args, **kwargs):
@@ -251,7 +251,7 @@ def test_interrupt_waiting_root_question_counts_overlap_once(tmp_path, run_clock
 
 
 def test_interrupt_cancelled_child_question_settles_wait_before_manual_pause(tmp_path, run_clock):
-    from resagent2_runtime.controls import RunControlInbox
+    from sciagent_runtime.controls import RunControlInbox
 
     controller = build_controller(actions=[
         request_work_action(), finish_action(limitations=["The interrupted task remains incomplete"]),
@@ -308,7 +308,7 @@ def test_task_wait_uses_same_clock_and_refreshes_resources(run_clock):
     assert completed.user_wait_seconds == 86400
     assert port.requests[-1].budget.max_llm_calls == 47
     assert port.requests[-1].budget.timeout_seconds == 60
-    from resagent2_orchestrator.handoffs import read_json
+    from sciagent_orchestrator.handoffs import read_json
     catalog = next(ref for ref in port.requests[-1].input_artifacts if ref.kind == "dataset_catalog")
     assert read_json(catalog)["datasets"] == [ref.model_dump(mode="json") for ref in source.refs]
     assert port.requests[-1].parent_session_id == attempt.session.id
@@ -450,7 +450,7 @@ def test_direct_conclusion_without_work() -> None:
 
 
 def test_run_creation_freezes_grants_before_any_work_request(tmp_path):
-    from resagent2_contracts import WorkspaceAccess, WorkspaceSpec
+    from sciagent_contracts import WorkspaceAccess, WorkspaceSpec
     controller = build_controller(actions=[{"tool": "ask_user", "arguments": {
         "assessment": {"statement": "Need readiness"}, "text": "Ready?", "requested_fields": ["ready"]}}, request_work_action(), finish_action()])
     original = WorkspaceSpec(workspace_id="ws_main", source_kind="local", location=str(tmp_path / "original"),
@@ -559,7 +559,7 @@ def test_single_work_cycle_completes() -> None:
     assert child_work(run)[0].status.value == "consumed"
     # The WorkOutcome must carry the real execution summary, not the task goal.
     report_id = child_work(run)[0].outcome.tasks[0].attempts[0].report_artifact_id
-    from resagent2_components import RegisteredArtifactReader
+    from sciagent_components import RegisteredArtifactReader
     assert RegisteredArtifactReader(list(run.artifacts.values()), run_id=run.run_id).read_text(report_id)["content"] == "done"
 
 
@@ -725,7 +725,7 @@ def test_newly_registered_dataset_is_added_when_answer_resumes_run() -> None:
 
 
 def test_catalog_refresh_survives_controller_restart_and_verbal_confirmation(tmp_path):
-    from resagent2_components import (
+    from sciagent_components import (
         DatasetCatalog,
         ResourceLayout,
     )
@@ -864,7 +864,7 @@ def test_task_question_resumes_same_attempt_via_controller() -> None:
     assert task.attempts[0].status.value == "completed"
     assert child_work(run)[0].status.value == "consumed"
     resumed_request = scheduler.bindings["executor"].port.requests[-1]
-    from resagent2_orchestrator.handoffs import read_json
+    from sciagent_orchestrator.handoffs import read_json
     answers = resumed_request.user_answers
     assert len(answers) == 1 and answers[0].source == "parent"
     assert answers[0].question_text == paused.pending_question.text
@@ -1172,7 +1172,7 @@ def test_untrusted_reading_log_does_not_control_run_completion() -> None:
         """A ScientificPort that reports an observed id that was never registered."""
 
         def __init__(self):
-            from resagent2_scientific import ScientificAgent
+            from sciagent_scientific import ScientificAgent
 
             self.agent = ScientificAgent(
                 ParentQuestionClient(tool_turns([request_work_action(), finish_action()])),
@@ -1339,7 +1339,7 @@ def test_real_restart_recovers_paused_scientific_session(tmp_path) -> None:
 
 @pytest.mark.parametrize("comment", ["", " 业务反馈必须放在字段答案中\n "])
 def test_business_operation_comment_is_rejected_before_persisting_or_resuming(tmp_path, comment):
-    from resagent2_orchestrator import OrchestrationError
+    from sciagent_orchestrator import OrchestrationError
 
     store = JsonRunStore(tmp_path / "runs")
     sessions = JsonSessionStore(tmp_path / "sessions")
@@ -1363,7 +1363,7 @@ def test_business_operation_comment_is_rejected_before_persisting_or_resuming(tm
 
 
 def test_restarted_generic_answers_stay_paired_with_their_own_questions(tmp_path):
-    from resagent2_orchestrator import OrchestrationError
+    from sciagent_orchestrator import OrchestrationError
 
     def ask(text):
         return {"tool": "ask_user", "arguments": {"assessment": {"statement": "Need a user decision"}, 'text': text, 'requested_fields': ['answer']}}
@@ -1490,7 +1490,7 @@ def test_compiling_restart_recompiles_without_workflow() -> None:
 
 
 def test_compiler_llm_calls_enter_the_run_ledger() -> None:
-    from resagent2_runtime.budget import current_budget
+    from sciagent_runtime.budget import current_budget
     class _CountingCompiler:
         def compile(self, request, *, current, registry, limits, workspaces=None):
             scope = current_budget()
@@ -1528,7 +1528,7 @@ def test_compiler_llm_calls_enter_the_run_ledger() -> None:
 
 @pytest.mark.parametrize("usage_known", [True, False])
 def test_failed_compiler_usage_comes_from_reservations(tmp_path, usage_known) -> None:
-    from resagent2_runtime.budget import current_budget
+    from sciagent_runtime.budget import current_budget
     class _FailingCompiler:
         # A stale implementation attribute must never override invocation usage.
         llm_calls = 99

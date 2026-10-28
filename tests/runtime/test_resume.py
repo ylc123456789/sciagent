@@ -1,11 +1,11 @@
-from resagent2_runtime.tool_calling import contract_fingerprint, native_tool_schemas
+from sciagent_runtime.tool_calling import contract_fingerprint, native_tool_schemas
 import json
 from datetime import UTC, datetime
 
 import pytest
 
 from e2e.native_fixtures import tool_turns
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner,
     AgentPermissions,
     AgentRequest,
@@ -13,7 +13,7 @@ from resagent2_contracts import (
     SessionStatus,
     TaskBudget,
 )
-from resagent2_runtime import (
+from sciagent_runtime import (
     AgentAction,
     AgentDefinition,
     AgentLoop,
@@ -30,7 +30,7 @@ from resagent2_runtime import (
 
 
 def test_json_session_round_trip_records_current_schema(tmp_path):
-    from resagent2_contracts import SCHEMA_VERSION
+    from sciagent_contracts import SCHEMA_VERSION
 
     now = datetime.now(UTC)
     state = AgentState(
@@ -334,7 +334,7 @@ def _resume_fixture(owner):
     "future_schema", "invalid_state", "non_object",
 ])
 def test_resume_persisted_load_error_is_structured_without_rewriting_record(tmp_path, owner, damage):
-    from resagent2_runtime.store import SessionLoadError
+    from sciagent_runtime.store import SessionLoadError
 
     definition, request, state = _resume_fixture(owner)
     value = state.model_dump(mode="json")
@@ -378,7 +378,7 @@ def test_resume_persisted_load_error_is_structured_without_rewriting_record(tmp_
 
 def test_resume_unreadable_record_is_structured_without_rewriting_record(tmp_path, monkeypatch):
     from pathlib import Path
-    from resagent2_runtime.store import SessionLoadError
+    from sciagent_runtime.store import SessionLoadError
 
     definition, request, state = _resume_fixture(AgentOwner.EXECUTOR)
     store = JsonSessionStore(tmp_path)
@@ -421,5 +421,5 @@ def test_resume_does_not_hide_custom_store_programming_errors(error_type):
 
 
 def _answer(question):
-    from resagent2_contracts import RecordedAnswer
+    from sciagent_contracts import RecordedAnswer
     return RecordedAnswer(question_id=question.id, question_text=question.text, requested_fields=question.requested_fields, options=question.options, values={field:"demo" for field in question.requested_fields}, answered_at=datetime.now(UTC), run_id=question.run_id, session_id=question.session_id, task_id=question.task_id, attempt_number=question.attempt_number)

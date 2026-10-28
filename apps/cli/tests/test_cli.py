@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from resagent2_contracts import WorkspaceAccess, RunPermissions, ExecutionLimits
+from sciagent_contracts import WorkspaceAccess, RunPermissions, ExecutionLimits
 
 from datetime import UTC, datetime
 from pathlib import Path
@@ -8,10 +8,10 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from resagent2_cli import composition
-from resagent2_cli.composition import CliApplication, build_application
-from resagent2_cli.main import EXIT_COMPLETED, EXIT_PAUSED, cli
-from resagent2_contracts import (
+from sciagent_cli import composition
+from sciagent_cli.composition import CliApplication, build_application
+from sciagent_cli.main import EXIT_COMPLETED, EXIT_PAUSED, cli
+from sciagent_contracts import (
     WorkflowAgentKind,
     ActionSnapshot,
     DatasetRef,
@@ -23,9 +23,9 @@ from resagent2_contracts import (
     WorkspaceSourceKind,
     WorkspaceSpec,
 )
-from resagent2_orchestrator import InMemoryRunStore, JsonRunStore, ResearchRun
-from resagent2_runtime import AgentAction
-from resagent2_cli.main import _parser, _specs_for_existing_run
+from sciagent_orchestrator import InMemoryRunStore, JsonRunStore, ResearchRun
+from sciagent_runtime import AgentAction
+from sciagent_cli.main import _parser, _specs_for_existing_run
 
 
 def _request(goal: str = "test goal") -> ResearchRequest:
@@ -74,10 +74,10 @@ class _Builder:
 
 
 def test_composition_reads_explicit_model_and_component_context_limits(monkeypatch):
-    monkeypatch.setenv("RESAGENT2_CONTEXT_WINDOW", "32000")
-    monkeypatch.setenv("RESAGENT2_RESERVED_OUTPUT_TOKENS", "3000")
-    monkeypatch.setenv("RESAGENT2_CONTEXT_SAFETY_MARGIN_TOKENS", "1000")
-    monkeypatch.setenv("RESAGENT2_CODING_CONTEXT_TOKENS", "12000")
+    monkeypatch.setenv("SCIAGENT_CONTEXT_WINDOW", "32000")
+    monkeypatch.setenv("SCIAGENT_RESERVED_OUTPUT_TOKENS", "3000")
+    monkeypatch.setenv("SCIAGENT_CONTEXT_SAFETY_MARGIN_TOKENS", "1000")
+    monkeypatch.setenv("SCIAGENT_CODING_CONTEXT_TOKENS", "12000")
 
     profile = composition._model_profile()
     assert profile.context_window == 32000
@@ -91,7 +91,7 @@ def test_agents_and_execution_presets_share_default_with_independent_overrides(m
         ("coding", 256_000), ("experiment", 256_000),
         ("scientific", 256_000),
     ):
-        name = f"RESAGENT2_{component.upper()}_CONTEXT_TOKENS"
+        name = f"SCIAGENT_{component.upper()}_CONTEXT_TOKENS"
         monkeypatch.delenv(name, raising=False)
         assert composition._component_context_limit(component) == default
         monkeypatch.setenv(name, "1024")
@@ -99,8 +99,8 @@ def test_agents_and_execution_presets_share_default_with_independent_overrides(m
 
 
 def test_fixed_compiler_has_no_model_client(tmp_path, monkeypatch):
-    from resagent2_orchestrator import FixedWorkflowCompiler
-    from resagent2_runtime import ScriptedLLMClient
+    from sciagent_orchestrator import FixedWorkflowCompiler
+    from sciagent_runtime import ScriptedLLMClient
 
     clients = []
 
@@ -344,7 +344,7 @@ def test_production_composition_loads_the_shared_dataset_catalog(
     (dataset_root / "catalog.json").write_text(
         '{"cifar10": "cifar-10"}', encoding="utf-8"
     )
-    monkeypatch.setenv("RESAGENT2_DATASET_ROOT", str(dataset_root))
+    monkeypatch.setenv("SCIAGENT_DATASET_ROOT", str(dataset_root))
 
     application = build_application(data_root=tmp_path / "data")
 
@@ -508,7 +508,7 @@ def test_retired_environment_flags_are_explicitly_rejected(flag):
 
 
 def test_python_requirement_uses_the_normal_constraint_channel():
-    from resagent2_cli.main import _request_from_args
+    from sciagent_cli.main import _request_from_args
 
     requirement = "Use Python 3.11 for this task; reuse /shared/envs/project if suitable."
     args = _parser().parse_args(["run", "--goal", "Execute the task", "--constraint", requirement])
@@ -519,7 +519,7 @@ def test_python_requirement_uses_the_normal_constraint_channel():
 
 @pytest.mark.parametrize("command", ["show", "resume", "answer"])
 def test_schema27_cli_recovery_refuses_without_mutating_evidence(tmp_path, command):
-    from resagent2_contracts import SCHEMA_VERSION
+    from sciagent_contracts import SCHEMA_VERSION
 
     store = JsonRunStore(tmp_path / "state")
     run = _run(RunStatus.PAUSED)
@@ -554,7 +554,7 @@ def test_run_persists_approval_mode_without_expanding_execute_grant(tmp_path, mo
 
 
 def test_run_defaults_to_manual_approval_and_resume_cannot_override_it():
-    from resagent2_cli.main import _request_from_args
+    from sciagent_cli.main import _request_from_args
 
     request = _request_from_args(_parser().parse_args(["run", "--goal", "Inspect"]))
     assert request.permissions.approval_mode == "manual"

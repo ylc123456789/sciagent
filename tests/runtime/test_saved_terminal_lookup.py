@@ -4,10 +4,10 @@ from datetime import UTC, datetime
 
 import pytest
 
-from resagent2_contracts import AgentResult, ModuleError, SessionRef, task_session_id
-from resagent2_runtime import AgentLoop, InMemorySessionStore, ScriptedLLMClient
-from resagent2_runtime.models import AgentState
-from resagent2_executor import NativeExecutorAgent
+from sciagent_contracts import AgentResult, ModuleError, SessionRef, task_session_id
+from sciagent_runtime import AgentLoop, InMemorySessionStore, ScriptedLLMClient
+from sciagent_runtime.models import AgentState
+from sciagent_executor import NativeExecutorAgent
 
 
 def state(status="completed", owner="executor"):
@@ -42,9 +42,9 @@ def test_native_lookup_never_prepares_invokes_or_mutates(tmp_path, monkeypatch, 
         raise AssertionError("terminal lookup must not prepare or execute work")
 
     monkeypatch.setattr(agent.loop, "run", forbidden)
-    monkeypatch.setattr("resagent2_components.RepoMaterializer.materialize", forbidden)
-    monkeypatch.setattr("resagent2_components.GitWorkspace.snapshot", forbidden)
-    monkeypatch.setattr("resagent2_components.GitWorkspace.write_patch_since", forbidden)
+    monkeypatch.setattr("sciagent_components.RepoMaterializer.materialize", forbidden)
+    monkeypatch.setattr("sciagent_components.GitWorkspace.snapshot", forbidden)
+    monkeypatch.setattr("sciagent_components.GitWorkspace.write_patch_since", forbidden)
     result = agent.read_terminal_result(run_id="run_lookup", task_id="task_lookup", attempt_number=1)
     assert client.contexts == []
     if status in {"completed", "failed"}:
@@ -85,8 +85,8 @@ def test_terminal_lookup_does_not_rebuild_unsaved_failure_diagnostics():
 
 def test_terminal_checkpoint_storage_failure_propagates_without_publishing_early_result():
     from e2e.native_fixtures import tool_turns
-    from resagent2_contracts import AgentRequest, TaskBudget
-    from resagent2_runtime import (
+    from sciagent_contracts import AgentRequest, TaskBudget
+    from sciagent_runtime import (
         AgentDefinition, AllowListPermissionPolicy, CompletionDecision, FinishTool,
     )
     class FailedTerminalStore(InMemorySessionStore):
@@ -119,7 +119,7 @@ def test_terminal_checkpoint_storage_failure_propagates_without_publishing_early
 
 @pytest.mark.parametrize("status", ["completed", "failed"])
 def test_native_lookup_rejects_foreign_session_payload_in_expected_file(tmp_path, monkeypatch, status):
-    from resagent2_runtime import JsonSessionStore
+    from sciagent_runtime import JsonSessionStore
     store = JsonSessionStore(tmp_path / "sessions")
     saved = state(status, owner="executor")
     expected_session_id = saved.session_id
@@ -141,9 +141,9 @@ def test_native_lookup_rejects_foreign_session_payload_in_expected_file(tmp_path
         raise AssertionError("mismatched Session lookup must not execute or write")
     monkeypatch.setattr(agent.loop, "run", forbidden)
     monkeypatch.setattr(store, "save", forbidden)
-    monkeypatch.setattr("resagent2_components.RepoMaterializer.materialize", forbidden)
-    monkeypatch.setattr("resagent2_components.GitWorkspace.snapshot", forbidden)
-    monkeypatch.setattr("resagent2_components.GitWorkspace.write_patch_since", forbidden)
+    monkeypatch.setattr("sciagent_components.RepoMaterializer.materialize", forbidden)
+    monkeypatch.setattr("sciagent_components.GitWorkspace.snapshot", forbidden)
+    monkeypatch.setattr("sciagent_components.GitWorkspace.write_patch_since", forbidden)
     with pytest.raises(ValueError, match="does not belong"):
         agent.read_terminal_result(run_id="run_lookup", task_id="task_lookup", attempt_number=1)
     assert client.contexts == []

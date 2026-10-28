@@ -5,8 +5,8 @@ from datetime import UTC, datetime
 import pytest
 from pydantic import ValidationError
 
-import resagent2_contracts as contracts
-from resagent2_contracts import (
+import sciagent_contracts as contracts
+from sciagent_contracts import (
     AgentOwner, AgentPermissions, AgentRequest, AgentResult, ArtifactCandidate,
     ArtifactRef, ControlSignal, ModuleError, QuestionDraft, RecordedAnswer,
     SessionRef, TaskBudget, TaskProposal, PendingQuestion, ControlOrigin, WorkResult,

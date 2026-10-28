@@ -3,7 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
-from resagent2_contracts import FutureArtifactBinding, TaskProposal, WorkflowPatch, WorkflowProposal
+from sciagent_contracts import FutureArtifactBinding, TaskProposal, WorkflowPatch, WorkflowProposal
 
 
 def candidate(kind, tasks):

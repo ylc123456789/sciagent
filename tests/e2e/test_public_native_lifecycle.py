@@ -9,14 +9,14 @@ from collections import Counter
 
 import httpx
 
-from resagent2_cli.main import EXIT_COMPLETED, EXIT_PAUSED, cli
-from resagent2_cli.shell import Shell
-from resagent2_cli.composition import build_application
-from resagent2_contracts import ArtifactIndexEntry
-from resagent2_coding import NativeCodingAgent
-from resagent2_experiment import NativeExperimentAgent
-from resagent2_orchestrator import JsonRunStore
-from resagent2_scientific import ScientificAgent
+from sciagent_cli.main import EXIT_COMPLETED, EXIT_PAUSED, cli
+from sciagent_cli.shell import Shell
+from sciagent_cli.composition import build_application
+from sciagent_contracts import ArtifactIndexEntry
+from sciagent_coding import NativeCodingAgent
+from sciagent_experiment import NativeExperimentAgent
+from sciagent_orchestrator import JsonRunStore
+from sciagent_scientific import ScientificAgent
 
 
 def test_cli_rebuilds_and_finishes_two_native_work_rounds(tmp_path, monkeypatch):
@@ -33,12 +33,12 @@ def test_cli_rebuilds_and_finishes_two_native_work_rounds(tmp_path, monkeypatch)
     store = JsonRunStore(data / "state")
     counts, requests, scientific_requests, scientific_agents = Counter(), [], [], []
     directories = []
-    monkeypatch.setenv("RESAGENT2_MODEL", "chain-test")
-    monkeypatch.setenv("RESAGENT2_API_BASE", "https://example.invalid/v1")
-    monkeypatch.setenv("RESAGENT2_API_KEY_ENV", "CHAIN_TEST_KEY")
+    monkeypatch.setenv("SCIAGENT_MODEL", "chain-test")
+    monkeypatch.setenv("SCIAGENT_API_BASE", "https://example.invalid/v1")
+    monkeypatch.setenv("SCIAGENT_API_KEY_ENV", "CHAIN_TEST_KEY")
     monkeypatch.setenv("CHAIN_TEST_KEY", "test-only")
-    monkeypatch.setenv("RESAGENT2_LLM_TRACE_LEVEL", "off")
-    monkeypatch.setenv("RESAGENT2_RESOURCE_ROOT", str(tmp_path / "resources"))
+    monkeypatch.setenv("SCIAGENT_LLM_TRACE_LEVEL", "off")
+    monkeypatch.setenv("SCIAGENT_RESOURCE_ROOT", str(tmp_path / "resources"))
     invoke = ScientificAgent.invoke
     def capture(self, request):
         scientific_requests.append(request)
@@ -176,7 +176,7 @@ def test_cli_rebuilds_and_finishes_two_native_work_rounds(tmp_path, monkeypatch)
         reason = "tool_calls"
         return httpx.Response(200, request=request, json={"choices": [{"finish_reason": reason, "message": message}]})
 
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", reply)
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", reply)
     assert cli(["run", "--run-id", run_id, "--goal", "Clean obsolete source and analyze existing accuracy",
                 "--workspace", str(repo), "--data-root", str(data), "--no-execute-commands",
                 "--max-llm-calls", "30", "--max-tasks", "3"]) == EXIT_PAUSED
@@ -229,7 +229,7 @@ def test_cli_rebuilds_and_finishes_two_native_work_rounds(tmp_path, monkeypatch)
         assert set(actual.attempts[0].artifact_ids) <= ids
         report_ref = final.artifacts[actual.attempts[0].report_artifact_id]
         assert report_ref.kind == "module_report" and report_ref.task_id == actual.task_id
-        from resagent2_components import RegisteredArtifactReader
+        from sciagent_components import RegisteredArtifactReader
         text = RegisteredArtifactReader([report_ref], run_id=run_id).read_text(report_ref.id)["content"]
         expected = "Removed obsolete source" if record == final.work_requests[1] else "Accuracy difference is 0.07"
         assert text == expected

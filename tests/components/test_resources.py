@@ -1,5 +1,5 @@
 
-from resagent2_contracts import WorkspaceAccess
+from sciagent_contracts import WorkspaceAccess
 import json
 import os
 import subprocess
@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from resagent2_components import (
+from sciagent_components import (
     DatasetCatalog,
     DatasetResolutionError,
     RepoMaterializer,
@@ -19,8 +19,8 @@ from resagent2_components import (
     dataset_env_overrides,
     resolve_dataset_refs,
 )
-from resagent2_components.process import _descendant_pids
-from resagent2_contracts import DatasetRef, WorkspaceSourceKind, WorkspaceSpec
+from sciagent_components.process import _descendant_pids
+from sciagent_contracts import DatasetRef, WorkspaceSourceKind, WorkspaceSpec
 
 
 def _init_repo(root: Path, *, commit_file: str = "tracked.txt") -> str:
@@ -298,7 +298,7 @@ def test_generated_source_forbids_location() -> None:
 
 
 def test_resource_layout_respects_resource_root_env(tmp_path, monkeypatch) -> None:
-    monkeypatch.setenv("RESAGENT2_RESOURCE_ROOT", str(tmp_path / "shared"))
+    monkeypatch.setenv("SCIAGENT_RESOURCE_ROOT", str(tmp_path / "shared"))
     layout = ResourceLayout.from_env(data_root=tmp_path / "data")
     assert layout.resource_root == tmp_path / "shared"
 
@@ -319,7 +319,7 @@ def test_resource_layout_accepts_independent_roots(tmp_path) -> None:
 
 
 def test_resource_layout_env_vars_override(tmp_path, monkeypatch) -> None:
-    monkeypatch.setenv("RESAGENT2_DATASET_ROOT", str(tmp_path / "ds"))
+    monkeypatch.setenv("SCIAGENT_DATASET_ROOT", str(tmp_path / "ds"))
 
     layout = ResourceLayout.from_env(data_root=tmp_path / "data")
 
@@ -328,8 +328,8 @@ def test_resource_layout_env_vars_override(tmp_path, monkeypatch) -> None:
 
 
 def test_resource_layout_reads_data_root_env(tmp_path, monkeypatch) -> None:
-    monkeypatch.delenv("RESAGENT2_RESOURCE_ROOT", raising=False)
-    monkeypatch.setenv("RESAGENT2_DATA_ROOT", str(tmp_path / "data"))
+    monkeypatch.delenv("SCIAGENT_RESOURCE_ROOT", raising=False)
+    monkeypatch.setenv("SCIAGENT_DATA_ROOT", str(tmp_path / "data"))
 
     layout = ResourceLayout.from_env()
 
@@ -337,8 +337,8 @@ def test_resource_layout_reads_data_root_env(tmp_path, monkeypatch) -> None:
 
 
 def test_resource_layout_defaults_to_data_root_resources(tmp_path, monkeypatch) -> None:
-    monkeypatch.delenv("RESAGENT2_RESOURCE_ROOT", raising=False)
-    monkeypatch.delenv("RESAGENT2_DATASET_ROOT", raising=False)
+    monkeypatch.delenv("SCIAGENT_RESOURCE_ROOT", raising=False)
+    monkeypatch.delenv("SCIAGENT_DATASET_ROOT", raising=False)
 
     layout = ResourceLayout.from_env(data_root=tmp_path / "data")
 

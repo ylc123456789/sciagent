@@ -8,16 +8,16 @@ from types import SimpleNamespace
 import pytest
 
 from e2e.native_fixtures import tool_turns
-from resagent2_capabilities import RunShellInput, RunShellTool
-from resagent2_capabilities.permissions import OperationPermissionPolicy
-from resagent2_components.approval_review import LLMPermissionReviewer
-from resagent2_components.process import ProcessRunner
-from resagent2_components.workspace import WorkspaceBoundary
-from resagent2_contracts import (
+from sciagent_capabilities import RunShellInput, RunShellTool
+from sciagent_capabilities.permissions import OperationPermissionPolicy
+from sciagent_components.approval_review import LLMPermissionReviewer
+from sciagent_components.process import ProcessRunner
+from sciagent_components.workspace import WorkspaceBoundary
+from sciagent_contracts import (
     AgentOwner, AgentPermissions, AgentRequest, RecordedAnswer, TaskBudget,
     WorkspaceAccess, WorkspaceGrant,
 )
-from resagent2_runtime import (
+from sciagent_runtime import (
     AgentDefinition, AgentLoop, AgentState, CompletionDecision, FinishTool,
     JsonSessionStore, ScriptedLLMClient,
 )
@@ -99,7 +99,7 @@ def case(tmp_path, monkeypatch):
     return SimpleNamespace(
         root=root, boundary=boundary, request=request, launches=launches,
         store=JsonSessionStore(tmp_path / "sessions"),
-        tool=RunShellTool(runner, timeout_seconds=5, log_dir=str(root / ".resagent2" / "shell")),
+        tool=RunShellTool(runner, timeout_seconds=5, log_dir=str(root / ".sciagent" / "shell")),
     )
 
 

@@ -4,7 +4,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from resagent2_contracts import AgentOwner, ArtifactRef, AttemptStatus, WorkflowAgentKind, RunStatus, TaskStatus
+from sciagent_contracts import AgentOwner, ArtifactRef, AttemptStatus, WorkflowAgentKind, RunStatus, TaskStatus
 
 from e2e.real_e2e import _application, _literature_succeeded, _real_e2e_succeeded, _repair_succeeded
 
@@ -179,18 +179,18 @@ def test_repair_rejects_incomplete_recovery(tmp_path, missing) -> None:
 
 
 def test_real_e2e_uses_the_configured_current_model(monkeypatch, tmp_path) -> None:
-    monkeypatch.setenv("RESAGENT2_WEB_SEARCH_PROVIDER", "off")
-    monkeypatch.delenv("RESAGENT2_MODEL", raising=False)
+    monkeypatch.setenv("SCIAGENT_WEB_SEARCH_PROVIDER", "off")
+    monkeypatch.delenv("SCIAGENT_MODEL", raising=False)
     assert _application(tmp_path / "default").controller.scientific_port.llm_client.model == "deepseek-v4-flash"
 
-    monkeypatch.setenv("RESAGENT2_MODEL", "deepseek-v4-pro")
+    monkeypatch.setenv("SCIAGENT_MODEL", "deepseek-v4-pro")
     assert _application(tmp_path / "configured").controller.scientific_port.llm_client.model == "deepseek-v4-pro"
 
 
 def test_direct_agent_uses_the_shared_declared_dataset_context(tmp_path):
     from e2e.real_e2e import _dataset_context
-    from resagent2_components import ResourceLayout, request_dataset_refs
-    from resagent2_contracts import AgentPermissions, AgentRequest, DatasetRef, TaskBudget
+    from sciagent_components import ResourceLayout, request_dataset_refs
+    from sciagent_contracts import AgentPermissions, AgentRequest, DatasetRef, TaskBudget
     layout = ResourceLayout(resource_root=tmp_path / "resources")
     layout.dataset_root.mkdir(parents=True)
     catalog = layout.dataset_root / "catalog.json"

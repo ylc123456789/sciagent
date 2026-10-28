@@ -2,10 +2,10 @@
 
 import pytest
 
-from resagent2_components import DeepSeekWebSearchBackend, WebSearchError
-from resagent2_runtime.budget import BudgetExhaustedError, DeadlineExceededError
-from resagent2_runtime.cancellation import OperationCancelled
-from resagent2_runtime.service_request import ServiceRequestError, ServiceRequestHTTPError
+from sciagent_components import DeepSeekWebSearchBackend, WebSearchError
+from sciagent_runtime.budget import BudgetExhaustedError, DeadlineExceededError
+from sciagent_runtime.cancellation import OperationCancelled
+from sciagent_runtime.service_request import ServiceRequestError, ServiceRequestHTTPError
 
 
 URL = "https://example.test/source"

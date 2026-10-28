@@ -1,31 +1,31 @@
-from resagent2_executor import default_execution_registry
+from sciagent_executor import default_execution_registry
 
 from e2e.native_fixtures import tool_turns
 
-from resagent2_contracts import WorkspaceAccess, RunPermissions, ExecutionLimits
+from sciagent_contracts import WorkspaceAccess, RunPermissions, ExecutionLimits
 import json
 """Exercise real analysis artifacts across native Agent and controller boundaries."""
 
 import subprocess
 import json
 
-from resagent2_components import (
+from sciagent_components import (
     RegisteredArtifactReader,
     ResourceLayout,
 )
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner, WorkflowAgentKind, WorkflowAgentRegistry,
     ResearchRequest, RunBudget, RunStatus,
     FutureArtifactBinding, TaskProposal, WorkflowPatch, WorkspaceSourceKind, WorkspaceSpec,
 )
-from resagent2_coding import NativeCodingAgent
-from resagent2_orchestrator import (
+from sciagent_coding import NativeCodingAgent
+from sciagent_orchestrator import (
     DeterministicWorkInterpreter,
     CompilationResult, JsonRunStore, ModuleBinding, ResearchController,
     WorkflowScheduler,
 )
-from resagent2_runtime import JsonSessionStore, ScriptedLLMClient
-from resagent2_scientific import ScientificAgent
+from sciagent_runtime import JsonSessionStore, ScriptedLLMClient
+from sciagent_scientific import ScientificAgent
 
 
 def test_analysis_reaches_dependent_agent_and_scientific_through_frozen_artifact(tmp_path):

@@ -6,8 +6,8 @@ from control_fixtures import question_signal, ScopedScriptedModulePort
 
 from e2e.native_fixtures import tool_turns
 
-from resagent2_contracts import RunPermissions, ExecutionLimits
-from resagent2_runtime.budget import current_budget
+from sciagent_contracts import RunPermissions, ExecutionLimits
+from sciagent_runtime.budget import current_budget
 
 from datetime import UTC, datetime
 from pathlib import Path
@@ -16,7 +16,7 @@ from urllib.request import url2pathname
 
 import pytest
 
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner,
     AgentResult,
     ArtifactCandidate,
@@ -37,7 +37,7 @@ from resagent2_contracts import (
     WorkflowAgentKind,
     WorkflowProposal,
 )
-from resagent2_orchestrator import (
+from sciagent_orchestrator import (
     InMemoryRunStore, ModuleBinding, ResearchRun, ScriptedModulePort, WorkflowScheduler,
 )
 
@@ -206,10 +206,10 @@ def test_failed_experiment_keeps_execution_record_when_candidate_is_missing(
     import sys
     from pathlib import Path
 
-    from resagent2_contracts import WorkspaceAccess, WorkspaceSpec
-    from resagent2_experiment import NativeExperimentAgent
-    from resagent2_orchestrator.handoffs import read_json, system_artifact
-    from resagent2_runtime import ScriptedLLMClient
+    from sciagent_contracts import WorkspaceAccess, WorkspaceSpec
+    from sciagent_experiment import NativeExperimentAgent
+    from sciagent_orchestrator.handoffs import read_json, system_artifact
+    from sciagent_runtime import ScriptedLLMClient
 
     workspace = tmp_path / "workspace"
     workspace.mkdir()

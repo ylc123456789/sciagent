@@ -1,5 +1,5 @@
 """Exercise durable allocation and returned-result recovery at actual write boundaries."""
-from resagent2_executor import default_execution_registry
+from sciagent_executor import default_execution_registry
 from e2e.scheduler_fixtures import executor_bindings
 
 from scheduler_fixtures import accept_proposal, add_root_owner, execution_tasks
@@ -10,18 +10,18 @@ from urllib.request import url2pathname
 
 import pytest
 
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner, AgentResult, ArtifactCandidate, ArtifactImport, ResearchRequest,
     RunBudget, RunPermissions, TaskProposal, WorkflowProposal, WorkspaceGrant,
     WorkflowAgentRegistry,
     WorkRequest, WorkRequestDraft,
 )
-from resagent2_orchestrator import (
+from sciagent_orchestrator import (
     ArtifactRegistry, JsonRunStore, ModuleBinding, ResearchRun, WorkflowScheduler,
     ScientificArtifactRegistration,
     ResearchController, DeterministicWorkInterpreter,
 )
-from resagent2_orchestrator import artifacts as artifacts_module
+from sciagent_orchestrator import artifacts as artifacts_module
 
 
 class ProcessCrash(BaseException):
@@ -171,7 +171,7 @@ def test_returned_result_recovery_does_not_call_agent_or_allocate_outputs_again(
 @pytest.mark.parametrize("boundary", ["frozen", "registered"])
 def test_interrupted_execution_record_registration_recovery_reuses_identity(tmp_path, monkeypatch, boundary):
     import json
-    from resagent2_contracts import AttemptStatus, ModuleError, SessionRef, TaskStatus
+    from sciagent_contracts import AttemptStatus, ModuleError, SessionRef, TaskStatus
 
     store, registry = setup_run(tmp_path)
     facts = {"results": [{"operation": "process", "command": "python train.py", "pid": 123,
@@ -234,7 +234,7 @@ def test_interrupted_execution_record_registration_recovery_reuses_identity(tmp_
 
 def test_execution_record_snapshots_reuse_only_equal_bytes_and_producing_attempt(tmp_path):
     import json
-    from resagent2_orchestrator import ArtifactRegistrationError
+    from sciagent_orchestrator import ArtifactRegistrationError
 
     store, registry = setup_run(tmp_path)
     first = {"command": "python prepare.py", "exit_code": 0, "timed_out": False,
@@ -315,7 +315,7 @@ def test_registered_material_corruption_is_not_treated_as_unused_allocation(tmp_
 
 @pytest.mark.parametrize("entry", ["import", "paper"])
 def test_initialization_recovers_original_identity_before_first_agent_call(tmp_path, monkeypatch, entry):
-    from resagent2_components.literature import LiteraturePaper, PreparedLiteratureImport
+    from sciagent_components.literature import LiteraturePaper, PreparedLiteratureImport
     class StopAfterPreparation(BaseException):
         pass
     class Port:
@@ -358,8 +358,8 @@ def test_initialization_recovers_original_identity_before_first_agent_call(tmp_p
 @pytest.mark.parametrize("boundary", ["allocated", "frozen"])
 def test_final_receiving_error_keeps_durable_registration_facts(tmp_path, monkeypatch, boundary):
     from e2e.native_fixtures import tool_turns
-    from resagent2_runtime import JsonSessionStore, ScriptedLLMClient
-    from resagent2_scientific import ScientificAgent
+    from sciagent_runtime import JsonSessionStore, ScriptedLLMClient
+    from sciagent_scientific import ScientificAgent
     store = JsonRunStore(tmp_path / "state")
     scheduler = WorkflowScheduler(bindings=executor_bindings({}), store=store, artifact_root=tmp_path / "artifacts")
     scientific = ScientificAgent(ScriptedLLMClient(tool_turns([{"tool": "finish", "arguments": {
@@ -408,8 +408,8 @@ def test_final_receiving_error_keeps_durable_registration_facts(tmp_path, monkey
 
 @pytest.mark.parametrize("boundary", ["allocated", "frozen", "accepted"])
 def test_compiler_result_is_reused_after_workflow_registration_interruption(tmp_path, monkeypatch, boundary):
-    from resagent2_orchestrator import CompilationResult
-    from resagent2_contracts import WorkflowPatch
+    from sciagent_orchestrator import CompilationResult
+    from sciagent_contracts import WorkflowPatch
     store, registry = setup_run(tmp_path)
     now = datetime.now(UTC)
     run = store.load("run_recovery")
@@ -482,10 +482,10 @@ def test_compiler_result_is_reused_after_workflow_registration_interruption(tmp_
 
 def test_rejected_compilation_does_not_replace_the_next_work_request_graph(tmp_path):
     from e2e.native_fixtures import tool_turns
-    from resagent2_orchestrator import CompilationResult
-    from resagent2_contracts import WorkflowPatch
-    from resagent2_runtime import JsonSessionStore, ScriptedLLMClient
-    from resagent2_scientific import ScientificAgent
+    from sciagent_orchestrator import CompilationResult
+    from sciagent_contracts import WorkflowPatch
+    from sciagent_runtime import JsonSessionStore, ScriptedLLMClient
+    from sciagent_scientific import ScientificAgent
     class Compiler:
         work_ids = []
         def compile(self, request, **kwargs):
@@ -525,7 +525,7 @@ def test_rejected_compilation_does_not_replace_the_next_work_request_graph(tmp_p
 
 
 def test_final_candidates_have_distinct_slots_without_weakening_immutability(tmp_path):
-    from resagent2_orchestrator.artifacts import ArtifactRegistrationError
+    from sciagent_orchestrator.artifacts import ArtifactRegistrationError
     store, registry = setup_run(tmp_path)
     candidate = ArtifactCandidate(kind="final_report", path="final_report.md",
         media_type="text/markdown", summary="Final report", metadata={"source_type": "final_report"})
@@ -548,7 +548,7 @@ def test_final_candidates_have_distinct_slots_without_weakening_immutability(tmp
 
 @pytest.mark.parametrize("damage", ["changed", "changed_unindexed", "missing"])
 def test_retiring_final_report_preserves_integrity_checks(tmp_path, damage):
-    from resagent2_orchestrator.artifacts import ArtifactRegistrationError
+    from sciagent_orchestrator.artifacts import ArtifactRegistrationError
     store, registry = setup_run(tmp_path)
     candidate = ArtifactCandidate(kind="final_report", path="final_report.md",
         media_type="text/markdown", summary="Final report", metadata={"source_type": "final_report"})

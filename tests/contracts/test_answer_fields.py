@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 import pytest
 from pydantic import ValidationError
 
-from resagent2_contracts import PendingQuestion, QuestionDraft, RecordedAnswer, UserAnswer
+from sciagent_contracts import PendingQuestion, QuestionDraft, RecordedAnswer, UserAnswer
 
 
 def _messages(name: str):

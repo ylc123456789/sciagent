@@ -5,7 +5,7 @@ import json
 import pytest
 from pydantic import ValidationError
 
-from resagent2_components.literature import load_literature_manifest
+from sciagent_components.literature import load_literature_manifest
 
 
 def manifest(path, papers):
@@ -42,7 +42,7 @@ def test_metadata_only_has_stable_identity_and_does_not_download(tmp_path):
     second, = load_literature_manifest(source)
     assert first == second and first.pdf_path is None
     assert first.paper.paper_id.startswith("external:")
-    assert first.paper.source_url.startswith("urn:resagent2:paper:")
+    assert first.paper.source_url.startswith("urn:sciagent:paper:")
     assert first.paper.pdf_url == "https://example.org/missing.pdf"
 
 

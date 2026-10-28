@@ -2,8 +2,6 @@
 
 sciagent 是一个面向科研任务的 Agent 框架开发预览版。它将研究判断、代码与实验执行、任务管理分开组织，支持通过命令行运行、查看和继续研究任务。
 
-当前仓库名为 `sciagent`，Python 包名、命令和环境变量仍沿用 `resagent2`。例如，启动命令是 `resagent2`，Conda 环境名是 `ResAgent2`。
-
 ## 能做什么
 
 - 由 Scientific Agent 阅读材料、提出工作需求，并根据证据形成结论。
@@ -22,8 +20,8 @@ sciagent 是一个面向科研任务的 Agent 框架开发预览版。它将研�
 git clone https://github.com/ylc123456789/sciagent.git
 cd sciagent
 conda env create -f environment.yml
-conda activate ResAgent2
-resagent2 --help
+conda activate sciagent
+sciagent --help
 ```
 
 核心框架不要求 GPU。训练任务需要的 CUDA、深度学习库、数据与算力由具体任务决定。
@@ -40,13 +38,13 @@ python -m e2e.mock_e2e
 
 ## 运行真实任务
 
-配置模型密钥。默认模型服务是 DeepSeek，模型名为 `deepseek-v4-flash`，必须支持原生工具调用。
+配置模型密钥和运行记录目录。默认模型服务是 DeepSeek，模型名为 `deepseek-v4-flash`，必须支持原生工具调用。
 
 ```bash
 export DEEPSEEK_API_KEY="YOUR_API_KEY"
-export RESAGENT2_DATA_ROOT="$HOME/sciagent-data"
+export SCIAGENT_DATA_ROOT="$HOME/sciagent-data"
 
-resagent2 run \
+sciagent run \
   --workspace /absolute/path/to/project \
   --goal "阅读项目文件，说明研究目标、已有证据和仍需验证的问题" \
   --read-only \

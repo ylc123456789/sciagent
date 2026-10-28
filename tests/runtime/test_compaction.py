@@ -6,15 +6,15 @@ from httpx import HTTPStatusError, Request, Response
 
 import pytest
 
-from resagent2_runtime.compaction import (
+from sciagent_runtime.compaction import (
     CompactionPlan,
     compaction_input_text,
     plan_compaction,
 )
-from resagent2_runtime.context import CONTEXT_TARGET_SHARE, ContextBudgetExceeded, ContextComposer
-from resagent2_runtime.llm import LLMTextResponseError, ModelProfile, OpenAICompatibleClient
-from resagent2_runtime.models import NativeToolCall, ToolCallTurn
-from resagent2_runtime.tool_calling import NativeToolCallError, native_input_text
+from sciagent_runtime.context import CONTEXT_TARGET_SHARE, ContextBudgetExceeded, ContextComposer
+from sciagent_runtime.llm import LLMTextResponseError, ModelProfile, OpenAICompatibleClient
+from sciagent_runtime.models import NativeToolCall, ToolCallTurn
+from sciagent_runtime.tool_calling import NativeToolCallError, native_input_text
 
 
 def _turn(index: int, *, receipt_size: int = 240) -> ToolCallTurn:
@@ -203,7 +203,7 @@ def _summary_response(
 
 def _summary_client(monkeypatch, tmp_path, *, trace_level="full", profile=None):
     monkeypatch.setenv("TEST_COMPACTION_KEY", "secret-not-for-trace")
-    monkeypatch.setattr("resagent2_runtime.llm.time.sleep", lambda _: None)
+    monkeypatch.setattr("sciagent_runtime.llm.time.sleep", lambda _: None)
     return OpenAICompatibleClient(
         model="summary-test",
         api_base="https://example.invalid/v1",
@@ -229,7 +229,7 @@ def test_summary_request_uses_exact_bounded_wire_and_shared_full_trace(
         requests.append(json.loads(request.content))
         return _summary_response("  concise handoff  ", reasoning="summary reasoning")
 
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", respond)
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", respond)
     prompt = '{"previous_handoff":null,"completed_tool_messages":[]}'
     result = client.summarize_history(
         prompt,
@@ -282,7 +282,7 @@ def test_invalid_summary_output_is_not_retried(
             content, finish_reason=finish_reason, tool_calls=tool_calls,
         )
 
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", respond)
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", respond)
     with pytest.raises(LLMTextResponseError, match=message):
         client.summarize_history("source", max_input_tokens=500)
     assert calls == client.last_attempts == 1
@@ -306,7 +306,7 @@ def test_summary_input_budget_fails_before_transport(monkeypatch, tmp_path):
         calls += 1
         return _summary_response("unused")
 
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", respond)
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", respond)
     with pytest.raises(ValueError, match="input budget"):
         client.summarize_history("source", max_input_tokens=0)
     with pytest.raises(ContextBudgetExceeded, match="compaction request"):
@@ -325,7 +325,7 @@ def test_summary_without_model_profile_leaves_provider_output_limit_unset(
         requests.append(json.loads(request.content))
         return _summary_response("handoff")
 
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", respond)
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", respond)
     assert client.summarize_history("source", max_input_tokens=500) == "handoff"
     assert "max_tokens" not in requests[0]
     row = json.loads((client.trace_dir / "llm_traces.jsonl").read_text())
@@ -345,7 +345,7 @@ def test_summary_http_429_uses_existing_no_retry_and_trace_path(monkeypatch, tmp
             response=Response(429, content=b"slow down"),
         )
 
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", respond)
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", respond)
     with pytest.raises(RuntimeError, match="LLM HTTP 429"):
         client.summarize_history("source", max_input_tokens=500)
     assert calls == client.last_attempts == 1
@@ -361,7 +361,7 @@ def test_summary_metadata_and_off_traces_do_not_leak_text(
 ):
     client = _summary_client(monkeypatch, tmp_path, trace_level=trace_level)
     monkeypatch.setattr(
-        "resagent2_runtime.llm.send_request",
+        "sciagent_runtime.llm.send_request",
         lambda *args, **kwargs: _summary_response(
             "PRIVATE_SUMMARY", reasoning="PRIVATE_REASONING",
         ),

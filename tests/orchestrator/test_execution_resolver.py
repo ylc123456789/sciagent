@@ -3,13 +3,13 @@ from datetime import UTC, datetime
 
 import pytest
 
-from resagent2_contracts import (
+from sciagent_contracts import (
     ExecutionDefinition, ExecutionLimits, WorkRequest, WorkRequestDraft,
     Workflow, WorkflowAgentKind, WorkflowAgentRegistry, WorkspaceDescriptor,
 )
-from resagent2_executor import default_execution_registry, validate_execution_definition
-from resagent2_orchestrator import CompilationError, FixedWorkflowCompiler
-from resagent2_orchestrator.compiler import UnrouteableTaskError
+from sciagent_executor import default_execution_registry, validate_execution_definition
+from sciagent_orchestrator import CompilationError, FixedWorkflowCompiler
+from sciagent_orchestrator.compiler import UnrouteableTaskError
 
 
 def task(key, *, preset="coding@1", **kwargs):
@@ -87,7 +87,7 @@ def test_unsupported_host_component_fails_before_materializing_any_tasks():
 
 def test_reusing_local_keys_creates_distinct_ids_and_keeps_new_dependencies_local():
     initial = compile_request(work([task("work")])).output
-    from resagent2_contracts import WorkflowTask
+    from sciagent_contracts import WorkflowTask
     current = Workflow(run_id="run_resolver", revision=1, created_from="work_resolver",
         tasks=[WorkflowTask(**t.model_dump(exclude={"acceptance_spec", "output_names"})) for t in initial.tasks])
     result = compile_request(work([task("work"), task("next", depends_on=["work"])], "work_next"), current=current)

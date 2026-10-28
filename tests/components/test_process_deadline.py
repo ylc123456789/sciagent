@@ -9,11 +9,11 @@ import time
 
 import pytest
 
-from resagent2_components.process import ProcessRunner, run_process
-from resagent2_components.workspace import WorkspaceBoundary
-from resagent2_contracts import WorkspaceAccess, WorkspaceGrant
-from resagent2_runtime.budget import DeadlineExceededError, execution_budget
-from resagent2_runtime.cancellation import OperationCancelled
+from sciagent_components.process import ProcessRunner, run_process
+from sciagent_components.workspace import WorkspaceBoundary
+from sciagent_contracts import WorkspaceAccess, WorkspaceGrant
+from sciagent_runtime.budget import DeadlineExceededError, execution_budget
+from sciagent_runtime.cancellation import OperationCancelled
 
 
 @pytest.mark.skipif(os.name != "posix", reason="process group cleanup is POSIX")
@@ -38,7 +38,7 @@ def test_run_deadline_terminates_child_tree(tmp_path, framework):
                 run_process([sys.executable, str(script)], cwd=tmp_path, timeout=30)
         else:
             result = ProcessRunner(boundary).run_shell(
-                f"{shlex.quote(sys.executable)} parent.py", log_dir=".resagent2/log",
+                f"{shlex.quote(sys.executable)} parent.py", log_dir=".sciagent/log",
                 index=1, timeout_seconds=30,
             )
             assert result.timed_out and result.exit_code != 0
@@ -65,7 +65,7 @@ def test_second_operation_cannot_start_after_shared_deadline(tmp_path):
 
 @pytest.mark.skipif(os.name != "posix", reason="managed process trees are POSIX")
 def test_shell_timeout_stops_remembered_child_after_its_parent_exits(tmp_path, monkeypatch):
-    from resagent2_components import process as process_module
+    from sciagent_components import process as process_module
 
     script = tmp_path / "parent.py"
     script.write_text(
@@ -90,7 +90,7 @@ def test_shell_timeout_stops_remembered_child_after_its_parent_exits(tmp_path, m
     monkeypatch.setattr(process_module, "_remember_descendants", observe)
     try:
         result = ProcessRunner(boundary).run_shell(
-            f"{shlex.quote(sys.executable)} parent.py\nsleep 30", log_dir=".resagent2/log",
+            f"{shlex.quote(sys.executable)} parent.py\nsleep 30", log_dir=".sciagent/log",
             index=1, timeout_seconds=1,
         )
         assert result.timed_out and result.exit_code != 0
@@ -109,7 +109,7 @@ def test_shell_timeout_stops_remembered_child_after_its_parent_exits(tmp_path, m
 
 @pytest.mark.parametrize("framework", [False, True])
 def test_unconfirmed_timeout_stops_dispatch_through_cancellation_gate(tmp_path, monkeypatch, framework):
-    from resagent2_components import process as process_module
+    from sciagent_components import process as process_module
 
     stop = process_module._stop_process
 
@@ -128,7 +128,7 @@ def test_unconfirmed_timeout_stops_dispatch_through_cancellation_gate(tmp_path, 
                 access=WorkspaceAccess(read_paths=["."], write_paths=["."]),
             ))
             ProcessRunner(boundary).run_shell(
-                "sleep 30", log_dir=".resagent2/log", index=1, timeout_seconds=0.1,
+                "sleep 30", log_dir=".sciagent/log", index=1, timeout_seconds=0.1,
             )
     assert not caught.value.stopped
     assert "timed out" in caught.value.reason

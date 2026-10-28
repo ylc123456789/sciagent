@@ -5,7 +5,7 @@ import json
 
 import pytest
 
-from resagent2_runtime.controls import RunControlInbox
+from sciagent_runtime.controls import RunControlInbox
 
 
 def test_controls_persist_and_owner_cursor_filters_without_deleting(tmp_path):
@@ -74,7 +74,7 @@ def test_slow_first_publication_cannot_be_overtaken(tmp_path, monkeypatch):
             assert release_first.wait(2)
         replace(source, destination)
 
-    monkeypatch.setattr("resagent2_runtime.controls.os.replace", delayed_replace)
+    monkeypatch.setattr("sciagent_runtime.controls.os.replace", delayed_replace)
 
     def second_submitter():
         second_started.set()

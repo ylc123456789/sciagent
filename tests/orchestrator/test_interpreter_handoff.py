@@ -1,5 +1,5 @@
 """Terminal work handoffs preserve original Task reports without aggregate artifacts."""
-from resagent2_executor import default_execution_registry
+from sciagent_executor import default_execution_registry
 from e2e.scheduler_fixtures import executor_bindings
 from scheduler_fixtures import add_root_owner
 
@@ -8,12 +8,12 @@ from pathlib import Path
 from urllib.parse import urlparse
 from urllib.request import url2pathname
 import pytest
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner, AgentResult, ArtifactCandidate, Attempt, WorkRequest, WorkRequestDraft,
     WorkRequestStatus, Workflow, WorkflowTask, WorkflowAgentRegistry, ResearchRequest, RunBudget, RunPermissions, PendingQuestion, ControlSignal, SessionRef,
 )
-from resagent2_orchestrator import DeterministicWorkInterpreter, JsonRunStore, ResearchController, ResearchRun, WorkflowScheduler
-from resagent2_orchestrator.handoffs import system_artifact
+from sciagent_orchestrator import DeterministicWorkInterpreter, JsonRunStore, ResearchController, ResearchRun, WorkflowScheduler
+from sciagent_orchestrator.handoffs import system_artifact
 
 
 class ProcessCrash(BaseException):
@@ -119,7 +119,7 @@ def test_zero_task_failure_returns_navigation_without_fake_report(tmp_path):
     run = stable_run(controller)
     run.workflow.tasks = [task for task in run.workflow.tasks if task.id == "task_root"]
     work = run.work_requests[0]
-    from resagent2_contracts import ModuleError
+    from sciagent_contracts import ModuleError
     work.status = WorkRequestStatus.FAILED
     work.outcome = None
     work.error = ModuleError(code="contract_error", message="Compiler rejected the request", retryable=False)

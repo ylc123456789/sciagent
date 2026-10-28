@@ -5,9 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from resagent2_components import ArtifactReadError, RegisteredArtifactReader
-from resagent2_components.artifacts import missing_required_artifacts
-from resagent2_contracts import AgentOwner, ArtifactRef
+from sciagent_components import ArtifactReadError, RegisteredArtifactReader
+from sciagent_components.artifacts import missing_required_artifacts
+from sciagent_contracts import AgentOwner, ArtifactRef
 
 
 def frozen_ref(tmp_path, *, artifact_id="artifact_metrics", output_name="metrics",

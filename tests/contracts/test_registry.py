@@ -2,7 +2,7 @@
 import pytest
 from pydantic import ValidationError
 
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentRequest, ExecutionCatalogEntry, ExecutionConfig, ExecutionDefinition,
     ExecutionPreset, WorkflowAgentRegistry, WorkTaskDraft, WorkflowTask,
 )

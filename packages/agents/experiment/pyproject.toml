@@ -3,11 +3,11 @@ requires = ["setuptools>=75"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "resagent2-experiment"
+name = "sciagent-experiment"
 version = "0.1.0"
-description = "Experiment execution preset entry for ResAgent2"
+description = "Experiment execution preset entry for sciagent"
 requires-python = ">=3.12"
-dependencies = ["resagent2-executor>=0.1,<0.2"]
+dependencies = ["sciagent-executor>=0.1,<0.2"]
 
 [project.optional-dependencies]
 test = ["pytest>=9,<10"]

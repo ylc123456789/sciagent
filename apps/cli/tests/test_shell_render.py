@@ -7,9 +7,9 @@ from types import SimpleNamespace
 
 import pytest
 
-from resagent2_contracts import ActionSnapshot
+from sciagent_contracts import ActionSnapshot
 
-from resagent2_cli.render import (
+from sciagent_cli.render import (
     render_artifacts,
     render_final,
     render_live,
@@ -41,7 +41,7 @@ def test_render_live_none():
 
 
 def test_render_final_preserves_terminal_cause():
-    from resagent2_contracts import ErrorCode, ModuleError
+    from sciagent_contracts import ErrorCode, ModuleError
 
     run = _run(status="failed")
     run.terminal_error = ModuleError(code=ErrorCode.TOOL_FAILED, message="provider unavailable", retryable=False)
@@ -309,7 +309,7 @@ def test_render_trace_metadata_does_not_invent_raw_calls():
 
 @pytest.mark.parametrize("subject", [None, "metrics.json"])
 def test_render_final_identifies_completion_violation_subject(subject):
-    from resagent2_orchestrator import CompletionViolation
+    from sciagent_orchestrator import CompletionViolation
 
     run = _run(status="failed")
     run.completion_violations = [CompletionViolation(

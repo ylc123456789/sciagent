@@ -1,12 +1,12 @@
 from e2e.native_fixtures import tool_turns
 
-from resagent2_contracts import AgentPermissions
+from sciagent_contracts import AgentPermissions
 import pytest
 
-from resagent2_contracts import (AgentOwner, ErrorCode, ModuleStatus, AgentRequest, TaskBudget)
+from sciagent_contracts import (AgentOwner, ErrorCode, ModuleStatus, AgentRequest, TaskBudget)
 from tool_fixtures import WriteValueTool
 
-from resagent2_runtime import (
+from sciagent_runtime import (
     AgentAction,
     AgentDefinition,
     AgentLoop,

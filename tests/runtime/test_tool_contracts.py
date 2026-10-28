@@ -4,17 +4,17 @@ import pytest
 
 from pydantic import BaseModel
 
-from resagent2_capabilities import (
+from sciagent_capabilities import (
     ReplaceTextTool,
 )
 
-from resagent2_capabilities import RunShellTool
-from resagent2_runtime import AgentAction, AskUserTool, FinishTool
-from resagent2_scientific.tools import (
+from sciagent_capabilities import RunShellTool
+from sciagent_runtime import AgentAction, AskUserTool, FinishTool
+from sciagent_scientific.tools import (
     AskUserTool as ScientificAskUserTool, RequestWorkTool,
 )
-from resagent2_runtime.models import NativeToolCall, ToolCallTurn
-from resagent2_runtime.tool_calling import (
+from sciagent_runtime.models import NativeToolCall, ToolCallTurn
+from sciagent_runtime.tool_calling import (
     CONTROL_TOOLS, NATIVE_TOOL_INSTRUCTION, NativeToolCallError,
     contract_fingerprint, native_actions, native_input, native_tool_schemas,
 )
@@ -54,7 +54,7 @@ def test_agent_action_has_no_reasoning_summary() -> None:
 
 
 def test_ask_user_contract_requires_requested_fields() -> None:
-    from resagent2_runtime import AskUserTool
+    from sciagent_runtime import AskUserTool
 
     required = native_tool_schemas((AskUserTool(),))[0]["function"]["parameters"]["required"]
     assert required == ["text", "requested_fields"]
@@ -111,7 +111,7 @@ def test_control_tool_guidance_and_rejection_match_enforced_singleton_rule(name)
 
 
 def test_session_fingerprint_covers_the_actual_fixed_native_system_prompt(monkeypatch) -> None:
-    from resagent2_runtime import tool_calling
+    from sciagent_runtime import tool_calling
     import hashlib
     import json
 

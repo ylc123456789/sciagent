@@ -1,9 +1,9 @@
 """Reverse handoff carries actual refs and preserves every terminal attempt."""
 from datetime import UTC, datetime
 import pytest
-from resagent2_contracts import ArtifactRef,Attempt,ModuleError,WorkRequest,WorkRequestDraft,WorkflowTask
-from resagent2_orchestrator import DeterministicWorkInterpreter
-from resagent2_runtime.budget import execution_budget
+from sciagent_contracts import ArtifactRef,Attempt,ModuleError,WorkRequest,WorkRequestDraft,WorkflowTask
+from sciagent_orchestrator import DeterministicWorkInterpreter
+from sciagent_runtime.budget import execution_budget
 NOW=datetime.now(UTC)
 ERROR=ModuleError(code="tool_failed",message="command failed",retryable=False)
 

@@ -5,16 +5,16 @@ import subprocess
 
 import pytest
 
-from resagent2_coding import NativeCodingAgent
-from resagent2_components import GitWorkspace, GitWorkspaceError, ResourceLayout
-from resagent2_contracts import (
+from sciagent_coding import NativeCodingAgent
+from sciagent_components import GitWorkspace, GitWorkspaceError, ResourceLayout
+from sciagent_contracts import (
     AgentPermissions, AgentRequest, ErrorCode, ModuleStatus, SessionStatus,
     TaskBudget, WorkspaceAccess, WorkspaceGrant, task_session_id,
 )
-from resagent2_runtime import (
+from sciagent_runtime import (
     InMemorySessionStore, LLMExhaustedError, NativeToolCall, ToolCallTurn,
 )
-from resagent2_runtime.budget import execution_budget
+from sciagent_runtime.budget import execution_budget
 
 
 @pytest.mark.parametrize("failure", [
@@ -63,7 +63,7 @@ def test_native_failure_keeps_session_usage_and_edits(tmp_path, monkeypatch, fai
             if failure == "diagnostic_process":
                 def process_timeout(*args, **kwargs):
                     raise subprocess.TimeoutExpired("git", 30)
-                monkeypatch.setattr("resagent2_components.git.run_process", process_timeout)
+                monkeypatch.setattr("sciagent_components.git.run_process", process_timeout)
             else:
                 clock[0] = 31.0
             return original(repository, baseline, path)

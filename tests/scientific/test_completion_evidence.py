@@ -6,10 +6,10 @@ import hashlib
 
 import pytest
 
-from resagent2_components import RegisteredArtifactReader
-from resagent2_contracts import AgentOwner, ArtifactCandidate, ArtifactRef, missing_required_evidence_kinds
-from resagent2_runtime import AgentState, FinishCandidate
-from resagent2_scientific.completion import ScientificCompletionCheck
+from sciagent_components import RegisteredArtifactReader
+from sciagent_contracts import AgentOwner, ArtifactCandidate, ArtifactRef, missing_required_evidence_kinds
+from sciagent_runtime import AgentState, FinishCandidate
+from sciagent_scientific.completion import ScientificCompletionCheck
 
 
 def _state(memory: dict) -> AgentState:
@@ -138,7 +138,7 @@ def test_shared_evidence_requirement_uses_registered_cited_intersection(
 
 
 def _named_output(tmp_path, *, output_name="metrics", run_id="run_r"):
-    from resagent2_orchestrator import ArtifactRegistry
+    from sciagent_orchestrator import ArtifactRegistry
 
     registry = ArtifactRegistry(tmp_path / "artifacts")
     return registry.register_scientific(
@@ -152,7 +152,7 @@ def _named_output(tmp_path, *, output_name="metrics", run_id="run_r"):
 
 @pytest.mark.parametrize("available_as", ["input", "registry", "tool_output"])
 def test_required_output_does_not_require_observation_or_citation(tmp_path, available_as):
-    from resagent2_components import RegisteredArtifactReader
+    from sciagent_components import RegisteredArtifactReader
 
     ref = _named_output(tmp_path)
     reader = RegisteredArtifactReader(
@@ -174,7 +174,7 @@ def test_required_output_does_not_require_observation_or_citation(tmp_path, avai
 
 
 def test_required_output_feedback_names_each_missing_delivery(tmp_path):
-    from resagent2_components import RegisteredArtifactReader
+    from sciagent_components import RegisteredArtifactReader
 
     ref = _named_output(tmp_path, output_name="Metrics")
     reader = RegisteredArtifactReader([ref], run_id="run_r")
@@ -190,7 +190,7 @@ def test_required_output_feedback_names_each_missing_delivery(tmp_path):
 
 
 def test_required_output_cannot_be_self_certified_by_observation_memory():
-    from resagent2_components import RegisteredArtifactReader
+    from sciagent_components import RegisteredArtifactReader
 
     check = ScientificCompletionCheck(
         [], required_artifacts=["metrics"], reader=RegisteredArtifactReader([], run_id="run_r"),
@@ -201,7 +201,7 @@ def test_required_output_cannot_be_self_certified_by_observation_memory():
 
 
 def test_valid_scientific_candidate_can_await_receiving_registration():
-    from resagent2_components import RegisteredArtifactReader
+    from sciagent_components import RegisteredArtifactReader
     candidate = _finish([], verdict="inconclusive")
     candidate.artifacts[0].output_name = "opinion"
     check = ScientificCompletionCheck([], required_artifacts=["opinion"], reader=RegisteredArtifactReader([],run_id="run_r"))
@@ -211,7 +211,7 @@ def test_valid_scientific_candidate_can_await_receiving_registration():
 
 
 def test_unsupported_pending_candidate_cannot_satisfy_delivery():
-    from resagent2_components import RegisteredArtifactReader
+    from sciagent_components import RegisteredArtifactReader
 
     candidate = _finish([], verdict="inconclusive")
     candidate.artifacts.append(ArtifactCandidate(
@@ -229,7 +229,7 @@ def test_unsupported_pending_candidate_cannot_satisfy_delivery():
 @pytest.mark.parametrize("fault", ["corrupt", "missing"])
 def test_required_output_read_failure_is_not_downgraded_to_missing(tmp_path, fault):
     from pathlib import Path
-    from resagent2_components import ArtifactReadError, RegisteredArtifactReader
+    from sciagent_components import ArtifactReadError, RegisteredArtifactReader
 
     ref = _named_output(tmp_path)
     path = Path(ref.uri.removeprefix("file://"))

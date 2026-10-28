@@ -1,6 +1,6 @@
 """Lossless fixed-context composition."""
 import pytest
-from resagent2_runtime import ContextBudgetExceeded, ContextComposer, ContextSection
+from sciagent_runtime import ContextBudgetExceeded, ContextComposer, ContextSection
 
 def test_context_rejects_zero_budget():
     with pytest.raises(ContextBudgetExceeded):
@@ -30,8 +30,8 @@ def test_duplicate_section_names_are_rejected():
 
 
 def test_runtime_authority_is_required_in_history_part_not_task_requirements():
-    from resagent2_runtime.models import ToolCallTurn
-    from resagent2_runtime.tool_calling import native_input
+    from sciagent_runtime.models import ToolCallTurn
+    from sciagent_runtime.tool_calling import native_input
 
     composer = ContextComposer()
     sections = [ContextSection(name="task", content="unchanged business requirements"),

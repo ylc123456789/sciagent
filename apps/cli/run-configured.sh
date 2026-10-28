@@ -30,6 +30,6 @@ set -a
 source "$config_file"
 set +a
 if [ -n "$python_executable" ]; then
-    exec "$python_executable" -m resagent2_cli "$@"
+    exec "$python_executable" -m sciagent_cli "$@"
 fi
-exec resagent2 "$@"
+exec sciagent "$@"

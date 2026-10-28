@@ -5,10 +5,10 @@ import os
 
 import pytest
 
-from resagent2_components.workspace import (
+from sciagent_components.workspace import (
     DeleteChangedError, DeleteInterruptedError, WorkspaceBoundary, WorkspacePermissionError,
 )
-from resagent2_contracts import WorkspaceAccess, WorkspaceGrant
+from sciagent_contracts import WorkspaceAccess, WorkspaceGrant
 
 
 def boundary(root, *, read=(".",), write=(".",), denied=()):
@@ -57,16 +57,16 @@ def test_parent_symlink_rechecks_effective_write_scope(tmp_path):
 
 def test_system_outputs_are_separate_from_empty_file_grants(tmp_path):
     scope = boundary(tmp_path, read=(), write=())
-    assert scope.resolve_system_write(".resagent2/results/a.txt") == tmp_path / ".resagent2/results/a.txt"
+    assert scope.resolve_system_write(".sciagent/results/a.txt") == tmp_path / ".sciagent/results/a.txt"
     with pytest.raises(WorkspacePermissionError):
         scope.resolve_system_write("source.py")
 
 
 def test_system_output_link_cannot_enter_user_source(tmp_path):
     (tmp_path / "src").mkdir()
-    (tmp_path / ".resagent2").symlink_to(tmp_path / "src", target_is_directory=True)
+    (tmp_path / ".sciagent").symlink_to(tmp_path / "src", target_is_directory=True)
     with pytest.raises(WorkspacePermissionError):
-        boundary(tmp_path).resolve_system_write(".resagent2/source.py")
+        boundary(tmp_path).resolve_system_write(".sciagent/source.py")
 
 
 def test_exact_file_and_empty_directory_delete_without_confirmation(tmp_path):
@@ -123,7 +123,7 @@ def test_recursive_cache_delete_is_snapshotted_and_requires_confirmation(tmp_pat
     assert scope.delete_prepared(snapshot) == ["__pycache__/a.pyc", "__pycache__"]
 
 
-@pytest.mark.parametrize("path", [".", "../outside", ".git", ".resagent2"])
+@pytest.mark.parametrize("path", [".", "../outside", ".git", ".sciagent"])
 def test_delete_rejects_root_traversal_and_metadata(tmp_path, path):
     with pytest.raises(WorkspacePermissionError):
         boundary(tmp_path).prepare_delete(path, recursive=True)
@@ -270,11 +270,11 @@ def test_git_pointer_file_is_readable_but_still_cannot_be_replaced_or_deleted(tm
         scope.prepare_delete(".git")
 
 
-@pytest.mark.parametrize("path", [".resagent2/state", "runtime-alias/state"])
+@pytest.mark.parametrize("path", [".sciagent/state", "runtime-alias/state"])
 def test_runtime_metadata_remains_unreadable_and_unwritable(tmp_path, path):
-    (tmp_path / ".resagent2").mkdir()
-    (tmp_path / ".resagent2/state").write_text("private")
-    (tmp_path / "runtime-alias").symlink_to(tmp_path / ".resagent2", target_is_directory=True)
+    (tmp_path / ".sciagent").mkdir()
+    (tmp_path / ".sciagent/state").write_text("private")
+    (tmp_path / "runtime-alias").symlink_to(tmp_path / ".sciagent", target_is_directory=True)
     scope = boundary(tmp_path)
     with pytest.raises(WorkspacePermissionError, match="runtime-reserved"):
         scope.resolve_read_file(path)

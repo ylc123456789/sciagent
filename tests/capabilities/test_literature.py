@@ -6,23 +6,23 @@ from urllib.parse import parse_qs, urlsplit
 import httpx
 import re
 
-from resagent2_orchestrator import ArtifactRegistry
+from sciagent_orchestrator import ArtifactRegistry
 import pytest
 
-from resagent2_components import (
+from sciagent_components import (
     ArxivLiteratureBackend,
     LiteraturePaper,
     LiteratureSearchError,
 )
-from resagent2_capabilities import (
+from sciagent_capabilities import (
     LiteratureSearchTool,
     LiteratureSearchToolInput,
 )
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner,
     SessionStatus,
 )
-from resagent2_runtime import AgentState
+from sciagent_runtime import AgentState
 
 
 NOW = datetime(2026, 8, 28, tzinfo=UTC)
@@ -32,7 +32,7 @@ NOW = datetime(2026, 8, 28, tzinfo=UTC)
 def isolated_http(monkeypatch, request):
     if request.node.name == "test_arxiv_backend_live_smoke":
         return
-    from resagent2_components.literature import (
+    from sciagent_components.literature import (
         _http as _literature_http,
         backends as literature,
     )
@@ -302,7 +302,7 @@ def test_arxiv_invalid_feed_is_not_an_empty_search(body):
 
 
 def test_arxiv_request_identifies_application(monkeypatch):
-    from resagent2_components.literature import backends as literature
+    from sciagent_components.literature import backends as literature
 
     requests = []
     def open_request(request, *, timeout, max_response_bytes):
@@ -312,13 +312,13 @@ def test_arxiv_request_identifies_application(monkeypatch):
     monkeypatch.setattr(literature, "send_request", open_request)
     ArxivLiteratureBackend(timeout_seconds=7).search("x", max_results=1)
     request, timeout = requests[0]
-    assert request.headers.get("User-agent").startswith("ResAgent2/")
+    assert request.headers.get("User-agent").startswith("sciagent/")
     assert timeout == 7
 
 
 @pytest.mark.skipif(
-    not __import__("os").environ.get("RESAGENT2_LITERATURE_SMOKE"),
-    reason="network smoke test is opt-in via RESAGENT2_LITERATURE_SMOKE",
+    not __import__("os").environ.get("SCIAGENT_LITERATURE_SMOKE"),
+    reason="network smoke test is opt-in via SCIAGENT_LITERATURE_SMOKE",
 )
 def test_arxiv_backend_live_smoke() -> None:
     """Opt-in real network test; must not fake success on rate limit/timeout."""
@@ -329,7 +329,7 @@ def test_arxiv_backend_live_smoke() -> None:
 
 
 def _search_result(papers):
-    from resagent2_components import LiteratureSearchResult
+    from sciagent_components import LiteratureSearchResult
     return LiteratureSearchResult(papers=papers, source="arxiv", executed_query="test query",
                                   page=1, next_page=None, source_attempts=[{
                                       "source": "arxiv", "status": "success",
@@ -349,7 +349,7 @@ def test_search_input_rejects_invalid_request(arguments):
 
 
 def test_search_receipt_exposes_real_source_and_pinned_next_request(tmp_path):
-    from resagent2_components import LiteratureSearchResult
+    from sciagent_components import LiteratureSearchResult
     attempts = [
         {"source": "arxiv", "status": "failed", "error_type": "unavailable", "error": "HTTP 429"},
         {"source": "openalex", "status": "success", "error_type": None, "error": None},

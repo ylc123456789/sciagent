@@ -2,9 +2,9 @@
 from datetime import UTC, datetime
 import pytest
 from e2e import real_e2e
-from resagent2_cli import composition
-from resagent2_contracts import ExecutionLimits, WorkRequest, WorkRequestDraft
-from resagent2_orchestrator import FixedWorkflowCompiler
+from sciagent_cli import composition
+from sciagent_contracts import ExecutionLimits, WorkRequest, WorkRequestDraft
+from sciagent_orchestrator import FixedWorkflowCompiler
 
 
 @pytest.mark.parametrize("repeats", [1, 50000])
@@ -13,7 +13,7 @@ def test_fixed_compiler_preserves_instruction_without_model_budget(monkeypatch, 
         def next_tool_call(self, *args, **kwargs):
             pytest.fail("configuration binding must not call an LLM")
     monkeypatch.setattr(composition, "_client", lambda: NoModel())
-    monkeypatch.setenv("RESAGENT2_WEB_SEARCH_PROVIDER", "off")
+    monkeypatch.setenv("SCIAGENT_WEB_SEARCH_PROVIDER", "off")
     controller = real_e2e._application(tmp_path).controller
     assert isinstance(controller.compiler, FixedWorkflowCompiler)
     instruction = "  Measure the requested result.\n" + " detail" * repeats

@@ -7,15 +7,15 @@ import json
 
 import pytest
 
-from resagent2_capabilities import RunShellInput, RunShellTool
-from resagent2_capabilities.permissions import OperationPermissionPolicy
-from resagent2_components import ProcessRunner, WorkspaceBoundary
-from resagent2_components.approval_review import LLMPermissionReviewer
-from resagent2_contracts import (
+from sciagent_capabilities import RunShellInput, RunShellTool
+from sciagent_capabilities.permissions import OperationPermissionPolicy
+from sciagent_components import ProcessRunner, WorkspaceBoundary
+from sciagent_components.approval_review import LLMPermissionReviewer
+from sciagent_contracts import (
     ActionSnapshot, AgentOwner, AgentPermissions, AgentRequest, RecordedAnswer, TaskBudget,
     WorkspaceAccess, WorkspaceGrant,
 )
-from resagent2_runtime import (
+from sciagent_runtime import (
     AgentDefinition, AgentLoop, AgentState, CompletionDecision, FinishTool,
     JsonSessionStore, ScriptedLLMClient,
 )
@@ -42,7 +42,7 @@ def case(tmp_path):
     )
     boundary = WorkspaceBoundary(grant)
     tool = RunShellTool(
-        ProcessRunner(boundary), timeout_seconds=5, log_dir=str(root / ".resagent2" / "shell"),
+        ProcessRunner(boundary), timeout_seconds=5, log_dir=str(root / ".sciagent" / "shell"),
     )
     arguments = RunShellInput(command="printf executed > executed.marker")
     action = SimpleNamespace(tool="run_shell", arguments=arguments.model_dump(mode="json"))
@@ -127,7 +127,7 @@ def test_matching_human_approval_rechecks_the_same_inspected_files_and_directori
         assert not result.ok
         assert result.value["execution_status"] == "not_executed"
         assert not (case.root / "executed.marker").exists()
-        assert not (case.root / ".resagent2").exists()
+        assert not (case.root / ".sciagent").exists()
     else:
         assert result.ok
         assert result.value["exit_code"] == 0
@@ -161,7 +161,7 @@ def test_invalid_prepared_inspection_values_cannot_be_ignored_at_dispatch(case, 
     assert not result.ok
     assert result.value["execution_status"] == "not_executed"
     assert not (case.root / "executed.marker").exists()
-    assert not (case.root / ".resagent2").exists()
+    assert not (case.root / ".sciagent").exists()
 
 
 @pytest.mark.parametrize("source", ["expected", "pending"])
@@ -290,7 +290,7 @@ def test_real_reviewer_ask_resume_preserves_supplemental_binding_and_does_not_re
     if changed:
         assert receipt["value"]["execution_status"] == "not_executed"
         assert not (case.root / "executed.marker").exists()
-        assert not (case.root / ".resagent2").exists()
+        assert not (case.root / ".sciagent").exists()
     else:
         assert receipt["value"]["exit_code"] == 0
         assert (case.root / "executed.marker").read_text() == "executed"

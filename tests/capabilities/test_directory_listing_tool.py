@@ -5,10 +5,10 @@ from datetime import UTC, datetime
 import pytest
 from pydantic import ValidationError
 
-from resagent2_capabilities import ListFilesTool
-from resagent2_components import ReadOnlyWorkspaceBoundary, WorkspaceBoundary
-from resagent2_contracts import WorkspaceAccess, WorkspaceGrant
-from resagent2_runtime import AgentState
+from sciagent_capabilities import ListFilesTool
+from sciagent_components import ReadOnlyWorkspaceBoundary, WorkspaceBoundary
+from sciagent_contracts import WorkspaceAccess, WorkspaceGrant
+from sciagent_runtime import AgentState
 
 
 def state():

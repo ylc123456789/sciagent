@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-from resagent2_cli.shell import TraceTail
+from sciagent_cli.shell import TraceTail
 
 
 def encoded_record(**values):

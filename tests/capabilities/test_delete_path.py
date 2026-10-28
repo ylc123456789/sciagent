@@ -4,10 +4,10 @@ from datetime import UTC, datetime
 
 import pytest
 
-from resagent2_capabilities import CreateFileTool, DeletePathTool, ReplaceTextTool
-from resagent2_components import WorkspaceBoundary, WorkspacePermissionError
-from resagent2_contracts import AgentOwner, WorkspaceAccess, WorkspaceGrant
-from resagent2_runtime import AgentState
+from sciagent_capabilities import CreateFileTool, DeletePathTool, ReplaceTextTool
+from sciagent_components import WorkspaceBoundary, WorkspacePermissionError
+from sciagent_contracts import AgentOwner, WorkspaceAccess, WorkspaceGrant
+from sciagent_runtime import AgentState
 
 
 def state():

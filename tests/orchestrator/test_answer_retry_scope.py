@@ -1,5 +1,5 @@
 """A task answer resumes its Attempt; a retry starts a separate answer scope."""
-from resagent2_executor import default_execution_registry
+from sciagent_executor import default_execution_registry
 from e2e.scheduler_fixtures import executor_bindings
 
 from datetime import UTC, datetime
@@ -9,20 +9,20 @@ import pytest
 
 from control_fixtures import question_signal, ScopedScriptedModulePort, ParentQuestionClient
 from e2e.native_fixtures import tool_turns
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner, AgentResult, ArtifactCandidate, AttemptStatus, ControlSignal,
     ErrorCode, ExecutionLimits, ModuleError, ModuleStatus, QuestionDraft,
     RecordedAnswer, ResearchRequest, RunBudget, RunPermissions, RunStatus, SessionRef,
     SessionStatus, UserAnswer, WorkflowAgentKind,
     WorkflowAgentRegistry, WorkflowProposal, TaskProposal,
 )
-from resagent2_orchestrator import (
+from sciagent_orchestrator import (
     DeterministicWorkInterpreter, DeterministicWorkflowCompiler, InMemoryRunStore,
     ModuleBinding, ResearchController, ScriptedModulePort, WorkflowScheduler,
 )
-from resagent2_orchestrator.handoffs import read_json
-from resagent2_runtime import InMemorySessionStore, ScriptedLLMClient
-from resagent2_scientific import ScientificAgent
+from sciagent_orchestrator.handoffs import read_json
+from sciagent_runtime import InMemorySessionStore, ScriptedLLMClient
+from sciagent_scientific import ScientificAgent
 
 
 NOW = datetime(2026, 10, 9, tzinfo=UTC)

@@ -3,11 +3,11 @@ from e2e.scheduler_fixtures import executor_bindings
 
 from scheduler_fixtures import create_scheduler_run
 
-from resagent2_contracts import WorkspaceAccess, RunPermissions, ExecutionLimits
+from sciagent_contracts import WorkspaceAccess, RunPermissions, ExecutionLimits
 
 import pytest
 
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner,
     AgentResult,
     ModuleStatus,
@@ -20,7 +20,7 @@ from resagent2_contracts import (
     WorkspaceSourceKind,
     WorkspaceSpec,
 )
-from resagent2_orchestrator import (
+from sciagent_orchestrator import (
     InMemoryRunStore,
     ModuleBinding,
     OrchestrationError,
@@ -159,7 +159,7 @@ def test_same_workspace_id_gives_same_root_to_coding_and_experiment(tmp_path) ->
 
 
 def test_managed_workspace_defaults_to_data_root_env(tmp_path, monkeypatch) -> None:
-    monkeypatch.setenv("RESAGENT2_DATA_ROOT", str(tmp_path / "data"))
+    monkeypatch.setenv("SCIAGENT_DATA_ROOT", str(tmp_path / "data"))
     engine = _scheduler({'ws_a': WorkspaceSpec(workspace_id='ws_a', source_kind=WorkspaceSourceKind.GENERATED, access=WorkspaceAccess(read_paths=['.'], write_paths=['.']))})
 
     run = _create_run(engine, "run_x", _request(), _proposal(workspace_id="ws_a"))
@@ -183,7 +183,7 @@ def test_managed_workspace_root_is_under_data_root(tmp_path) -> None:
 
 
 def test_workspace_and_run_datasets_reach_module_request(tmp_path) -> None:
-    from resagent2_contracts import (DatasetRef, ArtifactCandidate, ControlSignal)
+    from sciagent_contracts import (DatasetRef, ArtifactCandidate, ControlSignal)
 
     port = ScriptedModulePort(
         [AgentResult(status=ModuleStatus.COMPLETED, report="ok")]
@@ -206,7 +206,7 @@ def test_workspace_and_run_datasets_reach_module_request(tmp_path) -> None:
     _create_run(engine, "run_env", request, proposal)
     run = engine.store.load("run_env")
     run.dataset_refs = [DatasetRef(dataset_id="cifar10", relative_path="cifar10")]
-    from resagent2_orchestrator.handoffs import read_json, system_artifact
+    from sciagent_orchestrator.handoffs import read_json, system_artifact
     run.dataset_catalog_ref = system_artifact(engine.artifact_registry, run, "dataset_catalog", {
         "datasets": [ref.model_dump(mode="json") for ref in run.dataset_refs],
     })

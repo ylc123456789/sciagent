@@ -10,13 +10,13 @@ from urllib.request import url2pathname
 import pytest
 
 from e2e.native_fixtures import tool_turns
-from resagent2_components import ArtifactReadError, LiteraturePaper, LiteratureSearchResult, RegisteredArtifactReader
-from resagent2_components.literature.fulltext import PdfText
-from resagent2_contracts import ResearchRequest, RunBudget, RunPermissions, WorkflowAgentRegistry
-from resagent2_orchestrator import (
+from sciagent_components import ArtifactReadError, LiteraturePaper, LiteratureSearchResult, RegisteredArtifactReader
+from sciagent_components.literature.fulltext import PdfText
+from sciagent_contracts import ResearchRequest, RunBudget, RunPermissions, WorkflowAgentRegistry
+from sciagent_orchestrator import (
     DeterministicWorkInterpreter, ResearchController, ScientificArtifactRegistration, WorkflowScheduler,
 )
-from resagent2_scientific import ScientificAgent
+from sciagent_scientific import ScientificAgent
 
 
 TAIL_EVIDENCE = "TAIL_PAPER_RESULT: matched evaluation improved the metric by 1.2 percentage points."
@@ -78,8 +78,8 @@ def _request(kind):
 
 
 def test_search_pagination_returns_leads_then_only_chosen_fetch_is_preserved(tmp_path, monkeypatch):
-    from resagent2_capabilities.literature import fulltext as tool
-    from resagent2_components.literature.fulltext import PdfFetchError
+    from sciagent_capabilities.literature import fulltext as tool
+    from sciagent_components.literature.fulltext import PdfFetchError
     monkeypatch.setattr(tool, "fetch_pdf", lambda *args: (_ for _ in ()).throw(PdfFetchError("PDF unavailable")))
     class Client:
         tool_session_key = "test-native-tools/v1"
@@ -131,7 +131,7 @@ def test_search_pagination_returns_leads_then_only_chosen_fetch_is_preserved(tmp
 
 
 def test_search_fetch_read_finish_preserves_source_chain_and_history_only_body(tmp_path, monkeypatch):
-    from resagent2_capabilities.literature import fulltext as tool
+    from sciagent_capabilities.literature import fulltext as tool
     evidence = "FULLTEXT_ONLY: held-out accuracy was 0.83 under a fixed evaluation protocol."
     calls = []
     def download(url, destination):

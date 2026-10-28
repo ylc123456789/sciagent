@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from resagent2_contracts import RunPermissions, ExecutionLimits
+from sciagent_contracts import RunPermissions, ExecutionLimits
 
 import io
 import time
@@ -11,9 +11,9 @@ from types import SimpleNamespace
 
 import pytest
 
-from resagent2_cli.shell import Display, Runner, Shell
-from resagent2_contracts import ResearchRequest, RunBudget, RunStatus
-from resagent2_orchestrator import InMemoryRunStore, ResearchRun
+from sciagent_cli.shell import Display, Runner, Shell
+from sciagent_contracts import ResearchRequest, RunBudget, RunStatus
+from sciagent_orchestrator import InMemoryRunStore, ResearchRun
 
 
 def _run(status):
@@ -124,7 +124,7 @@ def test_watch_waits_for_worker_instead_of_old_paused_snapshot(tmp_path, monkeyp
         waits.append(interval)
         shell.runner.done = True
 
-    monkeypatch.setattr("resagent2_cli.shell.time.sleep", worker_finishes)
+    monkeypatch.setattr("sciagent_cli.shell.time.sleep", worker_finishes)
     assert shell._watch("run_x", poll_interval=0) is completed
     assert waits == [0]
 

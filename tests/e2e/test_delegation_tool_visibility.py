@@ -6,15 +6,15 @@ import pytest
 from pydantic import ValidationError
 
 from e2e.native_fixtures import tool_turns
-from resagent2_coding import NativeCodingAgent
-from resagent2_components import ResourceLayout
-from resagent2_contracts import (
+from sciagent_coding import NativeCodingAgent
+from sciagent_components import ResourceLayout
+from sciagent_contracts import (
     AgentPermissions, AgentRequest, ModuleStatus, TaskBudget,
     WorkspaceAccess, WorkspaceGrant,
 )
-from resagent2_experiment import NativeExperimentAgent
-from resagent2_runtime import ScriptedLLMClient
-from resagent2_scientific import ScientificAgent
+from sciagent_experiment import NativeExperimentAgent
+from sciagent_runtime import ScriptedLLMClient
+from sciagent_scientific import ScientificAgent
 
 
 @pytest.mark.parametrize("owner", ["scientific", "coding", "experiment"])

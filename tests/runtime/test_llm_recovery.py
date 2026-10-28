@@ -1,8 +1,8 @@
 from dataclasses import replace
-from resagent2_contracts import ExecutionConfig, ExecutionDefinition
+from sciagent_contracts import ExecutionConfig, ExecutionDefinition
 """Native argument errors recover in place; transport failures may retry a Task."""
 
-from resagent2_contracts import AgentPermissions, RunPermissions, ExecutionLimits
+from sciagent_contracts import AgentPermissions, RunPermissions, ExecutionLimits
 
 import json
 from uuid import uuid4
@@ -12,8 +12,8 @@ from httpx import TransportError
 
 import pytest
 
-from resagent2_contracts import (AgentOwner, ErrorCode, ModuleStatus, AgentRequest, ResearchRequest, RunBudget, RunStatus, TaskProposal, TaskStatus, TaskBudget, WorkflowProposal, WorkRequest, WorkRequestDraft)
-from resagent2_orchestrator import (
+from sciagent_contracts import (AgentOwner, ErrorCode, ModuleStatus, AgentRequest, ResearchRequest, RunBudget, RunStatus, TaskProposal, TaskStatus, TaskBudget, WorkflowProposal, WorkRequest, WorkRequestDraft)
+from sciagent_orchestrator import (
     InMemoryRunStore,
     ModuleBinding,
     ResearchRun,
@@ -21,7 +21,7 @@ from resagent2_orchestrator import (
 )
 from tool_fixtures import WriteValueTool
 
-from resagent2_runtime import (
+from sciagent_runtime import (
     AgentDefinition,
     AgentLoop,
     AllowListPermissionPolicy,
@@ -90,8 +90,8 @@ def test_bad_json_stops_at_existing_limits(
     request = AgentRequest(work_request_id="work_test", run_id='run_r', task_id='task_r', attempt_number=1, agent=AgentOwner.EXECUTOR, instruction='q', budget=TaskBudget(max_llm_calls=call_budget, timeout_seconds=60), permissions=AgentPermissions(execute_commands=True))
 
     with (
-        mock.patch("resagent2_runtime.llm.time.sleep"),
-        mock.patch("resagent2_runtime.llm.send_request", side_effect=lambda *a, **k: _response("not valid json")),
+        mock.patch("sciagent_runtime.llm.time.sleep"),
+        mock.patch("sciagent_runtime.llm.send_request", side_effect=lambda *a, **k: _response("not valid json")),
     ):
         result = AgentLoop(store=InMemorySessionStore()).run(
             definition, request, session_id="session_recovery"
@@ -205,9 +205,9 @@ def test_scheduler_keeps_attempt_for_json_but_retries_transport(
     failures = [bad, bad, bad] if network_failure else [_response("not valid json") for _ in range(3)]
 
     with (
-        mock.patch("resagent2_runtime.llm.time.sleep"),
+        mock.patch("sciagent_runtime.llm.time.sleep"),
         mock.patch(
-            "resagent2_runtime.llm.send_request",
+            "sciagent_runtime.llm.send_request",
             side_effect=[*failures, valid],
         ),
     ):
@@ -242,7 +242,7 @@ def test_scheduler_keeps_attempt_for_json_but_retries_transport(
 @pytest.fixture
 def recovery(monkeypatch, tmp_path):
     monkeypatch.setenv("TEST_LLM_KEY", "dummy")
-    monkeypatch.setattr("resagent2_runtime.llm.time.sleep", lambda _: None)
+    monkeypatch.setattr("sciagent_runtime.llm.time.sleep", lambda _: None)
     client = OpenAICompatibleClient(
         model="test-model", api_base="https://example.invalid/v1",
         api_key_env="TEST_LLM_KEY", trace_dir=tmp_path / "traces", trace_level="full",
@@ -287,7 +287,7 @@ _WRITE = '{"tool":"write_value","arguments":{"key":"kept","value":7}}'
 ])
 def test_bad_json_feedback_preserves_state_and_never_executes_prefix(recovery, bad):
     definition, request, store = recovery
-    with mock.patch("resagent2_runtime.llm.send_request", side_effect=[
+    with mock.patch("sciagent_runtime.llm.send_request", side_effect=[
         _response(bad), _response(_WRITE), _response(_FINISH),
     ]):
         result = AgentLoop(store=store).run(definition, request, session_id="session_r")
@@ -322,7 +322,7 @@ def test_transport_then_bad_json_counts_all_attempts_without_exceeding_budget(
     request = request.model_copy(update={"budget": TaskBudget(
         max_llm_calls=call_budget, timeout_seconds=60,
     )})
-    with mock.patch("resagent2_runtime.llm.send_request", side_effect=[
+    with mock.patch("sciagent_runtime.llm.send_request", side_effect=[
         TransportError("transient"), _response("bad JSON"), _response(_FINISH),
     ]) as provider:
         result = AgentLoop(store=store).run(definition, request, session_id="session_r")
@@ -343,7 +343,7 @@ def test_transport_then_bad_json_counts_all_attempts_without_exceeding_budget(
 def test_json_and_schema_errors_share_feedback_and_failure_limit(recovery):
     definition, request, store = recovery
     bad_schema = '{"tool":"finish","report":"Done"}'
-    with mock.patch("resagent2_runtime.llm.send_request", side_effect=[
+    with mock.patch("sciagent_runtime.llm.send_request", side_effect=[
         _response("bad JSON"), _response(bad_schema), _response("bad JSON"),
         _response(bad_schema), _response("bad JSON"), _response(_FINISH),
     ]) as provider:
@@ -363,7 +363,7 @@ def test_json_correction_still_respects_wall_clock(recovery):
     def respond(*args, **kwargs):
         clock[0] = 61.0
         return _response("bad JSON")
-    with mock.patch("resagent2_runtime.llm.send_request", side_effect=respond) as provider:
+    with mock.patch("sciagent_runtime.llm.send_request", side_effect=respond) as provider:
         result = AgentLoop(store=store, clock=lambda: clock[0]).run(
             definition, request, session_id="session_r",
         )
@@ -382,7 +382,7 @@ def test_json_feedback_is_provider_neutral(recovery):
         tool_session_key = "other-native/v1"
 
         def next_tool_call(self, context, schemas, turns, *, max_input_tokens):
-            from resagent2_runtime.tool_calling import parse_tool_turn
+            from sciagent_runtime.tool_calling import parse_tool_turn
             self.contexts.append(context)
             response = _response("bad JSON" if len(self.contexts) == 1 else _FINISH)
             return parse_tool_turn(response._payload["choices"][0]["message"], "stop")
@@ -400,7 +400,7 @@ def test_json_feedback_is_provider_neutral(recovery):
 
 def test_correction_keeps_previously_completed_work(recovery):
     definition, request, store = recovery
-    with mock.patch("resagent2_runtime.llm.send_request", side_effect=[
+    with mock.patch("sciagent_runtime.llm.send_request", side_effect=[
         _response(_WRITE), _response("bad JSON"), _response(_FINISH),
     ]):
         result = AgentLoop(store=store).run(definition, request, session_id="session_r")
@@ -417,7 +417,7 @@ def test_trace_storage_failure_does_not_interrupt_schema_recovery(recovery, capl
     trace_dir.mkdir()
     (trace_dir / "llm_traces.jsonl").mkdir()
     bad_schema = '{"tool":"finish","report":"Done"}'
-    with mock.patch("resagent2_runtime.llm.send_request", side_effect=[
+    with mock.patch("sciagent_runtime.llm.send_request", side_effect=[
         _response(bad_schema), _response(_FINISH),
     ]) as provider:
         result = AgentLoop(store=store).run(definition, request, session_id="session_r")

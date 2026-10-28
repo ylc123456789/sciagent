@@ -93,13 +93,19 @@ python -m e2e.l3_calibration.prepare \
   analysis/         测试方独立验收，不放入实验工作区
 ```
 
-`run-config.sh` 保存模型名、数据映射和 trace 位置。若使用非默认 API 地址或模型配置，在第一次正式运行前完善该文件并保存其 hash；API key 由进程环境提供，不写入研究目标或版本库。后续命令保持相同继承环境和配置，不在运行中更换 Python、模型或依赖。
+`run-config.sh` 保存 `SCIAGENT_MODEL`、数据映射和 trace 位置。准备器继承当前 `SCIAGENT_MODEL`，未设置时采用 `deepseek-v4-flash`。数据变量由准备器生成：
+
+- `SCIAGENT_DATASET_ROOT` 指向 `L3_DATASET` 的父目录，读取其中已有的 `catalog.json`。
+- `SCIAGENT_DATASETS_JSON` 是只含 `cifar10` 的 JSON 映射，值为 `L3_DATASET` 的真实绝对路径；它不是 catalog 文件路径。
+- 运行状态、Session 和登记工件保存到 `L3_ROOT/data`，启动脚本通过 `--data-root` 指定，与共享实验数据目录分开。
+
+若使用非默认服务，在第一次正式运行前补充 `SCIAGENT_API_BASE` 和 `SCIAGENT_API_KEY_ENV` 等非敏感配置，并保存配置文件的 hash。`SCIAGENT_API_KEY_ENV` 填保存密钥的环境变量名称，密钥本身由进程环境提供。后续命令保持相同继承环境和配置，不在运行中更换 Python、模型或依赖。
 
 ## 4. 正式运行前的预检
 
 准备完成不等于预检通过。测试方还需要：
 
-1. 记录产品 Git commit、是否有未提交修改、模型配置、GPU、Python 和依赖版本。确认 `resagent2 --help` 和 `python -m pip check` 正常。
+1. 记录产品 Git commit、是否有未提交修改、模型配置、GPU、Python 和依赖版本。确认 `sciagent --help` 和 `python -m pip check` 正常。
 2. 在另外一个临时目录进行基线 1—2 epoch 冒烟，核对 GPU、训练日志和 checkpoint 保存；记录耗时。不要在正式 `workspace` 中留下冒烟 checkpoint、预测或日志，不把冒烟结果当正式训练结果。
 3. 检查文献搜索与获取服务。记录真实可用性，搜索成功不等于已经读到论文全文。外部服务不可用时单列阻断，不删除研究任务中的查资料要求。
 4. 估算训练、校准、评价和模型调用所需预算。确认数据、设备、权限和费用已经得到运行者授权。

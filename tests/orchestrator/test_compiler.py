@@ -4,9 +4,9 @@ from datetime import UTC, datetime
 import pytest
 from pydantic import ValidationError
 
-from resagent2_contracts import ExecutionLimits, WorkRequest, WorkRequestDraft, Workflow, WorkflowTask
-from resagent2_executor import default_execution_registry
-from resagent2_orchestrator import CompilationError, DeterministicWorkflowCompiler, FixedWorkflowCompiler
+from sciagent_contracts import ExecutionLimits, WorkRequest, WorkRequestDraft, Workflow, WorkflowTask
+from sciagent_executor import default_execution_registry
+from sciagent_orchestrator import CompilationError, DeterministicWorkflowCompiler, FixedWorkflowCompiler
 
 
 def request(**task_changes):

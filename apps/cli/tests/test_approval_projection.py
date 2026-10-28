@@ -6,23 +6,23 @@ from types import SimpleNamespace
 
 import pytest
 
-from resagent2_cli.approval_context import approval_context
-from resagent2_components.approval_review import LLMPermissionReviewer
-from resagent2_components.python_source_evidence import collect_python_source_evidence
-from resagent2_components.workspace import WorkspaceBoundary
-from resagent2_contracts import (
+from sciagent_cli.approval_context import approval_context
+from sciagent_components.approval_review import LLMPermissionReviewer
+from sciagent_components.python_source_evidence import collect_python_source_evidence
+from sciagent_components.workspace import WorkspaceBoundary
+from sciagent_contracts import (
     ActionSnapshot, AgentOwner, AgentResult, BusinessInput, ControlSignal,
     ModuleStatus, PendingQuestion, RecordedAnswer, ResearchRequest, RunBudget,
     RunPermissions, RunStatus, SessionRef, SessionStatus, TaskProposal, UserAnswer,
     WorkflowAgentKind,
     WorkflowPatch, WorkRequest, WorkRequestDraft, WorkspaceAccess, WorkspaceSpec, task_session_id,
 )
-from resagent2_executor import default_execution_registry
-from resagent2_orchestrator import (
+from sciagent_executor import default_execution_registry
+from sciagent_orchestrator import (
     CompilationResult, DeterministicWorkInterpreter, JsonRunStore, ModuleBinding,
     ResearchController, WorkflowScheduler,
 )
-from resagent2_runtime import NativeToolCall, ScriptedLLMClient, ToolCallTurn
+from sciagent_runtime import NativeToolCall, ScriptedLLMClient, ToolCallTurn
 
 
 NOW = datetime(2026, 10, 21, tzinfo=UTC)
@@ -230,9 +230,9 @@ def test_corrupt_root_order_fails_before_reviewer_model_dispatch(case, corruptio
 
 @pytest.mark.parametrize("corrupt", [False, True], ids=["intact", "corrupt"])
 def test_root_projection_review_or_fallback_never_executes_without_approval(case, tmp_path, corrupt):
-    from resagent2_capabilities.permissions import OperationPermissionPolicy
-    from resagent2_runtime import AgentDefinition, AgentLoop, ContextSection, JsonSessionStore
-    from resagent2_runtime.models import RuntimeModel
+    from sciagent_capabilities.permissions import OperationPermissionPolicy
+    from sciagent_runtime import AgentDefinition, AgentLoop, ContextSection, JsonSessionStore
+    from sciagent_runtime.models import RuntimeModel
 
     class ShellInput(RuntimeModel):
         command: str

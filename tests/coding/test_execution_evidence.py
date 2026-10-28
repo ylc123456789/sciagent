@@ -6,11 +6,11 @@ import subprocess
 
 import pytest
 
-from resagent2_coding.completion import CodingCompletionCheck
-from resagent2_components import GitWorkspace, WorkspaceBoundary, WorkspacePermissionError
-from resagent2_contracts import AgentOwner, WorkspaceGrant, WorkspaceAccess
-from resagent2_runtime import AgentState, FinishCandidate, NativeToolCall, ToolCallTurn, ToolObservation
-from resagent2_runtime.tool_calling import tool_receipt
+from sciagent_coding.completion import CodingCompletionCheck
+from sciagent_components import GitWorkspace, WorkspaceBoundary, WorkspacePermissionError
+from sciagent_contracts import AgentOwner, WorkspaceGrant, WorkspaceAccess
+from sciagent_runtime import AgentState, FinishCandidate, NativeToolCall, ToolCallTurn, ToolObservation
+from sciagent_runtime.tool_calling import tool_receipt
 
 
 @pytest.mark.parametrize("exit_code", [0, 1])

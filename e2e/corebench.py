@@ -171,8 +171,8 @@ def _public(manifest):
 def run(*, manifest, output, run_id=None, max_llm_calls=200, timeout_seconds=7200,
         max_tasks=8, max_attempts=2, max_work_depth=3, approval_mode="manual", execution_mode="live-model"):
     """Invoke the production application, fixed Scientific root and real Registry."""
-    from resagent2_cli.composition import build_application
-    from resagent2_contracts import ArtifactImport, ResearchRequest, RunBudget, RunPermissions, ExecutionLimits, WorkspaceSpec, WorkspaceSourceKind, WorkspaceAccess
+    from sciagent_cli.composition import build_application
+    from sciagent_contracts import ArtifactImport, ResearchRequest, RunBudget, RunPermissions, ExecutionLimits, WorkspaceSpec, WorkspaceSourceKind, WorkspaceAccess
 
     manifest, public = _public(manifest)
     output = Path(output).resolve()
@@ -199,7 +199,7 @@ def run(*, manifest, output, run_id=None, max_llm_calls=200, timeout_seconds=720
     receipt = {"run_id": run_id, "capsule_id": public["capsule_id"], "revision": REVISION, "execution_mode": execution_mode,
         "status": result.status.value, "started_at": started.isoformat(), "finished_at": datetime.now(UTC).isoformat(),
         "request_budget": request.budget.model_dump(mode="json"), "execution_limits": request.execution_limits.model_dump(mode="json"),
-        "model": os.environ.get("RESAGENT2_MODEL", "deepseek-v4-flash"), "usage": result.usage.model_dump(mode="json"),
+        "model": os.environ.get("SCIAGENT_MODEL", "deepseek-v4-flash"), "usage": result.usage.model_dump(mode="json"),
         "user_wait_seconds": result.user_wait_seconds, "answers": [answer.model_dump(mode="json") for answer in result.answers],
         "pending_question": result.pending_question.model_dump(mode="json") if result.pending_question else None,
         "token_and_cost_accounting": "See configured LLM metadata traces; absent provider usage is unknown, never zero.",
@@ -212,7 +212,7 @@ def run(*, manifest, output, run_id=None, max_llm_calls=200, timeout_seconds=720
 
 def export_report(run, destination):
     """Export frozen bytes, never trust an unregistered workspace report.json."""
-    from resagent2_components import RegisteredArtifactReader
+    from sciagent_components import RegisteredArtifactReader
     if run.status.value != "completed" or run.final_opinion is None or run.final_report_artifact_id not in run.artifacts:
         raise ValueError("only accepted completed research runs may export")
     def accepted_output(ref):
@@ -274,7 +274,7 @@ def export_report(run, destination):
 
 def export_saved(*, data_root, run_id, output):
     """Export after the normal production CLI has answered/resumed a paused run."""
-    from resagent2_orchestrator import JsonRunStore
+    from sciagent_orchestrator import JsonRunStore
     run = JsonRunStore(Path(data_root) / "state").load(run_id)
     ref = export_report(run, output)
     receipt = {"run_id": run_id, "status": run.status.value, "report_artifact_id": ref.id, "report_sha256": ref.sha256,

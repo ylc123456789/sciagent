@@ -9,17 +9,17 @@ import sys
 import pytest
 
 from e2e.native_fixtures import tool_turns
-from resagent2_components import runtime_authority_context
-from resagent2_contracts import (
+from sciagent_components import runtime_authority_context
+from sciagent_contracts import (
     AgentOwner, AgentPermissions, AgentRequest, ExecutionCatalogEntry,
     ExecutionDefinition, RecordedAnswer,
     TaskBudget, WorkspaceAccess, WorkspaceGrant,
 )
-from resagent2_executor import (
+from sciagent_executor import (
     NativeExecutorAgent, build_coding_definition, build_experiment_definition,
     default_execution_registry, validate_execution_definition,
 )
-from resagent2_runtime import JsonSessionStore, ScriptedLLMClient
+from sciagent_runtime import JsonSessionStore, ScriptedLLMClient
 
 
 def request(root, definition=None, **updates):
@@ -171,7 +171,7 @@ def test_recreated_executor_preserves_original_git_baseline_and_checkpoint(tmp_p
 
 @pytest.mark.parametrize("change", ["config_hash", "execution_ref", "foreign_task"])
 def test_resume_binding_is_rejected_before_model_resolution_or_workspace_preparation(tmp_path, monkeypatch, change):
-    from resagent2_contracts import WorkspaceSpec
+    from sciagent_contracts import WorkspaceSpec
 
     root = tmp_path / "workspace"
     root.mkdir()
@@ -204,7 +204,7 @@ def test_resume_binding_is_rejected_before_model_resolution_or_workspace_prepara
         pytest.fail("A mismatched Session must be rejected before model resolution or materialization")
 
     resumed = NativeExecutorAgent(unexpected_call, store=JsonSessionStore(store.root))
-    monkeypatch.setattr("resagent2_executor.agent.RepoMaterializer.materialize", unexpected_call)
+    monkeypatch.setattr("sciagent_executor.agent.RepoMaterializer.materialize", unexpected_call)
     rejected = resumed.invoke(req.model_copy(update=updates))
     assert rejected.status == "failed"
     assert rejected.error.code == "contract_error"
@@ -296,8 +296,8 @@ def test_parent_catalog_and_executor_guidance_share_capability_boundaries(tmp_pa
 def test_real_finish_freezes_non_utf8_patch_file_and_json_reports(tmp_path, monkeypatch, ending):
     import hashlib
     from urllib.parse import urlparse
-    from resagent2_orchestrator.artifacts import ArtifactRegistry
-    from resagent2_runtime import PermissionDecision
+    from sciagent_orchestrator.artifacts import ArtifactRegistry
+    from sciagent_runtime import PermissionDecision
 
     root = tmp_path / "repo"
     init_repo(root)
@@ -323,7 +323,7 @@ def test_real_finish_freezes_non_utf8_patch_file_and_json_reports(tmp_path, monk
              "summary": "Actual JSON report", "output_name": name}
             for path, name in [("report.json", "report"), ("measurements.json", "measurements")]
         ]))
-    monkeypatch.setattr("resagent2_capabilities.permissions.OperationPermissionPolicy.check",
+    monkeypatch.setattr("sciagent_capabilities.permissions.OperationPermissionPolicy.check",
                         lambda *_: PermissionDecision(outcome="allow"))
     client = ScriptedLLMClient(tool_turns(actions))
     store = JsonSessionStore(tmp_path / "sessions")
@@ -374,8 +374,8 @@ def test_real_finish_freezes_non_utf8_patch_file_and_json_reports(tmp_path, monk
 
 
 def test_completion_and_diagnostic_failures_preserve_original_saved_result_and_usage(tmp_path, monkeypatch):
-    from resagent2_components import GitWorkspace
-    from resagent2_runtime import PermissionDecision
+    from sciagent_components import GitWorkspace
+    from sciagent_runtime import PermissionDecision
 
     root = tmp_path / "repo"
     init_repo(root)
@@ -387,7 +387,7 @@ def test_completion_and_diagnostic_failures_preserve_original_saved_result_and_u
             raise OSError("primary patch storage failure")
         raise UnicodeDecodeError("utf-8", b"\xac", 0, 1, "diagnostic decoder failure")
     monkeypatch.setattr(GitWorkspace, "write_patch_since", unavailable_patch)
-    monkeypatch.setattr("resagent2_capabilities.permissions.OperationPermissionPolicy.check",
+    monkeypatch.setattr("sciagent_capabilities.permissions.OperationPermissionPolicy.check",
                         lambda *_: PermissionDecision(outcome="allow"))
     client = ScriptedLLMClient(tool_turns([
         {"tool": "run_shell", "arguments": {"command": "printf 'VALUE = 2\n' > value.py"}},
@@ -420,8 +420,8 @@ def test_git_definition_requires_output_root_before_model_or_workspace_side_effe
     agent = NativeExecutorAgent(lambda _: pytest.fail("missing output root must not resolve a model"))
     def forbidden(*args, **kwargs):
         pytest.fail("missing output root must not prepare or observe the workspace")
-    monkeypatch.setattr("resagent2_executor.agent.RepoMaterializer.materialize", forbidden)
-    monkeypatch.setattr("resagent2_executor.agent.GitWorkspace", forbidden)
+    monkeypatch.setattr("sciagent_executor.agent.RepoMaterializer.materialize", forbidden)
+    monkeypatch.setattr("sciagent_executor.agent.GitWorkspace", forbidden)
     req = request(root, build_coding_definition(), output_dir=None)
     result = agent.invoke(req)
     assert result.status == "blocked"
@@ -433,8 +433,8 @@ def test_git_definition_requires_output_root_before_model_or_workspace_side_effe
 
 
 def test_git_completion_requires_explicit_output_root(tmp_path):
-    from resagent2_components import GitBaseline, WorkspaceBoundary
-    from resagent2_executor.completion import ExecutionCompletionCheck
+    from sciagent_components import GitBaseline, WorkspaceBoundary
+    from sciagent_executor.completion import ExecutionCompletionCheck
     boundary = WorkspaceBoundary(WorkspaceGrant(root=str(tmp_path), source="local",
         access=WorkspaceAccess(read_paths=["."], write_paths=["."])))
     with pytest.raises(ValueError, match="trusted output_dir"):

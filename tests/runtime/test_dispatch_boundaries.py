@@ -1,15 +1,15 @@
 from e2e.native_fixtures import tool_turn
 """Dispatch deadlines and unambiguous control signals, without real time or LLMs."""
 
-from resagent2_contracts import AgentPermissions
+from sciagent_contracts import AgentPermissions
 
 from itertools import combinations
 
 from pydantic import BaseModel, ValidationError
 import pytest
 
-from resagent2_contracts import (AgentOwner, ErrorCode, ModuleStatus, AgentRequest, SessionStatus, TaskBudget)
-from resagent2_runtime import (
+from sciagent_contracts import (AgentOwner, ErrorCode, ModuleStatus, AgentRequest, SessionStatus, TaskBudget)
+from sciagent_runtime import (
     AgentDefinition, AgentLoop, CompletionDecision, FinishCandidate,
     InMemorySessionStore, PermissionDecision, ToolObservation,
 )

@@ -8,17 +8,17 @@ from pathlib import Path
 
 import pytest
 
-from resagent2_capabilities import ReadFileTool
-from resagent2_components import ReadOnlyWorkspaceBoundary
-from resagent2_contracts import AgentRequest, TaskBudget, WorkspaceAccess, WorkspaceGrant
-from resagent2_runtime import (
+from sciagent_capabilities import ReadFileTool
+from sciagent_components import ReadOnlyWorkspaceBoundary
+from sciagent_contracts import AgentRequest, TaskBudget, WorkspaceAccess, WorkspaceGrant
+from sciagent_runtime import (
     AgentDefinition, AgentLoop, AgentState, AllowListPermissionPolicy, AskUserTool,
     CompletionDecision, ContextSection, FinishTool, InMemorySessionStore,
     JsonSessionStore, ScriptedLLMClient, ToolObservation,
 )
-from resagent2_runtime.models import NativeToolCall, RuntimeModel, ToolCallTurn
-from resagent2_runtime.tool_calling import native_input_text, tool_messages, tool_receipt
-from resagent2_runtime.tool_output import (
+from sciagent_runtime.models import NativeToolCall, RuntimeModel, ToolCallTurn
+from sciagent_runtime.tool_calling import native_input_text, tool_messages, tool_receipt
+from sciagent_runtime.tool_output import (
     MAX_TOOL_RECEIPT_CHARS, export_tool_receipt, model_tool_receipt, sync_tool_receipt_files,
 )
 
@@ -145,7 +145,7 @@ def test_small_receipts_do_not_create_export_roots_or_change_projection(tmp_path
 
 
 def test_projection_uses_saved_reference_without_any_file_io_or_mutation(tmp_path, monkeypatch):
-    from resagent2_runtime import tool_output
+    from sciagent_runtime import tool_output
     receipt = public_receipt("complete output " * 30_000)
     reference = export_tool_receipt(str(tmp_path), receipt, turn_index=0, call_id="call_receipt")
     native_turn = turn(receipt)
@@ -227,7 +227,7 @@ def pause_after_output(tmp_path, *, store=None, content=None):
 
 
 def test_export_failure_happens_after_durable_execution_facts_and_stays_model_visible(tmp_path, monkeypatch):
-    from resagent2_runtime import tool_output
+    from sciagent_runtime import tool_output
     store = InMemorySessionStore()
     observed_receipts = []
 
@@ -344,7 +344,7 @@ def test_reading_exported_high_escape_windows_reaches_tail_without_secondary_exp
 
 
 def test_export_failure_can_be_recovered_without_changing_the_original_receipt(tmp_path, monkeypatch):
-    from resagent2_runtime import tool_output
+    from sciagent_runtime import tool_output
 
     def unavailable(*args, **kwargs):
         raise OSError("Temporary export storage failure")
@@ -397,7 +397,7 @@ def test_optional_reference_checkpoint_failure_does_not_turn_a_completed_tool_in
 
 
 def test_reviewed_operation_exports_its_original_public_review_receipt(tmp_path):
-    from resagent2_runtime import PermissionDecision
+    from sciagent_runtime import PermissionDecision
 
     class Policy:
         def check(self, action, saved, req):

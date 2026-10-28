@@ -7,15 +7,15 @@ from types import SimpleNamespace
 import pytest
 
 from e2e.native_fixtures import tool_turns
-from resagent2_capabilities import DeletePathTool, RunShellInput
-from resagent2_capabilities.permissions import OperationPermissionPolicy
-from resagent2_components import ProcessRunner, WorkspaceBoundary
-from resagent2_contracts import (
+from sciagent_capabilities import DeletePathTool, RunShellInput
+from sciagent_capabilities.permissions import OperationPermissionPolicy
+from sciagent_components import ProcessRunner, WorkspaceBoundary
+from sciagent_contracts import (
     AgentOwner, AgentPermissions, AgentRequest, RecordedAnswer, TaskBudget,
     WorkspaceAccess, WorkspaceGrant,
 )
-from resagent2_orchestrator.handoffs import control_key, receive_control
-from resagent2_runtime import (
+from sciagent_orchestrator.handoffs import control_key, receive_control
+from sciagent_runtime import (
     AgentDefinition, AgentLoop, CompletionDecision, FinishTool, JsonSessionStore,
     ScriptedLLMClient, ToolObservation,
 )

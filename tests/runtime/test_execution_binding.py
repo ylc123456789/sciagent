@@ -4,8 +4,8 @@ from dataclasses import replace
 import pytest
 
 from e2e.native_fixtures import tool_turns
-from resagent2_contracts import AgentRequest, ExecutionConfig, ExecutionDefinition
-from resagent2_runtime import (AgentDefinition, AgentLoop, AllowListPermissionPolicy,
+from sciagent_contracts import AgentRequest, ExecutionConfig, ExecutionDefinition
+from sciagent_runtime import (AgentDefinition, AgentLoop, AllowListPermissionPolicy,
     CompletionDecision, FinishTool, InMemorySessionStore, ScriptedLLMClient)
 
 

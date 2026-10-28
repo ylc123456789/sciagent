@@ -8,12 +8,12 @@ import json
 
 import pytest
 
-from resagent2_contracts import AgentOwner, ArtifactCandidate, ArtifactRef, WorkspaceGrant, WorkspaceAccess, WorkspaceSourceKind
-from resagent2_components import WorkspaceBoundary
-from resagent2_runtime import AgentState, FinishCandidate, ToolObservation
-from resagent2_runtime.models import NativeToolCall, ToolCallTurn
-from resagent2_runtime.tool_calling import tool_receipt
-from resagent2_experiment.completion import ExperimentCompletionCheck
+from sciagent_contracts import AgentOwner, ArtifactCandidate, ArtifactRef, WorkspaceGrant, WorkspaceAccess, WorkspaceSourceKind
+from sciagent_components import WorkspaceBoundary
+from sciagent_runtime import AgentState, FinishCandidate, ToolObservation
+from sciagent_runtime.models import NativeToolCall, ToolCallTurn
+from sciagent_runtime.tool_calling import tool_receipt
+from sciagent_experiment.completion import ExperimentCompletionCheck
 
 
 def state():

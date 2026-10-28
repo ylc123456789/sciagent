@@ -6,9 +6,9 @@ import os
 
 import pytest
 
-from resagent2_components import WorkspaceBoundary, ReadOnlyWorkspaceBoundary, WorkspacePermissionError
-from resagent2_components.workspace import DirectoryChangedError
-from resagent2_contracts import WorkspaceAccess, WorkspaceGrant
+from sciagent_components import WorkspaceBoundary, ReadOnlyWorkspaceBoundary, WorkspacePermissionError
+from sciagent_components.workspace import DirectoryChangedError
+from sciagent_contracts import WorkspaceAccess, WorkspaceGrant
 
 
 def grant(root, *, read=(".",), denied=()):
@@ -30,7 +30,7 @@ def test_single_level_nodes_keep_git_and_cache_but_skip_runtime_or_denied_entrie
     (tmp_path / "src" / "nested.py").write_text("pass")
     (tmp_path / "__pycache__").mkdir()
     (tmp_path / ".git").mkdir()
-    (tmp_path / ".resagent2").mkdir()
+    (tmp_path / ".sciagent").mkdir()
     (tmp_path / "private.txt").write_text("secret")
     page = boundary(tmp_path, denied=("private.txt",)).list_directory()
     assert names(page) == [".git", "__pycache__", "src", "z.py"]
@@ -124,7 +124,7 @@ def test_invalid_cursor_is_a_clear_input_error(tmp_path, cursor):
 
 
 def test_change_during_observation_rejects_apparently_complete_page(tmp_path, monkeypatch):
-    from resagent2_components import workspace
+    from sciagent_components import workspace
 
     (tmp_path / "a").touch()
     original = workspace._directory_names
@@ -140,7 +140,7 @@ def test_change_during_observation_rejects_apparently_complete_page(tmp_path, mo
 
 
 def test_no_descendant_scan_or_content_read_is_needed(tmp_path, monkeypatch):
-    from resagent2_components import workspace
+    from sciagent_components import workspace
 
     (tmp_path / "nested").mkdir()
     (tmp_path / "nested" / "secret").write_text("BODY_MUST_NOT_BE_READ")

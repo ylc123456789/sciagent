@@ -9,11 +9,11 @@ from urllib.request import url2pathname
 
 import pytest
 
-from resagent2_contracts import ArtifactImport, ResearchRequest, RunBudget, RunPermissions
-from resagent2_orchestrator import (
+from sciagent_contracts import ArtifactImport, ResearchRequest, RunBudget, RunPermissions
+from sciagent_orchestrator import (
     ArtifactRegistrationError, ArtifactRegistry, JsonRunStore, ResearchRun,
 )
-from resagent2_orchestrator import artifacts as implementation
+from sciagent_orchestrator import artifacts as implementation
 
 
 RUN_ID = "run_import_hash"

@@ -6,17 +6,17 @@ from datetime import UTC, datetime
 
 import pytest
 
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner, AgentPermissions, AgentRequest, ArtifactRef, ModuleStatus, RecordedAnswer, TaskBudget,
 )
-from resagent2_runtime import (
+from sciagent_runtime import (
     AgentDefinition, AgentLoop, AllowListPermissionPolicy, AskUserTool, CompletionDecision,
     ContextBudgetExceeded, ContextComposer, ContextSection, FinishTool, InMemorySessionStore,
     PermissionDecision, ScriptedLLMClient,
     ToolObservation,
 )
-from resagent2_runtime.models import NativeToolCall, ToolCallTurn
-from resagent2_runtime.tool_calling import native_input, native_tool_schemas, tool_messages
+from sciagent_runtime.models import NativeToolCall, ToolCallTurn
+from sciagent_runtime.tool_calling import native_input, native_tool_schemas, tool_messages
 from tool_fixtures import WriteValueTool
 
 

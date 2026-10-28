@@ -1,7 +1,7 @@
 """Original report bytes remain intact, including long physical lines."""
-from resagent2_contracts import AgentResult,ArtifactCandidate
-from resagent2_components import RegisteredArtifactReader
-from resagent2_orchestrator import ArtifactRegistry
+from sciagent_contracts import AgentResult,ArtifactCandidate
+from sciagent_components import RegisteredArtifactReader
+from sciagent_orchestrator import ArtifactRegistry
 
 
 def test_raw_agent_report_preserves_leading_trailing_whitespace():

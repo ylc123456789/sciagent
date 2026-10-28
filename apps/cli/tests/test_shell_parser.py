@@ -5,9 +5,9 @@ from types import SimpleNamespace
 
 import pytest
 
-from resagent2_cli.main import _answer_from_args, _parser
-from resagent2_cli.shell import _NoExitParser, _reject_shell_data_root
-from resagent2_contracts import ActionSnapshot, PendingQuestion
+from sciagent_cli.main import _answer_from_args, _parser
+from sciagent_cli.shell import _NoExitParser, _reject_shell_data_root
+from sciagent_contracts import ActionSnapshot, PendingQuestion
 
 
 def _answer(tokens, requested_fields=None, *, operation=False):

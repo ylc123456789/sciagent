@@ -1,8 +1,8 @@
 """Direct-control fixtures; bind synthetic question scopes at their test Port boundary."""
 from datetime import UTC, datetime
 from uuid import uuid4
-from resagent2_contracts import AgentResult, ControlSignal, PendingQuestion
-from resagent2_orchestrator import ScriptedModulePort
+from sciagent_contracts import AgentResult, ControlSignal, PendingQuestion
+from sciagent_orchestrator import ScriptedModulePort
 
 
 def question_signal(session_id, text, requested_fields):
@@ -21,7 +21,7 @@ class ScopedScriptedModulePort(ScriptedModulePort):
             signal = result.control.model_copy(deep=True)
             signal.question = signal.question.model_copy(update={
                 "run_id": request.run_id, "task_id": request.task_id,
-                "attempt_number": request.attempt_number, "recipient_session_id": request.upstream_session_id, "created_at": __import__("resagent2_orchestrator.scheduler", fromlist=["datetime"]).datetime.now(UTC),
+                "attempt_number": request.attempt_number, "recipient_session_id": request.upstream_session_id, "created_at": __import__("sciagent_orchestrator.scheduler", fromlist=["datetime"]).datetime.now(UTC),
             })
             result = result.model_copy(update={"control": signal})
         return result

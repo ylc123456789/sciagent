@@ -5,23 +5,23 @@ from urllib.parse import parse_qs, urlsplit
 
 import pytest
 
-from resagent2_components import (
+from sciagent_components import (
     MultiSourceLiteratureBackend,
     LiteraturePaper,
     LiteratureSearchError,
     LiteratureUnavailableError,
     OpenAlexLiteratureBackend,
 )
-from resagent2_capabilities import (
+from sciagent_capabilities import (
     LiteratureSearchTool,
     LiteratureSearchToolInput,
 )
-from resagent2_components.literature import (
+from sciagent_components.literature import (
     _http as _literature_http,
     backends as openalex,
 )
 from tests.capabilities.test_literature import _FakeRegister, state
-from resagent2_components import LiteratureSearchResult
+from sciagent_components import LiteratureSearchResult
 
 
 class _FakeBackend:
@@ -79,7 +79,7 @@ def test_query_auth_and_normalized_record(monkeypatch):
     assert params["per_page"] == ["5"]
     assert params["filter"] == ["from_publication_date:2019-01-01,to_publication_date:2024-12-31"]
     assert request.headers.get("Authorization") == "Bearer private-test-key"
-    assert request.headers.get("User-agent").startswith("ResAgent2/")
+    assert request.headers.get("User-agent").startswith("sciagent/")
     assert "private-test-key" not in str(request.url)
     assert "private-test-key" not in papers[0].model_dump_json()
     assert timeout == 9
@@ -281,7 +281,7 @@ def test_missing_total_is_unknown_not_exhausted(monkeypatch):
 
 
 def test_arxiv_topic_title_paging(monkeypatch):
-    from resagent2_components import ArxivLiteratureBackend
+    from sciagent_components import ArxivLiteratureBackend
     from tests.capabilities.test_literature import ARXIV_ATOM
     captured = []
     backend = ArxivLiteratureBackend()
@@ -333,7 +333,7 @@ KNOWN_TITLES = [
 @pytest.mark.parametrize('title', KNOWN_TITLES)
 @pytest.mark.parametrize('quoted', [False, True])
 def test_complete_title_phrase_for_both_sources(monkeypatch, title, quoted):
-    from resagent2_components import ArxivLiteratureBackend
+    from sciagent_components import ArxivLiteratureBackend
     # Request translation only; remote retrieval quality is measured separately.
     query = '"' + title + '"' if quoted else title
     expected = '"' + title + '"'
@@ -348,7 +348,7 @@ def test_complete_title_phrase_for_both_sources(monkeypatch, title, quoted):
 
 
 def test_title_phrase_normalizes_spacing_and_preserves_escaped_punctuation(monkeypatch):
-    from resagent2_components import ArxivLiteratureBackend
+    from sciagent_components import ArxivLiteratureBackend
     query = r'"On   \"Quoted\" Titles: A Few-Shot Study"'
     expected = r'"On \"Quoted\" Titles: A Few-Shot Study"'
     assert ArxivLiteratureBackend._search_query(query, None, None, 'title') == 'ti:' + expected
@@ -359,7 +359,7 @@ def test_title_phrase_normalizes_spacing_and_preserves_escaped_punctuation(monke
 
 
 def test_topic_keeps_keyword_and_phrase_query_unchanged():
-    from resagent2_components import ArxivLiteratureBackend
+    from sciagent_components import ArxivLiteratureBackend
     assert ArxivLiteratureBackend._search_query('calibration "temperature scaling"', None, None) == (
         '(ti:"calibration" OR abs:"calibration") AND '
         '(ti:"temperature scaling" OR abs:"temperature scaling")')
@@ -367,7 +367,7 @@ def test_topic_keeps_keyword_and_phrase_query_unchanged():
 
 @pytest.mark.parametrize('quoted', [False, True])
 def test_title_phrase_preserves_apostrophe_and_escaped_backslash(monkeypatch, quoted):
-    from resagent2_components import ArxivLiteratureBackend
+    from sciagent_components import ArxivLiteratureBackend
     title = r"A Researcher's Guide to C:\\Models"
     query = '"' + title + '"' if quoted else title
     expected = r'''"A Researcher's Guide to C:\\Models"'''

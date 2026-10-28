@@ -8,18 +8,18 @@ import json
 
 import pytest
 
-from resagent2_cli import composition
-from resagent2_contracts import ExecutionLimits, WorkRequest, WorkRequestDraft
-from resagent2_runtime.budget import execution_budget
+from sciagent_cli import composition
+from sciagent_contracts import ExecutionLimits, WorkRequest, WorkRequestDraft
+from sciagent_runtime.budget import execution_budget
 
 
 @pytest.fixture
 def model_config_scope():
     with execution_budget(max_llm_calls=10, timeout_seconds=900):
         yield
-from resagent2_orchestrator import DeterministicWorkInterpreter
-from resagent2_orchestrator import FixedWorkflowCompiler
-from resagent2_runtime import DEFAULT_AGENT_CONTEXT_TOKENS, ComposedContext, ScriptedLLMClient
+from sciagent_orchestrator import DeterministicWorkInterpreter
+from sciagent_orchestrator import FixedWorkflowCompiler
+from sciagent_runtime import DEFAULT_AGENT_CONTEXT_TOKENS, ComposedContext, ScriptedLLMClient
 
 
 @pytest.fixture
@@ -31,8 +31,8 @@ def defaults(monkeypatch):
         "EXPERIMENT_CONTEXT_TOKENS", "COMPILER_CONTEXT_TOKENS",
         "PERMISSION_REVIEWER_CONTEXT_TOKENS",
     ):
-        monkeypatch.delenv(f"RESAGENT2_{name}", raising=False)
-    monkeypatch.setenv("RESAGENT2_API_KEY_ENV", "TEST_CONFIG_KEY")
+        monkeypatch.delenv(f"SCIAGENT_{name}", raising=False)
+    monkeypatch.setenv("SCIAGENT_API_KEY_ENV", "TEST_CONFIG_KEY")
     monkeypatch.setenv("TEST_CONFIG_KEY", "test-only")
 
 
@@ -88,7 +88,7 @@ def test_composition_uses_fixed_interpreter_without_a_model_client(defaults, mon
 
 @pytest.mark.parametrize("model", ["deepseek-v4-flash", "deepseek-v4-pro"])
 def test_cli_wire_uses_configured_output_cap_not_an_input_cap(defaults, monkeypatch, model, model_config_scope):
-    monkeypatch.setenv("RESAGENT2_MODEL", model)
+    monkeypatch.setenv("SCIAGENT_MODEL", model)
     seen = []
 
     def respond(request, *, timeout, max_response_bytes):
@@ -99,7 +99,7 @@ def test_cli_wire_uses_configured_output_cap_not_an_input_cap(defaults, monkeypa
             "function": {"name": "finish", "arguments": '{"report":"done"}'},
         }]}}]}, request=request)
 
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", respond)
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", respond)
     client = composition._client()
     client.next_tool_call(ComposedContext(
         text="Select the next tool", included_sections=["system"], omitted_sections=[], estimated_tokens=3,
@@ -118,7 +118,7 @@ def test_custom_model_can_override_capacity_output_and_timeout(defaults, monkeyp
         "RESERVED_OUTPUT_TOKENS": "3000", "LLM_TIMEOUT_SECONDS": "90",
         "CODING_CONTEXT_TOKENS": "12000",
     }.items():
-        monkeypatch.setenv(f"RESAGENT2_{key}", value)
+        monkeypatch.setenv(f"SCIAGENT_{key}", value)
     client = composition._client()
     assert client.model == "custom-model"
     assert client.model_profile.context_window == 32000
@@ -133,18 +133,18 @@ def test_custom_model_can_override_capacity_output_and_timeout(defaults, monkeyp
     ("CONTEXT_WINDOW", "65536"),  # A stale small capacity cannot fit the new reservation.
 ])
 def test_invalid_capacity_configuration_fails_before_network(defaults, monkeypatch, key, value):
-    monkeypatch.setenv(f"RESAGENT2_{key}", value)
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", lambda *a, **k: pytest.fail("no network"))
+    monkeypatch.setenv(f"SCIAGENT_{key}", value)
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", lambda *a, **k: pytest.fail("no network"))
     with pytest.raises(ValueError):
         composition._client()
 
 
 def test_full_cli_compilation_is_fixed_and_has_no_model_request(defaults, monkeypatch, tmp_path, model_config_scope):
-    monkeypatch.setenv("RESAGENT2_LLM_TRACE_LEVEL", "full")
-    monkeypatch.setenv("RESAGENT2_LLM_TRACE_DIR", str(tmp_path / "trace"))
+    monkeypatch.setenv("SCIAGENT_LLM_TRACE_LEVEL", "full")
+    monkeypatch.setenv("SCIAGENT_LLM_TRACE_DIR", str(tmp_path / "trace"))
     # An obsolete compiler override must not affect composition or create a client.
-    monkeypatch.setenv("RESAGENT2_COMPILER_CONTEXT_TOKENS", "invalid")
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", lambda *a, **k: pytest.fail("no compiler HTTP"))
+    monkeypatch.setenv("SCIAGENT_COMPILER_CONTEXT_TOKENS", "invalid")
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", lambda *a, **k: pytest.fail("no compiler HTTP"))
     controller = composition.build_application(data_root=tmp_path / "data").controller
     now = datetime.now(UTC)
     instruction = "  Measure the method using the existing code and report uncertainty.\n"
@@ -164,8 +164,8 @@ def test_full_cli_compilation_is_fixed_and_has_no_model_request(defaults, monkey
 
 @pytest.mark.parametrize("level", ["off", "metadata", "full"])
 def test_composition_reports_effective_trace_configuration(defaults, monkeypatch, tmp_path, capsys, level):
-    monkeypatch.setenv("RESAGENT2_LLM_TRACE_LEVEL", level)
-    monkeypatch.setenv("RESAGENT2_LLM_TRACE_DIR", str(tmp_path / "traces"))
+    monkeypatch.setenv("SCIAGENT_LLM_TRACE_LEVEL", level)
+    monkeypatch.setenv("SCIAGENT_LLM_TRACE_DIR", str(tmp_path / "traces"))
     composition.build_application(data_root=tmp_path / "data")
     assert capsys.readouterr().err == (
         f"LLM trace: {level}; directory: {tmp_path / 'traces'}\n"

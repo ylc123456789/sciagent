@@ -9,18 +9,18 @@ from pathlib import Path
 
 import pytest
 
-from resagent2_components import RegisteredArtifactReader
-from resagent2_coding import NativeCodingAgent
-from resagent2_experiment import NativeExperimentAgent
-from resagent2_contracts import (
+from sciagent_components import RegisteredArtifactReader
+from sciagent_coding import NativeCodingAgent
+from sciagent_experiment import NativeExperimentAgent
+from sciagent_contracts import (
     AgentOwner, ArtifactCandidate, ErrorCode, ExecutionLimits, ResearchRequest, RunBudget,
     RunPermissions, TaskProposal, WorkflowProposal, WorkspaceAccess, WorkspaceSpec,
 )
-from resagent2_orchestrator import (
+from sciagent_orchestrator import (
     ArtifactRegistry, InMemoryRunStore, ModuleBinding, ResearchRun, WorkflowScheduler,
 )
-from resagent2_runtime import NativeToolCall, ToolCallTurn
-from resagent2_runtime.tool_calling import native_input
+from sciagent_runtime import NativeToolCall, ToolCallTurn
+from sciagent_runtime.tool_calling import native_input
 
 
 def output(path="metrics.json", **fields):
@@ -140,7 +140,7 @@ def test_output_directory_and_registry_use_the_same_source(tmp_path, kind):
     # The native finalizer must recognize the scheduler-controlled attempt root.
     def prepare(index):
         # Obtain the actual root from the existing layout, never guess its shape.
-        from resagent2_orchestrator.layout import RunLayout
+        from sciagent_orchestrator.layout import RunLayout
         attempt_dir = RunLayout(tmp_path / "data").attempt_dir(
             "run_completion_feedback", "task_analysis", 1,
         )

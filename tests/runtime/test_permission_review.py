@@ -6,19 +6,19 @@ from types import SimpleNamespace
 import pytest
 
 from e2e.native_fixtures import tool_turns
-from resagent2_capabilities.permissions import OperationPermissionPolicy
-from resagent2_components import WorkspaceBoundary
-from resagent2_contracts import (
+from sciagent_capabilities.permissions import OperationPermissionPolicy
+from sciagent_components import WorkspaceBoundary
+from sciagent_contracts import (
     AgentOwner, AgentPermissions, AgentRequest, RecordedAnswer, TaskBudget,
     WorkspaceAccess, WorkspaceGrant,
 )
-from resagent2_runtime import (
+from sciagent_runtime import (
     AgentDefinition, AgentLoop, CompletionDecision, ContextSection,
     FinishCandidate, FinishTool, JsonSessionStore, ScriptedLLMClient, ToolObservation,
 )
-from resagent2_runtime.budget import BudgetExhaustedError, DeadlineExceededError, execution_budget
-from resagent2_runtime.cancellation import CancellationToken, bind_cancellation
-from resagent2_runtime.models import RuntimeModel
+from sciagent_runtime.budget import BudgetExhaustedError, DeadlineExceededError, execution_budget
+from sciagent_runtime.cancellation import CancellationToken, bind_cancellation
+from sciagent_runtime.models import RuntimeModel
 
 
 class ShellInput(RuntimeModel):
@@ -256,7 +256,7 @@ def test_shared_budget_and_deadline_errors_stop_without_manual_bypass(case, erro
 
 
 def test_authoritative_ledger_failure_does_not_fall_back_to_human_approval(case):
-    from resagent2_runtime.budget import UsagePersistenceError
+    from sciagent_runtime.budget import UsagePersistenceError
     result = invoke(case, Reviewer(UsagePersistenceError("Run usage could not be saved")))
     assert result.status == "failed"
     assert result.error.code.value == "contract_error"
@@ -340,8 +340,8 @@ def test_crash_after_dispatch_keeps_review_on_unknown_receipt_without_replay(cas
 
 
 def test_real_prompt_reviewer_uses_the_same_wallet_and_session_usage(case, monkeypatch):
-    from resagent2_components.approval_review import LLMPermissionReviewer
-    from resagent2_components.python_source_evidence import collect_python_source_evidence
+    from sciagent_components.approval_review import LLMPermissionReviewer
+    from sciagent_components.python_source_evidence import collect_python_source_evidence
 
     # Only this fixture uses the real reviewer: prepare its actual command evidence.
     original_prepare = case.shell.prepare

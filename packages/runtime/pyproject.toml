@@ -3,14 +3,14 @@ requires = ["setuptools>=75"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "resagent2-runtime"
+name = "sciagent-runtime"
 version = "0.1.0"
-description = "Shared Agentic Loop and runtime mechanisms for ResAgent2"
+description = "Shared Agentic Loop and runtime mechanisms for sciagent"
 requires-python = ">=3.12"
 dependencies = [
   "httpx>=0.28,<1",
   "pydantic>=2.12,<3",
-  "resagent2-contracts>=0.1,<0.2",
+  "sciagent-contracts>=0.1,<0.2",
 ]
 
 [project.optional-dependencies]

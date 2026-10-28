@@ -6,14 +6,14 @@ from pathlib import Path
 
 import pytest
 
-from resagent2_components import RegisteredArtifactReader
-from resagent2_contracts import AgentOwner, AgentPermissions, AgentRequest, ArtifactCandidate, TaskBudget
-from resagent2_orchestrator import ArtifactRegistry
-from resagent2_runtime import AgentState, FinishCandidate
-from resagent2_scientific.completion import ScientificCompletionCheck
-from resagent2_scientific.context import build_context
-from resagent2_scientific.models import AskUserInput, RequestWorkInput
-from resagent2_scientific.tools import AskUserTool, RequestWorkTool
+from sciagent_components import RegisteredArtifactReader
+from sciagent_contracts import AgentOwner, AgentPermissions, AgentRequest, ArtifactCandidate, TaskBudget
+from sciagent_orchestrator import ArtifactRegistry
+from sciagent_runtime import AgentState, FinishCandidate
+from sciagent_scientific.completion import ScientificCompletionCheck
+from sciagent_scientific.context import build_context
+from sciagent_scientific.models import AskUserInput, RequestWorkInput
+from sciagent_scientific.tools import AskUserTool, RequestWorkTool
 
 
 def _state(memory=None):

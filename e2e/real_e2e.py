@@ -4,7 +4,7 @@ Uses the production CLI application builder for every stage. Full-system
 scenarios drive its ResearchController; direct stages invoke its bound Agent.
 Execution agents inspect, select and manage environments through run_shell
 (ADR-0030); pass version or environment requirements in task instructions.
-RESAGENT2_DATASET_ROOT points at the deployment dataset catalog and files.
+SCIAGENT_DATASET_ROOT points at the deployment dataset catalog and files.
 
 Stages: ``python -m e2e.real_e2e direct|code-experiment|repair|ask-start|ask-resume|literature``
 (``full`` aliases ``code-experiment``; ``code`` and ``experiment`` invoke one agent).
@@ -23,8 +23,8 @@ import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
 
-from resagent2_cli.composition import CliApplication, build_application
-from resagent2_contracts import (
+from sciagent_cli.composition import CliApplication, build_application
+from sciagent_contracts import (
     AgentPermissions,
     RunPermissions,
     ExecutionLimits,
@@ -48,7 +48,7 @@ from resagent2_contracts import (
     WorkspaceSourceKind,
     WorkspaceSpec,
 )
-from resagent2_components import (
+from sciagent_components import (
     DatasetCatalog,
     ResourceLayout,
     RegisteredArtifactReader,
@@ -76,7 +76,7 @@ import torchvision.transforms as transforms
 def _data_root():
     # Datasets are exposed generically by the Experiment Agent. Pick the cifar10
     # entry from the id -> path map, falling back to the shared dataset root.
-    mapping = os.environ.get("RESAGENT2_DATASETS_JSON")
+    mapping = os.environ.get("SCIAGENT_DATASETS_JSON")
     if mapping:
         try:
             datasets = json.loads(mapping)
@@ -84,7 +84,7 @@ def _data_root():
                 return datasets["cifar10"]
         except (ValueError, TypeError):
             pass
-    return os.environ.get("RESAGENT2_DATASET_ROOT", "./data")
+    return os.environ.get("SCIAGENT_DATASET_ROOT", "./data")
 
 
 class SELayer(nn.Module):
@@ -732,7 +732,7 @@ def run_literature(workdir: Path) -> bool:
 
 def main() -> None:
     stage = sys.argv[1] if len(sys.argv) > 1 else "full"
-    workdir = Path(os.environ.get("REAL_E2E_WORKDIR", tempfile.mkdtemp(prefix="resagent2-real-")))
+    workdir = Path(os.environ.get("REAL_E2E_WORKDIR", tempfile.mkdtemp(prefix="sciagent-real-")))
     workdir.mkdir(parents=True, exist_ok=True)
     if stage == "code":
         result = run_code(workdir)

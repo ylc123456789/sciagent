@@ -10,18 +10,18 @@ import json
 import pytest
 
 from e2e.native_fixtures import tool_turns
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner, AgentResult, Attempt, ModuleError, ResearchRequest, RunBudget,
     RunPermissions, SessionRef, TaskProposal, TaskStatus, WorkflowProposal, WorkspaceSpec,
     task_session_id,
 )
-from resagent2_components import ResourceLayout
-from resagent2_coding import NativeCodingAgent
-from resagent2_experiment import NativeExperimentAgent
-from resagent2_orchestrator import (
+from sciagent_components import ResourceLayout
+from sciagent_coding import NativeCodingAgent
+from sciagent_experiment import NativeExperimentAgent
+from sciagent_orchestrator import (
     DeterministicWorkInterpreter, ModuleBinding, ResearchController, ResearchRun, WorkflowScheduler,
 )
-from resagent2_runtime import JsonSessionStore, ScriptedLLMClient
+from sciagent_runtime import JsonSessionStore, ScriptedLLMClient
 
 
 class ProcessCrash(BaseException):
@@ -112,9 +112,9 @@ def test_native_saved_terminal_is_received_without_reexecution(tmp_path, monkeyp
         raise AssertionError("result recovery must not prepare, invoke or diagnose")
 
     monkeypatch.setattr(new_agent, "invoke", forbidden)
-    monkeypatch.setattr("resagent2_components.RepoMaterializer.materialize", forbidden)
-    monkeypatch.setattr("resagent2_components.GitWorkspace.snapshot", forbidden)
-    monkeypatch.setattr("resagent2_components.GitWorkspace.write_patch_since", forbidden)
+    monkeypatch.setattr("sciagent_components.RepoMaterializer.materialize", forbidden)
+    monkeypatch.setattr("sciagent_components.GitWorkspace.snapshot", forbidden)
+    monkeypatch.setattr("sciagent_components.GitWorkspace.write_patch_since", forbidden)
     scheduler._recover_interrupted_attempts_in_place(run)
     recovered = scheduler.store.load(run.run_id)
     attempt = recovered.workflow.tasks[0].attempts[0]
@@ -248,8 +248,8 @@ def test_first_saved_retryable_failure_already_contains_coding_public_facts(tmp_
     def forbidden(*args, **kwargs):
         raise AssertionError("a saved failure with actual changes must not retry")
     monkeypatch.setattr(fresh, "invoke", forbidden)
-    monkeypatch.setattr("resagent2_components.GitWorkspace.write_patch_since", forbidden)
-    monkeypatch.setattr("resagent2_components.RepoMaterializer.materialize", forbidden)
+    monkeypatch.setattr("sciagent_components.GitWorkspace.write_patch_since", forbidden)
+    monkeypatch.setattr("sciagent_components.RepoMaterializer.materialize", forbidden)
     scheduler.bindings["executor"] = ModuleBinding(owner=AgentOwner.EXECUTOR, port=fresh)
     scheduler._recover_interrupted_attempts_in_place(scheduler.store.load("run_terminal_gap"))
     recovered = scheduler.run_until_stable("run_terminal_gap")
@@ -272,7 +272,7 @@ def test_controller_resume_receives_complete_result_before_budget_failure(tmp_pa
     run.request.permissions.approval_mode = "auto_review"
     scheduler.store.save(run)
     # Permit only this harmless fixture command; no permission-review model is called.
-    from resagent2_runtime import ApprovalReviewVerdict
+    from sciagent_runtime import ApprovalReviewVerdict
     class Reviewer:
         def review(self, operation, request):
             return ApprovalReviewVerdict(decision="allow", reason="Harmless fixture command")
@@ -290,9 +290,9 @@ def test_controller_resume_receives_complete_result_before_budget_failure(tmp_pa
     def forbidden(*args, **kwargs):
         raise AssertionError("recovery must not execute or prepare anything")
     monkeypatch.setattr(new_agent, "invoke", forbidden)
-    monkeypatch.setattr("resagent2_components.RepoMaterializer.materialize", forbidden)
-    monkeypatch.setattr("resagent2_components.GitWorkspace.write_patch_since", forbidden)
-    monkeypatch.setattr("resagent2_components.GitWorkspace.snapshot", forbidden)
+    monkeypatch.setattr("sciagent_components.RepoMaterializer.materialize", forbidden)
+    monkeypatch.setattr("sciagent_components.GitWorkspace.write_patch_since", forbidden)
+    monkeypatch.setattr("sciagent_components.GitWorkspace.snapshot", forbidden)
     scheduler.bindings["executor"] = ModuleBinding(owner=AgentOwner.EXECUTOR, port=new_agent)
     class Scientific:
         invoke = staticmethod(forbidden)
@@ -367,7 +367,7 @@ def test_recovered_terminal_reception_survives_another_crash(tmp_path, monkeypat
 
 @pytest.mark.parametrize("stopped", [True, False])
 def test_diagnostic_cancellation_preserves_saved_failure_and_original_edit(tmp_path, monkeypatch, stopped):
-    from resagent2_runtime.cancellation import OperationCancelled
+    from sciagent_runtime.cancellation import OperationCancelled
     agent = NativeCodingAgent(ScriptedLLMClient(tool_turns([
         {"tool": "replace_text", "arguments": {
             "path": "value.txt", "old_text": "MARK", "new_text": "MARK\nACTUAL_EDIT",
@@ -378,7 +378,7 @@ def test_diagnostic_cancellation_preserves_saved_failure_and_original_edit(tmp_p
     def interrupted_diagnostic(*args, **kwargs):
         raise OperationCancelled("diagnostic interrupted", stopped=stopped,
                                  details={"operation": "process", "pid": 123})
-    monkeypatch.setattr("resagent2_components.GitWorkspace.write_patch_since", interrupted_diagnostic)
+    monkeypatch.setattr("sciagent_components.GitWorkspace.write_patch_since", interrupted_diagnostic)
     final = scheduler.execute_task("run_terminal_gap", "task_result")
     saved = JsonSessionStore(tmp_path / "sessions").load(task_session_id(final.run_id, "task_result", 1))
     assert saved.terminal_result.error.code == "tool_failed"
@@ -393,9 +393,9 @@ def test_diagnostic_cancellation_preserves_saved_failure_and_original_edit(tmp_p
 
 
 def test_diagnostic_cancellation_cannot_overwrite_original_unconfirmed_process(tmp_path, monkeypatch):
-    from resagent2_capabilities import RunShellTool
-    from resagent2_runtime import PermissionDecision
-    from resagent2_runtime.cancellation import OperationCancelled
+    from sciagent_capabilities import RunShellTool
+    from sciagent_runtime import PermissionDecision
+    from sciagent_runtime.cancellation import OperationCancelled
     original = {"operation": "process", "pid": 123, "command": "original-running-command",
                 "files_retained": True, "exit_code": None}
     def unconfirmed_command(*args, **kwargs):
@@ -406,9 +406,9 @@ def test_diagnostic_cancellation_cannot_overwrite_original_unconfirmed_process(t
             "operation": "process", "pid": 999, "command": "git diagnostic",
         })
     monkeypatch.setattr(RunShellTool, "execute", unconfirmed_command)
-    monkeypatch.setattr("resagent2_capabilities.permissions.OperationPermissionPolicy.check",
+    monkeypatch.setattr("sciagent_capabilities.permissions.OperationPermissionPolicy.check",
                         lambda *_: PermissionDecision(outcome="allow"))
-    monkeypatch.setattr("resagent2_components.GitWorkspace.write_patch_since", cancelled_diagnostic)
+    monkeypatch.setattr("sciagent_components.GitWorkspace.write_patch_since", cancelled_diagnostic)
     agent = NativeCodingAgent(ScriptedLLMClient(tool_turns([
         {"tool": "run_shell", "arguments": {"command": original["command"]}},
     ])), store=JsonSessionStore(tmp_path / "sessions"),

@@ -5,14 +5,14 @@ from pathlib import Path
 
 import pytest
 
-from resagent2_components import RegisteredArtifactReader
-from resagent2_components.text import (
+from sciagent_components import RegisteredArtifactReader
+from sciagent_components.text import (
     MAX_WORKSPACE_TEXT_BYTES,
     TextFileTooLargeError,
     read_text_file,
     slice_text_lines,
 )
-from resagent2_contracts import AgentOwner, ArtifactRef
+from sciagent_contracts import AgentOwner, ArtifactRef
 
 
 def test_workspace_read_rejects_growth_after_size_precheck(tmp_path, monkeypatch):

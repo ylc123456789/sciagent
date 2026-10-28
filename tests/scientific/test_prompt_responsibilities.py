@@ -1,8 +1,8 @@
 """Check published guidance, not whether a real model will follow it."""
 
-from resagent2_capabilities import ReplaceTextTool
-from resagent2_contracts import ScientificVerdict
-from resagent2_scientific.context import SCIENTIFIC_PROMPT
+from sciagent_capabilities import ReplaceTextTool
+from sciagent_contracts import ScientificVerdict
+from sciagent_scientific.context import SCIENTIFIC_PROMPT
 
 
 # Line wrapping is presentation; these checks cover a few prior failure modes.
@@ -10,7 +10,7 @@ SCIENTIFIC_GUIDANCE = " ".join(SCIENTIFIC_PROMPT.split())
 
 
 def test_scientific_opinion_guidance_publishes_its_content_enum() -> None:
-    from resagent2_scientific.models import ScientificFinishInput
+    from sciagent_scientific.models import ScientificFinishInput
     schema = ScientificFinishInput.model_json_schema()
     assert schema["$defs"]["ScientificVerdict"]["enum"] == [value.value for value in ScientificVerdict]
     assert "structured opinion content defined by the finish tool schema" in SCIENTIFIC_GUIDANCE
@@ -57,8 +57,8 @@ def test_reports_carry_relevant_limits_without_becoming_independent_measurements
 
 
 def test_execution_agents_keep_environment_choice_in_general_task_guidance() -> None:
-    from resagent2_coding.context import CODING_PROMPT
-    from resagent2_experiment.context import EXPERIMENT_PROMPT
+    from sciagent_coding.context import CODING_PROMPT
+    from sciagent_experiment.context import EXPERIMENT_PROMPT
     for prompt in (CODING_PROMPT, EXPERIMENT_PROMPT):
         guidance = " ".join(prompt.split())
         assert "discover, select and reuse" in guidance
@@ -72,7 +72,7 @@ def test_execution_agents_keep_environment_choice_in_general_task_guidance() -> 
 
 
 def test_request_work_schema_exposes_stable_configuration_selection() -> None:
-    from resagent2_scientific.tools import RequestWorkTool
+    from sciagent_scientific.tools import RequestWorkTool
 
     schema = RequestWorkTool.input_model.model_json_schema()
     work_schema = schema["$defs"]["WorkRequestDraft"]

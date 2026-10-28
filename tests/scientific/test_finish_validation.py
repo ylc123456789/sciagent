@@ -5,18 +5,18 @@ import json
 
 import pytest
 
-from resagent2_components import RegisteredArtifactReader
-from resagent2_contracts import (
+from sciagent_components import RegisteredArtifactReader
+from sciagent_contracts import (
     AgentOwner, AgentPermissions, AgentRequest, ArtifactCandidate, ErrorCode,
     SessionStatus, TaskBudget, WorkResult, task_session_id,
 )
-from resagent2_orchestrator.artifacts import ArtifactRegistry
-from resagent2_runtime import (
+from sciagent_orchestrator.artifacts import ArtifactRegistry
+from sciagent_runtime import (
     AgentState, FinishCandidate, InMemorySessionStore, NativeToolCall, ToolCallTurn,
 )
-from resagent2_runtime.budget import execution_budget
-from resagent2_scientific import ScientificAgent
-from resagent2_scientific.completion import ScientificCompletionCheck
+from sciagent_runtime.budget import execution_budget
+from sciagent_scientific import ScientificAgent
+from sciagent_scientific.completion import ScientificCompletionCheck
 
 
 RUN_ID = "run_finish_validation"

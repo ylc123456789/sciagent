@@ -1,13 +1,13 @@
 """Final completion consumes registered opinion, observation and requirement snapshots."""
-from resagent2_executor import default_execution_registry
+from sciagent_executor import default_execution_registry
 
-from resagent2_contracts import RunPermissions, ExecutionLimits
+from sciagent_contracts import RunPermissions, ExecutionLimits
 import json
 from datetime import UTC, datetime
 
 import pytest
 
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner,
     AgentResult,
     ArtifactCandidate,
@@ -25,15 +25,15 @@ from resagent2_contracts import (
     WorkflowAgentRegistry,
     WorkflowTask,
 )
-from resagent2_orchestrator import (
+from sciagent_orchestrator import (
     ArtifactRegistry, ArtifactRegistrationError, CompletionViolationCode, FinalReportRenderer,
     ResearchRun, ScientificCompletionValidator,
 )
-from resagent2_contracts import (
+from sciagent_contracts import (
     ResearchRequest,
     RunBudget,
 )
-from resagent2_orchestrator.handoffs import system_artifact
+from sciagent_orchestrator.handoffs import system_artifact
 
 
 def candidate(kind, data):

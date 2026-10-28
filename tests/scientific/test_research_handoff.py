@@ -2,9 +2,9 @@
 import hashlib
 import json
 from datetime import UTC,datetime
-from resagent2_contracts import AgentOwner,AgentPermissions,AgentRequest,ArtifactRef,TaskBudget,WorkResult,WorkTaskResult,WorkAttemptResult
-from resagent2_runtime import AgentState
-from resagent2_scientific.context import build_context
+from sciagent_contracts import AgentOwner,AgentPermissions,AgentRequest,ArtifactRef,TaskBudget,WorkResult,WorkTaskResult,WorkAttemptResult
+from sciagent_runtime import AgentState
+from sciagent_scientific.context import build_context
 
 def test_work_tasks_and_attempt_reports_are_fully_visible_without_report_bodies(tmp_path):
     now=datetime.now(UTC)

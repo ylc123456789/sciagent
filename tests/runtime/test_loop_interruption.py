@@ -6,20 +6,20 @@ from io import BytesIO
 import pytest
 from pydantic import BaseModel
 
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner, AgentPermissions, AgentRequest, ModuleStatus, SessionStatus, TaskBudget,
 )
-from resagent2_runtime import (
+from sciagent_runtime import (
     AgentDefinition, AgentLoop, AllowListPermissionPolicy, AskUserTool, CompletionDecision,
     ContextSection, FinishTool, InMemorySessionStore, OpenAICompatibleClient,
     PermissionDecision, ToolObservation,
 )
-from resagent2_runtime.cancellation import (
+from sciagent_runtime.cancellation import (
     CancellationToken, OperationCancelled, bind_cancellation,
 )
-from resagent2_runtime.lifecycle import model_boundary
-from resagent2_runtime.models import RuntimeModel
-from resagent2_runtime.tool_calling import tool_messages
+from sciagent_runtime.lifecycle import model_boundary
+from sciagent_runtime.models import RuntimeModel
+from sciagent_runtime.tool_calling import tool_messages
 
 
 class WriteInput(RuntimeModel):
@@ -103,7 +103,7 @@ def fixture(monkeypatch, tmp_path):
                 result = result()
             return BytesIO(json.dumps(result).encode())
 
-        monkeypatch.setattr("resagent2_runtime.llm.send_request", send)
+        monkeypatch.setattr("sciagent_runtime.llm.send_request", send)
 
     return definition, store, write, sent, install
 

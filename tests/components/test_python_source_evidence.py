@@ -5,12 +5,12 @@ from pathlib import Path
 
 import pytest
 
-from resagent2_components.python_source_evidence import (
+from sciagent_components.python_source_evidence import (
     MAX_FILE_BYTES, MAX_FILES, MAX_IMPORT_DEPTH, MAX_IMPORTS, MAX_TOTAL_BYTES,
     collect_python_source_evidence,
 )
-from resagent2_components.workspace import WorkspaceBoundary
-from resagent2_contracts import WorkspaceAccess, WorkspaceGrant
+from sciagent_components.workspace import WorkspaceBoundary
+from sciagent_contracts import WorkspaceAccess, WorkspaceGrant
 
 
 def boundary(root, *, read=(".",), denied=()):
@@ -106,10 +106,10 @@ def test_missing_reserved_denied_and_symlink_escaped_sources_are_not_read(tmp_pa
     outside = tmp_path.parent / f"{tmp_path.name}-secret.py"
     outside.write_text("SECRET_DO_NOT_INCLUDE\n")
     (tmp_path / "escape.py").symlink_to(outside)
-    (tmp_path / ".resagent2").mkdir()
-    (tmp_path / ".resagent2" / "private.py").write_text("RESERVED\n")
+    (tmp_path / ".sciagent").mkdir()
+    (tmp_path / ".sciagent" / "private.py").write_text("RESERVED\n")
     (tmp_path / "private.py").write_text("DENIED\n")
-    for command in ("python3 escape.py", "python3 .resagent2/private.py", "python3 private.py",
+    for command in ("python3 escape.py", "python3 .sciagent/private.py", "python3 private.py",
                     "python3 missing.py", f"python3 {outside}", "python3 ../secret.py"):
         evidence = collect(tmp_path, command, denied=("private.py",))
         assert not files(evidence)
@@ -399,7 +399,7 @@ def test_file_count_diagnostic_and_reread_at_exact_count_limit(tmp_path):
 
 
 def test_invalid_utf8_is_unavailable_and_does_not_double_charge_rereads(tmp_path, monkeypatch):
-    from resagent2_components import python_source_evidence
+    from sciagent_components import python_source_evidence
 
     monkeypatch.setattr(python_source_evidence, "MAX_TOTAL_BYTES", 5)
     (tmp_path / "invalid.txt").write_bytes(b"\xff\xff")
@@ -418,7 +418,7 @@ def test_invalid_utf8_is_unavailable_and_does_not_double_charge_rereads(tmp_path
 
 
 def test_shared_quota_changes_invalidate_the_prepared_fingerprint(tmp_path, monkeypatch):
-    from resagent2_components import python_source_evidence
+    from sciagent_components import python_source_evidence
 
     (tmp_path / "entry.py").write_text("pass\n")
     original = collect(tmp_path, "python entry.py")

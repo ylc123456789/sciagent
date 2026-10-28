@@ -2,7 +2,7 @@ from e2e.scheduler_fixtures import executor_bindings
 
 from scheduler_fixtures import create_scheduler_run
 
-from resagent2_contracts import RunPermissions, ExecutionLimits
+from sciagent_contracts import RunPermissions, ExecutionLimits
 import hashlib
 import json
 import re
@@ -12,7 +12,7 @@ from pathlib import Path
 import pytest
 from pydantic import TypeAdapter, ValidationError
 
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner,
     AgentResult,
     ArtifactId,
@@ -34,7 +34,7 @@ from resagent2_contracts import (
     WorkspaceSourceKind,
     WorkspaceSpec,
 )
-from resagent2_orchestrator import (
+from sciagent_orchestrator import (
     ArtifactRegistrationError,
     ArtifactRegistry,
     JsonRunStore,
@@ -48,7 +48,7 @@ from resagent2_orchestrator import (
 
 def durable_registry(root):
     """Exercise production Run-backed allocation, including reopen and reuse."""
-    from resagent2_orchestrator import InMemoryRunStore
+    from sciagent_orchestrator import InMemoryRunStore
     store = JsonRunStore(root.parent / "registration-state")
     registry = ArtifactRegistry(root, store)
     for method in ("register", "register_import", "register_scientific", "register_system_artifact", "register_final_report"):
@@ -460,7 +460,7 @@ def test_import_reuse_rejects_tampered_frozen_copy(tmp_path, renamed):
 
 
 def test_import_detects_source_mutation_during_copy(tmp_path, monkeypatch):
-    import resagent2_orchestrator.artifacts as implementation
+    import sciagent_orchestrator.artifacts as implementation
     source = tmp_path / "paper.pdf"
     source.write_bytes(b"%PDF-1.4 evidence")
     registry = durable_registry(tmp_path / "artifacts")
@@ -480,7 +480,7 @@ def test_import_detects_source_mutation_during_copy(tmp_path, monkeypatch):
 
 
 def test_import_reuses_frozen_file_when_caller_renames_source(tmp_path, monkeypatch):
-    import resagent2_orchestrator.artifacts as implementation
+    import sciagent_orchestrator.artifacts as implementation
 
     source = tmp_path / "paper.pdf"
     original = b"%PDF-1.4 evidence"
@@ -505,7 +505,7 @@ def test_import_reuses_frozen_file_when_caller_renames_source(tmp_path, monkeypa
 
 
 def test_failed_new_import_preserves_existing_frozen_inputs(tmp_path, monkeypatch):
-    import resagent2_orchestrator.artifacts as implementation
+    import sciagent_orchestrator.artifacts as implementation
 
     source = tmp_path / "paper.pdf"
     original = b"%PDF-1.4 evidence"
@@ -644,7 +644,7 @@ def test_all_registration_ids_have_one_format_and_survive_registry_restart(tmp_p
 
 
 def test_registration_categories_do_not_share_artifact_identity():
-    from resagent2_contracts import new_artifact_id
+    from sciagent_contracts import new_artifact_id
     assert len({new_artifact_id() for _ in range(50)}) == 50
 
 

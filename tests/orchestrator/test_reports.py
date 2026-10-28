@@ -2,9 +2,9 @@ from e2e.scheduler_fixtures import executor_bindings
 
 from scheduler_fixtures import create_scheduler_run as _create_run
 
-from resagent2_contracts import RunPermissions, ExecutionLimits
+from sciagent_contracts import RunPermissions, ExecutionLimits
 
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner,
     AgentResult,
     ArtifactCandidate,
@@ -15,7 +15,7 @@ from resagent2_contracts import (
     WorkflowAgentKind,
     WorkflowProposal,
 )
-from resagent2_orchestrator import (
+from sciagent_orchestrator import (
     InMemoryRunStore,
     ModuleBinding,
     ScriptedModulePort,
@@ -62,7 +62,7 @@ def test_attempt_persists_report_and_registered_artifact() -> None:
     run = engine.run_until_stable("run_report")
 
     attempt = run.workflow.tasks[0].attempts[0]
-    from resagent2_orchestrator.handoffs import read_json
+    from sciagent_orchestrator.handoffs import read_json
     assert attempt.report == "Measured accuracy"
     assert read_json(run.artifacts[attempt.artifact_ids[0]]) == {"accuracy": 0.9}
     assert "payload" not in type(attempt).model_fields

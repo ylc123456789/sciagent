@@ -1,15 +1,15 @@
 """Unified root result reception retains delivered child results and validates exact scope."""
-from resagent2_executor import default_execution_registry
+from sciagent_executor import default_execution_registry
 from e2e.scheduler_fixtures import executor_bindings
 
-from resagent2_contracts import RunPermissions, ExecutionLimits
-from resagent2_orchestrator.models import RunUsage
+from sciagent_contracts import RunPermissions, ExecutionLimits
+from sciagent_orchestrator.models import RunUsage
 import json
 from datetime import UTC, datetime
 
 import pytest
 
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner,
     AgentResult,
     ArtifactCandidate,
@@ -36,8 +36,8 @@ from resagent2_contracts import (
     WorkspaceSpec,
     WorkspaceAccess,
 )
-from resagent2_orchestrator import ModuleBinding, DeterministicWorkInterpreter, JsonRunStore, ResearchController, ResearchRun, WorkflowScheduler
-from resagent2_orchestrator.handoffs import system_artifact
+from sciagent_orchestrator import ModuleBinding, DeterministicWorkInterpreter, JsonRunStore, ResearchController, ResearchRun, WorkflowScheduler
+from sciagent_orchestrator.handoffs import system_artifact
 
 
 def candidate(kind, data):
@@ -94,7 +94,7 @@ def apply_result(controller, run_id, request, result):
 
 
 def test_scientific_sees_declared_logical_workspaces_without_physical_locations(tmp_path):
-    from resagent2_components import request_task_context
+    from sciagent_components import request_task_context
 
     controller, run, _ = prepared(tmp_path)
     for workspace_id, kind in (("ws_source", "local"), ("ws_results", "generated")):
@@ -128,7 +128,7 @@ def reply(run, status):
                 id="question_metric", run_id=run.run_id, session_id=run.scientific_session.id, task_id="task_root", attempt_number=1,
                 text="Which metric?", requested_fields=["metric"], created_at=datetime.now(UTC)))
     else:
-        from resagent2_contracts import ScientificAssessment
+        from sciagent_contracts import ScientificAssessment
         fields["control"] = ControlSignal(action="request_work", source_session_id=run.scientific_session.id,
             source_turn=2, source_call_id="work_repeat", assessment=ScientificAssessment(statement="Need more evidence"),
             work_request=WorkRequest(owner_task_id="task_root", owner_attempt_number=1, depth=2, id="work_repeat", run_id=run.run_id, owner_session_id=run.scientific_session.id,
@@ -159,7 +159,7 @@ def test_boundary_exceptions_persist_terminal_error(tmp_path, monkeypatch, stage
         monkeypatch.setattr(controller.scheduler, "request_enricher", reject)
         actual = controller.scheduler.execute_task(run.run_id, "task_root")
     elif stage == "reception":
-        monkeypatch.setattr("resagent2_orchestrator.scheduler.receive_artifacts", reject)
+        monkeypatch.setattr("sciagent_orchestrator.scheduler.receive_artifacts", reject)
         actual = apply_result(controller, run.run_id, request, reply(run, "needs_user_input"))
     else:
         class RejectingCompiler:
@@ -261,7 +261,7 @@ def test_invalid_usage_does_not_charge_fabricated_calls(tmp_path,calls):
 
 
 def test_missing_delivery_gate_preserves_registered_artifacts_and_unconsumed_work(tmp_path):
-    from resagent2_orchestrator.handoffs import read_json
+    from sciagent_orchestrator.handoffs import read_json
 
     controller, run, _ = prepared(tmp_path)
     run.conclusion_requirements_ref = system_artifact(

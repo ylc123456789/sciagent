@@ -11,15 +11,15 @@ from types import SimpleNamespace
 
 import pytest
 
-from resagent2_coding import NativeCodingAgent
-from resagent2_experiment import NativeExperimentAgent
-from resagent2_components import ResourceLayout
-from resagent2_contracts import (
+from sciagent_coding import NativeCodingAgent
+from sciagent_experiment import NativeExperimentAgent
+from sciagent_components import ResourceLayout
+from sciagent_contracts import (
     AgentOwner, AgentPermissions, AgentRequest,
     RecordedAnswer, TaskBudget, WorkspaceAccess, WorkspaceGrant,
 )
-from resagent2_orchestrator.artifacts import ArtifactRegistry
-from resagent2_runtime import JsonSessionStore, ScriptedLLMClient
+from sciagent_orchestrator.artifacts import ArtifactRegistry
+from sciagent_runtime import JsonSessionStore, ScriptedLLMClient
 
 
 FINISH = {"tool": "finish", "arguments": {"report": "Recorded the actual outcome"}}
@@ -87,8 +87,8 @@ def invoke(case, req, actions, *, reviewer=None):
 
 
 def test_auto_review_runs_actual_shell_commands_once_in_both_agents(case):
-    from resagent2_components.approval_review import LLMPermissionReviewer
-    from resagent2_runtime.budget import execution_budget
+    from sciagent_components.approval_review import LLMPermissionReviewer
+    from sciagent_runtime.budget import execution_budget
 
     req = case.request.model_copy(update={
         "permissions": AgentPermissions(execute_commands=True, approval_mode="auto_review"),
@@ -245,7 +245,7 @@ def test_pipeline_module_runs_once_after_approval(case, mode):
 
 
 def test_legacy_shell_approval_requires_a_new_call_before_execution(case, monkeypatch):
-    import resagent2_components.process as process
+    import sciagent_components.process as process
 
     action = command(case, "first")
     with monkeypatch.context() as legacy:
@@ -315,11 +315,11 @@ def test_process_permission_denies_command_before_effects(case):
 
 
 def test_stale_first_answer_cannot_change_second_command_or_session(case):
-    from resagent2_contracts import (
+    from sciagent_contracts import (
         ResearchRequest, RunBudget, RunPermissions, UserAnswer,
         WorkflowAgentRegistry,
     )
-    from resagent2_orchestrator import (
+    from sciagent_orchestrator import (
         DeterministicWorkInterpreter,
         JsonRunStore, OrchestrationError, ResearchController, ResearchRun,
     )

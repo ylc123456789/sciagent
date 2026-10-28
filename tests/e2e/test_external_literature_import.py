@@ -5,18 +5,18 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 
-from resagent2_capabilities.literature import fulltext as fulltext_tool
-from resagent2_components.literature import load_literature_manifest
-from resagent2_components.literature.fulltext import PdfText
-from resagent2_contracts import (
+from sciagent_capabilities.literature import fulltext as fulltext_tool
+from sciagent_components.literature import load_literature_manifest
+from sciagent_components.literature.fulltext import PdfText
+from sciagent_contracts import (
     AgentOwner, ExecutionLimits, ResearchRequest, RunBudget, RunPermissions,
     UserAnswer, WorkflowAgentRegistry,
 )
-from resagent2_orchestrator import (
+from sciagent_orchestrator import (
     DeterministicWorkInterpreter, ResearchController, ScientificArtifactRegistration,
     WorkflowScheduler,
 )
-from resagent2_scientific import ScientificAgent
+from sciagent_scientific import ScientificAgent
 
 
 def _manifest(tmp_path: Path) -> Path:

@@ -5,7 +5,7 @@ from uuid import uuid4
 
 from pydantic import BaseModel
 
-from resagent2_runtime import ToolCallTurn
+from sciagent_runtime import ToolCallTurn
 
 
 def tool_turn(tool, arguments=None, *, call_id=None):
@@ -22,7 +22,7 @@ def tool_turns(actions):
 
 
 from uuid import uuid4
-from resagent2_runtime import ScriptedLLMClient
+from sciagent_runtime import ScriptedLLMClient
 
 
 class ParentQuestionClient(ScriptedLLMClient):

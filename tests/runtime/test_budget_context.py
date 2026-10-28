@@ -8,20 +8,20 @@ import httpx
 import pytest
 
 from e2e.native_fixtures import tool_turns
-from resagent2_components import request_task_context
-from resagent2_contracts import (
+from sciagent_components import request_task_context
+from sciagent_contracts import (
     AgentOwner, AgentPermissions, AgentRequest, ResearchRequest, RunBudget, RunPermissions, TaskBudget,
 )
-from resagent2_orchestrator import JsonRunStore, ResearchRun
-from resagent2_orchestrator.usage import RunUsagePort
-from resagent2_runtime import (
+from sciagent_orchestrator import JsonRunStore, ResearchRun
+from sciagent_orchestrator.usage import RunUsagePort
+from sciagent_runtime import (
     AgentDefinition, AgentLoop, AllowListPermissionPolicy, CompletionDecision,
     ComposedContext, ContextComposer, ContextSection, FinishTool, InMemorySessionStore,
     OpenAICompatibleClient, PromptLLMClient, ScriptedLLMClient,
 )
-from resagent2_runtime.budget import DeadlineExceededError, current_budget_status, execution_budget
-from resagent2_runtime.models import AgentAction
-from resagent2_runtime.tool_calling import native_tool_schemas
+from sciagent_runtime.budget import DeadlineExceededError, current_budget_status, execution_budget
+from sciagent_runtime.models import AgentAction
+from sciagent_runtime.tool_calling import native_tool_schemas
 from tool_fixtures import WriteValueTool
 
 
@@ -93,7 +93,7 @@ def test_each_agent_turn_refreshes_run_total_without_persisting_budget_history(t
 def test_native_retry_refreshes_budget_before_each_charge_and_traces_exact_input(tmp_path, monkeypatch):
     _, _, usage = _run_usage(tmp_path)
     monkeypatch.setenv("VISIBLE_BUDGET_KEY", "test-secret")
-    monkeypatch.setattr("resagent2_runtime.llm.time.sleep", lambda _: None)
+    monkeypatch.setattr("sciagent_runtime.llm.time.sleep", lambda _: None)
     client = OpenAICompatibleClient(
         model="test", api_base="https://example.invalid/v1", api_key_env="VISIBLE_BUDGET_KEY",
         trace_dir=tmp_path / "trace", trace_level="full",
@@ -114,7 +114,7 @@ def test_native_retry_refreshes_budget_before_each_charge_and_traces_exact_input
             }}],
         }}]}).encode())
 
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", respond)
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", respond)
     authority = '{"current_agent":"scientific","run_execution_permissions":{"execute_commands":true,"approval_mode":"auto_review"}}'
     context = ContextComposer().compose("rules", [
         ContextSection(name="task", content="unchanged business requirements"),
@@ -173,7 +173,7 @@ def test_prompt_adapter_gives_compiler_the_same_run_snapshot(tmp_path):
 def test_summary_retries_and_next_model_request_share_fresh_run_budget(tmp_path, monkeypatch):
     _, _, usage = _run_usage(tmp_path)
     monkeypatch.setenv("SUMMARY_BUDGET_KEY", "test-secret")
-    monkeypatch.setattr("resagent2_runtime.llm.time.sleep", lambda _: None)
+    monkeypatch.setattr("sciagent_runtime.llm.time.sleep", lambda _: None)
     client = OpenAICompatibleClient(
         model="test", api_base="https://example.invalid/v1", api_key_env="SUMMARY_BUDGET_KEY",
         trace_dir=tmp_path / "trace", trace_level="full",
@@ -193,7 +193,7 @@ def test_summary_retries_and_next_model_request_share_fresh_run_budget(tmp_path,
             }}]}
         return BytesIO(json.dumps({"choices": [{"finish_reason": "stop", "message": message}]}).encode())
 
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", respond)
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", respond)
     with execution_budget(max_llm_calls=6, timeout_seconds=10, usage=usage):
         assert client.summarize_history("Summarize completed turns", max_input_tokens=4000) == "Earlier actions retained"
         client.next_tool_call(
@@ -208,7 +208,7 @@ def test_summary_retries_and_next_model_request_share_fresh_run_budget(tmp_path,
 
 def test_retry_input_is_not_traced_as_sent_when_preparation_exhausts_deadline(tmp_path, monkeypatch):
     monkeypatch.setenv("TRACE_BOUNDARY_KEY", "test-secret")
-    monkeypatch.setattr("resagent2_runtime.llm.time.sleep", lambda _: None)
+    monkeypatch.setattr("sciagent_runtime.llm.time.sleep", lambda _: None)
     client = OpenAICompatibleClient(
         model="test", api_base="https://example.invalid/v1", api_key_env="TRACE_BOUNDARY_KEY",
         trace_dir=tmp_path / "trace", trace_level="full",
@@ -228,8 +228,8 @@ def test_retry_input_is_not_traced_as_sent_when_preparation_exhausts_deadline(tm
         raise httpx.HTTPStatusError("transient", request=request,
                                     response=httpx.Response(503, content=b"retry"))
 
-    monkeypatch.setattr("resagent2_runtime.llm.current_budget_status", status)
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", respond)
+    monkeypatch.setattr("sciagent_runtime.llm.current_budget_status", status)
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", respond)
     with execution_budget(max_llm_calls=3, timeout_seconds=10, clock=lambda: clock[0]) as budget:
         with pytest.raises(DeadlineExceededError):
             client.next_tool_call(
@@ -260,8 +260,8 @@ def test_no_trace_is_created_when_first_prepared_attempt_cannot_be_reserved(tmp_
             clock[0] = 11.0
         return value
 
-    monkeypatch.setattr("resagent2_runtime.llm.current_budget_status", status)
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", lambda *a, **kw: pytest.fail("must not send"))
+    monkeypatch.setattr("sciagent_runtime.llm.current_budget_status", status)
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", lambda *a, **kw: pytest.fail("must not send"))
     with execution_budget(max_llm_calls=3, timeout_seconds=10, clock=lambda: clock[0]) as budget:
         with pytest.raises(DeadlineExceededError):
             client.next_tool_call(
@@ -273,13 +273,13 @@ def test_no_trace_is_created_when_first_prepared_attempt_cannot_be_reserved(tmp_
 
 
 def test_native_capacity_cannot_silently_omit_required_runtime_authority(monkeypatch):
-    from resagent2_runtime import ContextBudgetExceeded
+    from sciagent_runtime import ContextBudgetExceeded
 
     monkeypatch.setenv("VISIBLE_BUDGET_KEY", "test-secret")
     client = OpenAICompatibleClient(
         model="test", api_base="https://example.invalid/v1", api_key_env="VISIBLE_BUDGET_KEY",
     )
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", lambda *a, **kw: pytest.fail("must not send"))
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", lambda *a, **kw: pytest.fail("must not send"))
     context = ContextComposer().compose("rules", [
         ContextSection(name="task", content="business requirement"),
         ContextSection(name="runtime_authority", content="complete runtime facts " * 2000),

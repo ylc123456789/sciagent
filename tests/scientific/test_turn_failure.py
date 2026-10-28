@@ -2,18 +2,18 @@
 
 from e2e.native_fixtures import tool_turns
 
-from resagent2_contracts import AgentPermissions
+from sciagent_contracts import AgentPermissions
 
 from datetime import UTC, datetime
 import json
 
 import pytest
 
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner, AgentRequest, ErrorCode, SessionStatus, TaskBudget, task_session_id,
 )
-from resagent2_runtime import AgentState, JsonSessionStore, ScriptedLLMClient
-from resagent2_scientific import ScientificAgent
+from sciagent_runtime import AgentState, JsonSessionStore, ScriptedLLMClient
+from sciagent_scientific import ScientificAgent
 
 
 def request(parent=None):

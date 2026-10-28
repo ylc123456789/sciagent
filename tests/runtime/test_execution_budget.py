@@ -10,13 +10,13 @@ import time
 import httpx
 import pytest
 
-from resagent2_runtime import ComposedContext, OpenAICompatibleClient, ScriptedLLMClient
-from resagent2_runtime.budget import (
+from sciagent_runtime import ComposedContext, OpenAICompatibleClient, ScriptedLLMClient
+from sciagent_runtime.budget import (
     BudgetExhaustedError, DeadlineExceededError, MemoryUsage, current_budget,
     execution_budget, invoke_model, remaining_timeout,
 )
-from resagent2_runtime.llm import send_request
-from resagent2_runtime.models import AgentAction
+from sciagent_runtime.llm import send_request
+from sciagent_runtime.models import AgentAction
 
 
 def _context():
@@ -83,7 +83,7 @@ def test_failed_persistence_prevents_network_dispatch(monkeypatch):
             raise OSError("cannot persist")
 
     client = _client(monkeypatch)
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", lambda *a, **k:
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", lambda *a, **k:
                         pytest.fail("HTTP must not start without durable charge"))
     with execution_budget(max_llm_calls=4, timeout_seconds=30, usage=UnavailableUsage()):
         with pytest.raises(OSError, match="cannot persist"):
@@ -94,7 +94,7 @@ def test_failed_persistence_prevents_network_dispatch(monkeypatch):
 def test_http_attempts_are_precharged_and_retries_have_distinct_entries(monkeypatch):
     client = _client(monkeypatch)
     usage = MemoryUsage()
-    monkeypatch.setattr("resagent2_runtime.llm.time.sleep", lambda _: None)
+    monkeypatch.setattr("sciagent_runtime.llm.time.sleep", lambda _: None)
 
     def respond(*args, **kwargs):
         assert usage.used in (1, 2)
@@ -103,7 +103,7 @@ def test_http_attempts_are_precharged_and_retries_have_distinct_entries(monkeypa
             raise httpx.TransportError("disconnected")
         return _response()
 
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", respond)
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", respond)
     with execution_budget(max_llm_calls=4, timeout_seconds=30, usage=usage):
         assert invoke_model(client, "next_action", _context(), AgentAction) == {"tool": "finish"}
     assert client.last_attempts == usage.used == 2
@@ -121,7 +121,7 @@ def test_slow_durable_charge_cannot_extend_http_deadline(monkeypatch):
 
     client = _client(monkeypatch)
     usage = SlowUsage()
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", lambda *a, **k:
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", lambda *a, **k:
                         pytest.fail("HTTP started after its deadline"))
     with execution_budget(max_llm_calls=3, timeout_seconds=0.01, usage=usage):
         with pytest.raises(DeadlineExceededError):
@@ -133,13 +133,13 @@ def test_slow_durable_charge_cannot_extend_http_deadline(monkeypatch):
 def test_no_retry_can_spend_beyond_run_balance(monkeypatch):
     client = _client(monkeypatch)
     sent = []
-    monkeypatch.setattr("resagent2_runtime.llm.time.sleep", lambda _: None)
+    monkeypatch.setattr("sciagent_runtime.llm.time.sleep", lambda _: None)
 
     def fail(*args, **kwargs):
         sent.append(True)
         raise httpx.TransportError("lost connection")
 
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", fail)
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", fail)
     with execution_budget(max_llm_calls=1, timeout_seconds=30) as budget:
         with pytest.raises(BudgetExhaustedError):
             client.next_action(_context(), AgentAction)
@@ -148,7 +148,7 @@ def test_no_retry_can_spend_beyond_run_balance(monkeypatch):
 
 def test_retry_backoff_is_clipped_to_shared_deadline(monkeypatch):
     client = _client(monkeypatch)
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", lambda *a, **k:
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", lambda *a, **k:
                         (_ for _ in ()).throw(httpx.TransportError("failed")))
     started = time.monotonic()
     with execution_budget(max_llm_calls=3, timeout_seconds=0.04) as budget:

@@ -5,17 +5,17 @@ from datetime import UTC, datetime
 
 import pytest
 
-from resagent2_components import (
+from sciagent_components import (
     DatasetAvailability, ReadOnlyWorkspaceBoundary, RegisteredArtifactReader,
     WorkspaceBoundary, material_index_context,
 )
-from resagent2_components.artifacts import ArtifactReadError
-from resagent2_contracts import (
+from sciagent_components.artifacts import ArtifactReadError
+from sciagent_contracts import (
     AgentPermissions, AgentRequest, ArtifactRef, ModuleError, TaskBudget,
     WorkAttemptResult, WorkResult, WorkTaskResult, WorkspaceAccess, WorkspaceGrant,
 )
-from resagent2_runtime import AgentState, ContextComposer
-from resagent2_runtime.context import ContextBudgetExceeded
+from sciagent_runtime import AgentState, ContextComposer
+from sciagent_runtime.context import ContextBudgetExceeded
 
 
 NOW = datetime.now(UTC)

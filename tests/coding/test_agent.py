@@ -9,12 +9,12 @@ from pathlib import Path
 
 import pytest
 
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner, AgentPermissions, AgentRequest, ErrorCode, ModuleStatus,
     TaskBudget, WorkspaceGrant, WorkspaceAccess, WorkspaceSourceKind,
 )
-from resagent2_coding import NativeCodingAgent
-from resagent2_runtime import AgentAction, ScriptedLLMClient
+from sciagent_coding import NativeCodingAgent
+from sciagent_runtime import AgentAction, ScriptedLLMClient
 
 
 def init_repo(root: Path) -> None:
@@ -193,10 +193,10 @@ def test_explicit_failure_keeps_one_patch_and_does_not_require_a_failed_command(
 def test_native_agents_return_actual_execution_record_on_normal_failed_and_interrupted_exit(
     tmp_path, monkeypatch, preset, ending,
 ):
-    from resagent2_capabilities import RunShellTool
-    from resagent2_experiment import NativeExperimentAgent
-    from resagent2_runtime import PermissionDecision, ToolObservation
-    from resagent2_runtime.cancellation import OperationCancelled
+    from sciagent_capabilities import RunShellTool
+    from sciagent_experiment import NativeExperimentAgent
+    from sciagent_runtime import PermissionDecision, ToolObservation
+    from sciagent_runtime.cancellation import OperationCancelled
 
     init_repo(tmp_path)
     facts = dict(command="python long_task.py", exit_code=0, timed_out=False,
@@ -211,7 +211,7 @@ def test_native_agents_return_actual_execution_record_on_normal_failed_and_inter
         return ToolObservation(summary="Actual command outcome", value=facts)
 
     monkeypatch.setattr(RunShellTool, "execute", execute)
-    monkeypatch.setattr("resagent2_capabilities.permissions.OperationPermissionPolicy.check",
+    monkeypatch.setattr("sciagent_capabilities.permissions.OperationPermissionPolicy.check",
                         lambda *_: PermissionDecision(outcome="allow"))
     client = ScriptedLLMClient(tool_turns([
         {"tool": "run_shell", "arguments": {"command": "python long_task.py"}},
@@ -237,8 +237,8 @@ def test_native_agents_return_actual_execution_record_on_normal_failed_and_inter
 
 @pytest.mark.parametrize("preset", ["coding", "experiment"])
 def test_native_model_interruption_without_command_does_not_create_execution(tmp_path, preset):
-    from resagent2_experiment import NativeExperimentAgent
-    from resagent2_runtime.cancellation import OperationCancelled
+    from sciagent_experiment import NativeExperimentAgent
+    from sciagent_runtime.cancellation import OperationCancelled
 
     init_repo(tmp_path)
     class InterruptedClient(ScriptedLLMClient):
@@ -253,16 +253,16 @@ def test_native_model_interruption_without_command_does_not_create_execution(tmp
 
 @pytest.mark.parametrize("preset", ["coding", "experiment"])
 def test_native_question_wait_already_preserves_completed_command_snapshot(tmp_path, monkeypatch, preset):
-    from resagent2_capabilities import RunShellTool
-    from resagent2_experiment import NativeExperimentAgent
-    from resagent2_runtime import PermissionDecision, ToolObservation
-    from resagent2_contracts import VerificationResult
+    from sciagent_capabilities import RunShellTool
+    from sciagent_experiment import NativeExperimentAgent
+    from sciagent_runtime import PermissionDecision, ToolObservation
+    from sciagent_contracts import VerificationResult
 
     init_repo(tmp_path)
     facts = dict(command="python prepare.py", exit_code=0, timed_out=False,
         stdout_path="prepare.stdout", stderr_path="prepare.stderr", duration_seconds=0.1)
     monkeypatch.setattr(RunShellTool, "execute", lambda *_: ToolObservation(summary="Command completed", value=facts))
-    monkeypatch.setattr("resagent2_capabilities.permissions.OperationPermissionPolicy.check",
+    monkeypatch.setattr("sciagent_capabilities.permissions.OperationPermissionPolicy.check",
                         lambda *_: PermissionDecision(outcome="allow"))
     client = ScriptedLLMClient(tool_turns([
         {"tool": "run_shell", "arguments": {"command": "python prepare.py"}},
@@ -281,8 +281,8 @@ def test_native_execution_agent_can_create_and_explicitly_reuse_environment(tmp_
     """Exercise actual shell, approvals and resume, without a lifecycle manager."""
     import shlex
     import sys
-    from resagent2_experiment import NativeExperimentAgent
-    from resagent2_contracts import RecordedAnswer
+    from sciagent_experiment import NativeExperimentAgent
+    from sciagent_contracts import RecordedAnswer
 
     init_repo(tmp_path)
     (tmp_path / ".gitignore").write_text(".venv/\n")

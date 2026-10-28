@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from resagent2_runtime.models import RuntimeModel
+from sciagent_runtime.models import RuntimeModel
 
 
 ROOT = Path(__file__).parents[2]
@@ -22,51 +22,51 @@ ALLOWED_IMPORT_ROOTS = {
     "capabilities": {
         "__future__", "collections", "dataclasses", "datetime", "defusedxml", "email", "hashlib",
         "json", "logging", "mimetypes", "os", "pathlib", "platform", "pydantic",
-        "resagent2_components", "resagent2_contracts", "resagent2_runtime", "shlex", "shutil",
+        "sciagent_components", "sciagent_contracts", "sciagent_runtime", "shlex", "shutil",
         "signal", "subprocess", "tempfile", "threading", "time", "typing", "urllib", "uuid",
     },
     "coding": {
         "__future__", "datetime", "hashlib", "json", "pathlib", "pydantic",
-        "resagent2_capabilities", "resagent2_components", "resagent2_contracts",
-        "resagent2_runtime", "resagent2_executor", "shlex", "time", "typing", "uuid",
+        "sciagent_capabilities", "sciagent_components", "sciagent_contracts",
+        "sciagent_runtime", "sciagent_executor", "shlex", "time", "typing", "uuid",
     },
     "contracts": {
         "__future__", "collections", "datetime", "enum", "hashlib", "json", "os", "pathlib", "pydantic",
         "shlex", "typing", "uuid",
     },
     "experiment": {
-        "__future__", "hashlib", "json", "pathlib", "pydantic", "resagent2_capabilities",
-        "resagent2_components", "resagent2_contracts", "resagent2_runtime", "resagent2_executor", "typing",
+        "__future__", "hashlib", "json", "pathlib", "pydantic", "sciagent_capabilities",
+        "sciagent_components", "sciagent_contracts", "sciagent_runtime", "sciagent_executor", "typing",
     },
     "executor": {
         "__future__", "collections", "dataclasses", "datetime", "enum", "hashlib", "json",
-        "pathlib", "pydantic", "resagent2_capabilities", "resagent2_components",
-        "resagent2_contracts", "resagent2_runtime", "shlex", "time", "typing", "uuid",
+        "pathlib", "pydantic", "sciagent_capabilities", "sciagent_components",
+        "sciagent_contracts", "sciagent_runtime", "shlex", "time", "typing", "uuid",
     },
     "orchestrator": {
         "__future__", "collections", "contextlib", "contextvars", "dataclasses", "datetime", "enum",
         "fcntl", "graphlib", "hashlib", "importlib", "json", "math", "os", "pathlib", "pydantic",
-        "resagent2_contracts", "shutil", "sys", "tempfile", "threading", "typing", "urllib", "uuid",
+        "sciagent_contracts", "shutil", "sys", "tempfile", "threading", "typing", "urllib", "uuid",
     },
     "runtime": {
         "__future__", "asyncio", "collections", "contextlib", "contextvars", "dataclasses",
         "datetime", "fcntl", "hashlib", "httpx", "ipaddress", "json", "logging", "math", "os",
-        "pathlib", "pydantic", "re", "resagent2_contracts", "socket", "tempfile", "threading",
+        "pathlib", "pydantic", "re", "sciagent_contracts", "socket", "tempfile", "threading",
         "time", "typing", "urllib", "uuid",
     },
     "scientific": {
-        "__future__", "collections", "json", "pathlib", "pydantic", "resagent2_capabilities",
-        "resagent2_components", "resagent2_contracts", "resagent2_runtime", "typing",
+        "__future__", "collections", "json", "pathlib", "pydantic", "sciagent_capabilities",
+        "sciagent_components", "sciagent_contracts", "sciagent_runtime", "typing",
     },
 }
 COMPONENTS_FORBIDDEN_ROOTS = {
-    "resagent2_capabilities", "resagent2_cli", "resagent2_coding", "resagent2_experiment",
-    "resagent2_orchestrator", "resagent2_scientific", "resagent2_executor",
+    "sciagent_capabilities", "sciagent_cli", "sciagent_coding", "sciagent_experiment",
+    "sciagent_orchestrator", "sciagent_scientific", "sciagent_executor",
 }
 ORCHESTRATOR_ALLOWED_MODULES = {
-    "resagent2_components.artifacts", "resagent2_components.literature",
-    "resagent2_components.materials", "resagent2_components.workspace", "resagent2_runtime.budget",
-    "resagent2_runtime.cancellation", "resagent2_runtime.lifecycle",
+    "sciagent_components.artifacts", "sciagent_components.literature",
+    "sciagent_components.materials", "sciagent_components.workspace", "sciagent_runtime.budget",
+    "sciagent_runtime.cancellation", "sciagent_runtime.lifecycle",
 }
 
 
@@ -93,7 +93,7 @@ def test_package_dependency_boundary(package):
     "contracts", "runtime", "components", "capabilities", "orchestrator", "coding", "experiment", "executor",
 ])
 def test_public_classes_have_docstrings(package):
-    module = import_module(f"resagent2_{package}")
+    module = import_module(f"sciagent_{package}")
     missing = [name for name in module.__all__
                if inspect.isclass(getattr(module, name))
                and not inspect.getdoc(getattr(module, name))]
@@ -101,19 +101,19 @@ def test_public_classes_have_docstrings(package):
 
 
 def test_public_components_are_not_tool_entry_points():
-    import resagent2_components
+    import sciagent_components
 
-    for name in resagent2_components.__all__:
-        value = getattr(resagent2_components, name)
+    for name in sciagent_components.__all__:
+        value = getattr(sciagent_components, name)
         if inspect.isclass(value):
             assert not hasattr(value, "input_model"), name
 
 
 def test_capabilities_export_only_tools_and_their_inputs() -> None:
     """Operations must be imported from components, not forwarded by tools."""
-    import resagent2_capabilities
+    import sciagent_capabilities
 
-    public = [getattr(resagent2_capabilities, name) for name in resagent2_capabilities.__all__]
+    public = [getattr(sciagent_capabilities, name) for name in sciagent_capabilities.__all__]
     tools = [value for value in public if hasattr(value, "input_model")]
     inputs = {tool.input_model for tool in tools}
     assert set(public) == set(tools) | inputs

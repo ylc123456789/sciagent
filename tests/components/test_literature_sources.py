@@ -4,7 +4,7 @@ import pytest
 
 from tests.components.test_literature_http import http_response
 
-from resagent2_components import (
+from sciagent_components import (
     LiteratureSearchError,
     LiteratureSearchResult,
     LiteratureUnavailableError,
@@ -103,7 +103,7 @@ def test_empty_configuration_is_rejected():
 def test_peer_switching_respects_each_real_backends_http_cooldown(monkeypatch):
     import json
     from tests.components.test_literature_http import http_error
-    from resagent2_components.literature import (
+    from sciagent_components.literature import (
         _http as _literature_http,
         backends as literature,
         backends as openalex,
@@ -158,7 +158,7 @@ def test_peer_switching_respects_each_real_backends_http_cooldown(monkeypatch):
 
 @pytest.fixture
 def real_backends(monkeypatch):
-    from resagent2_components.literature import _http, backends
+    from sciagent_components.literature import _http, backends
 
     for attribute, name in (("_ARXIV_HTTP", "arXiv"), ("_OPENALEX_HTTP", "OpenAlex")):
         monkeypatch.setattr(
@@ -218,7 +218,7 @@ def test_406_and_unavailable_peer_preserve_both_causes(real_backends, monkeypatc
 
 @pytest.mark.parametrize("failure", [400, 401, 403, 404, "invalid_xml", "deadline", "bug"])
 def test_other_backend_failures_do_not_switch_sources(real_backends, monkeypatch, failure):
-    from resagent2_runtime.budget import DeadlineExceededError
+    from sciagent_runtime.budget import DeadlineExceededError
     from tests.components.test_literature_http import http_error
 
     calls = []

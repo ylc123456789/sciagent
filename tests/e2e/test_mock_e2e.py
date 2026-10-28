@@ -1,4 +1,4 @@
-from resagent2_contracts import WorkflowAgentKind, RunStatus
+from sciagent_contracts import WorkflowAgentKind, RunStatus
 
 from e2e.mock_e2e import run_mock_e2e
 

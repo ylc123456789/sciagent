@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner,
     ArtifactRef,
     VerificationResult,
@@ -14,7 +14,7 @@ from resagent2_contracts import (
     WorkspaceAccess,
     WorkspaceSourceKind,
 )
-from resagent2_components import (
+from sciagent_components import (
     ArtifactReadError,
     GitWorkspace,
     ProcessRunner,
@@ -22,11 +22,11 @@ from resagent2_components import (
     WorkspaceBoundary,
     WorkspacePermissionError,
 )
-from resagent2_capabilities import (
+from sciagent_capabilities import (
     ReadFileTool,
     ReplaceTextTool,
 )
-from resagent2_runtime import AgentState
+from sciagent_runtime import AgentState
 
 
 def grant(root: Path, *, read_only: bool = False, denied_paths=("denied",)) -> WorkspaceGrant:
@@ -58,7 +58,7 @@ def test_workspace_rejects_traversal_reserved_paths_and_escaping_symlink(tmp_pat
     with pytest.raises(WorkspacePermissionError):
         boundary.resolve_read_file("../outside.txt")
     with pytest.raises(WorkspacePermissionError):
-        boundary.resolve_read_file(".resagent2/state")
+        boundary.resolve_read_file(".sciagent/state")
     with pytest.raises(WorkspacePermissionError):
         boundary.resolve_read_file("link.txt")
 
@@ -80,7 +80,7 @@ def test_process_runner_writes_shell_logs(tmp_path) -> None:
     boundary = WorkspaceBoundary(grant(tmp_path))
     result = ProcessRunner(boundary).run_shell(
         f'{sys.executable} -c "print(42)"',
-        log_dir=".resagent2/test",
+        log_dir=".sciagent/test",
         index=1,
         timeout_seconds=10,
     )
@@ -93,7 +93,7 @@ def test_process_runner_marks_timeout_and_stops_process(tmp_path) -> None:
     boundary = WorkspaceBoundary(grant(tmp_path))
     result = ProcessRunner(boundary).run_shell(
         f'{sys.executable} -c "import time; time.sleep(5)"',
-        log_dir=".resagent2/timeout",
+        log_dir=".sciagent/timeout",
         index=1,
         timeout_seconds=1,
     )
@@ -106,7 +106,7 @@ def test_process_runner_extra_env_cannot_inject_credentials(tmp_path) -> None:
     boundary = WorkspaceBoundary(grant(tmp_path))
     result = ProcessRunner(boundary).run_shell(
         "env",
-        log_dir=".resagent2/env",
+        log_dir=".sciagent/env",
         index=1,
         timeout_seconds=10,
         extra_env={
@@ -287,7 +287,7 @@ def test_resolve_system_write_is_separate_from_source_scope(tmp_path) -> None:
             source=WorkspaceSourceKind.LOCAL,
         )
     )
-    resolved = boundary.resolve_system_write(".resagent2/runs/run_x/task_x/a_1/x.patch")
+    resolved = boundary.resolve_system_write(".sciagent/runs/run_x/task_x/a_1/x.patch")
     assert resolved.is_relative_to(root)
 
 
@@ -406,7 +406,7 @@ def test_replace_text_rejects_empty_old_text(tmp_path) -> None:
     [(b"opaque non-UTF-8: \xac\n", True), ("UTF-8 replacement character: \ufffd\n".encode("utf-8"), False)],
 )
 def test_git_diff_preview_marks_lossy_decoding_without_altering_patch(tmp_path, payload, replaced) -> None:
-    from resagent2_capabilities import GitDiffInput, GitDiffTool
+    from sciagent_capabilities import GitDiffInput, GitDiffTool
 
     init_repo(tmp_path)
     repository = GitWorkspace(WorkspaceBoundary(grant(tmp_path)))

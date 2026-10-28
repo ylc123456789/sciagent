@@ -2,12 +2,12 @@
 
 import pytest
 
-from resagent2_components import (
+from sciagent_components import (
     ArxivLiteratureBackend,
     MultiSourceLiteratureBackend,
     OpenAlexLiteratureBackend,
 )
-from resagent2_cli import composition
+from sciagent_cli import composition
 
 
 @pytest.mark.parametrize("api_key", [None, "private-test-key"])
@@ -34,12 +34,12 @@ def test_cli_and_e2e_wire_same_literature_backends(tmp_path, monkeypatch, api_ke
 def test_cli_binds_pdf_parser_timeout(tmp_path, monkeypatch, configured, expected):
     import json
     import subprocess
-    from resagent2_components.literature import fulltext
+    from sciagent_components.literature import fulltext
 
     if configured is None:
-        monkeypatch.delenv("RESAGENT2_PDF_PARSE_TIMEOUT_SECONDS", raising=False)
+        monkeypatch.delenv("SCIAGENT_PDF_PARSE_TIMEOUT_SECONDS", raising=False)
     else:
-        monkeypatch.setenv("RESAGENT2_PDF_PARSE_TIMEOUT_SECONDS", configured)
+        monkeypatch.setenv("SCIAGENT_PDF_PARSE_TIMEOUT_SECONDS", configured)
     monkeypatch.setattr(composition, "_client", lambda: object())
     calls = []
 
@@ -59,9 +59,9 @@ def test_cli_binds_pdf_parser_timeout(tmp_path, monkeypatch, configured, expecte
 
 @pytest.mark.parametrize("configured", ["0", "-1", "invalid", "1.5", ""])
 def test_invalid_pdf_timeout_fails_before_io_or_client_creation(tmp_path, monkeypatch, configured):
-    monkeypatch.setenv("RESAGENT2_PDF_PARSE_TIMEOUT_SECONDS", configured)
+    monkeypatch.setenv("SCIAGENT_PDF_PARSE_TIMEOUT_SECONDS", configured)
     monkeypatch.setattr(composition, "_client", lambda: pytest.fail("unexpected client creation"))
     data = tmp_path / "data"
-    with pytest.raises(ValueError, match="RESAGENT2_PDF_PARSE_TIMEOUT_SECONDS must be"):
+    with pytest.raises(ValueError, match="SCIAGENT_PDF_PARSE_TIMEOUT_SECONDS must be"):
         composition.build_application(data_root=data)
     assert not data.exists()

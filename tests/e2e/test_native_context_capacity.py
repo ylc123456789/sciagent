@@ -7,14 +7,14 @@ import subprocess
 import pytest
 
 from e2e.native_fixtures import tool_turns
-from resagent2_components import ResourceLayout
-from resagent2_contracts import (
+from sciagent_components import ResourceLayout
+from sciagent_contracts import (
     AgentPermissions, AgentRequest, ArtifactRef, ErrorCode, TaskBudget, WorkspaceAccess, WorkspaceGrant,
 )
-from resagent2_coding import NativeCodingAgent
-from resagent2_experiment import NativeExperimentAgent
-from resagent2_runtime import ContextComposer, ScriptedLLMClient
-from resagent2_runtime.tool_calling import native_input, native_input_text
+from sciagent_coding import NativeCodingAgent
+from sciagent_experiment import NativeExperimentAgent
+from sciagent_runtime import ContextComposer, ScriptedLLMClient
+from sciagent_runtime.tool_calling import native_input, native_input_text
 
 
 def _body(label, character):

@@ -5,11 +5,11 @@ import json
 
 import pytest
 
-from resagent2_components import execution_record, preserve_execution_record
-from resagent2_contracts import AgentOwner, AgentResult, ErrorCode, ModuleError, SessionStatus, VerificationResult
-from resagent2_runtime import AgentState, InMemorySessionStore, ToolObservation
-from resagent2_runtime.models import HistoryCheckpoint, NativeToolCall, ToolCallTurn
-from resagent2_runtime.tool_calling import tool_receipt
+from sciagent_components import execution_record, preserve_execution_record
+from sciagent_contracts import AgentOwner, AgentResult, ErrorCode, ModuleError, SessionStatus, VerificationResult
+from sciagent_runtime import AgentState, InMemorySessionStore, ToolObservation
+from sciagent_runtime.models import HistoryCheckpoint, NativeToolCall, ToolCallTurn
+from sciagent_runtime.tool_calling import tool_receipt
 
 
 def state_and_receipt(*, value, tool="run_shell"):

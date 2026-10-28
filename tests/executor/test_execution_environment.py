@@ -11,12 +11,12 @@ import tempfile
 import pytest
 
 from e2e.native_fixtures import tool_turns
-from resagent2_capabilities import RunShellInput, RunShellTool
-from resagent2_components import ProcessRunner, WorkspaceBoundary
-from resagent2_components.execution_environment import ExecutionEnvironment
-from resagent2_contracts import AgentOwner, AgentPermissions, AgentRequest, ExecutionDefinition, RecordedAnswer, TaskBudget, WorkspaceAccess, WorkspaceGrant
-from resagent2_executor import NativeExecutorAgent, build_coding_definition, build_experiment_definition
-from resagent2_runtime import AgentState, JsonSessionStore, ScriptedLLMClient
+from sciagent_capabilities import RunShellInput, RunShellTool
+from sciagent_components import ProcessRunner, WorkspaceBoundary
+from sciagent_components.execution_environment import ExecutionEnvironment
+from sciagent_contracts import AgentOwner, AgentPermissions, AgentRequest, ExecutionDefinition, RecordedAnswer, TaskBudget, WorkspaceAccess, WorkspaceGrant
+from sciagent_executor import NativeExecutorAgent, build_coding_definition, build_experiment_definition
+from sciagent_runtime import AgentState, JsonSessionStore, ScriptedLLMClient
 
 
 pytestmark = pytest.mark.skipif(sys.platform != "linux", reason="fixed Linux Bash execution")
@@ -71,7 +71,7 @@ def test_real_venv_dependencies_do_not_enter_patch_or_modify_real_index(tmp_path
     subprocess.run(["git", "-C", str(root), "add", "value.py"], check=True)
     original_index = (root / ".git/index").read_bytes()
     script = """import json, os, pathlib, venv
-p = pathlib.Path(os.environ['RESAGENT2_ENVIRONMENT_DIR'])
+p = pathlib.Path(os.environ['SCIAGENT_ENVIRONMENT_DIR'])
 venv.EnvBuilder(with_pip=False).create(p)
 packages = next(p.glob('lib/python*/site-packages')) / 'local_dependency'
 packages.mkdir()
@@ -81,7 +81,7 @@ pathlib.Path('value.py').write_text('VALUE = 2\\n')
 pathlib.Path('environment_source.py').write_text('SOURCE_MUST_SURVIVE = True\\n')
 pathlib.Path('cache').mkdir()
 pathlib.Path('cache/source_logic.py').write_text('CACHE_NAMED_SOURCE = True\\n')
-print(json.dumps({k: os.environ[k] for k in ['RESAGENT2_ENVIRONMENT_DIR', 'UV_PROJECT_ENVIRONMENT', 'PIP_CACHE_DIR', 'XDG_CACHE_HOME', 'UV_CACHE_DIR']}))
+print(json.dumps({k: os.environ[k] for k in ['SCIAGENT_ENVIRONMENT_DIR', 'UV_PROJECT_ENVIRONMENT', 'PIP_CACHE_DIR', 'XDG_CACHE_HOME', 'UV_CACHE_DIR']}))
 """
     command = shlex.quote(sys.executable) + " -c " + shlex.quote(script)
     first_client = ScriptedLLMClient(tool_turns([{"tool": "run_shell", "arguments": {"command": command}}]))
@@ -247,7 +247,7 @@ def test_memory_cannot_grant_workspace_ancestor_or_redirected_environment(tmp_pa
     environment = ExecutionEnvironment.allocate(workspace_root=root, output_dir=str(tmp_path / "output"))
     assert environment.to_memory() == {"version": 1, "root": str(environment.root)}
     assert environment.env_overrides() == {
-        "RESAGENT2_ENVIRONMENT_DIR": str(environment.environment_dir),
+        "SCIAGENT_ENVIRONMENT_DIR": str(environment.environment_dir),
         "UV_PROJECT_ENVIRONMENT": str(environment.environment_dir),
         "XDG_CACHE_HOME": str(environment.cache_dir),
         "PIP_CACHE_DIR": str(environment.cache_dir / "pip"),

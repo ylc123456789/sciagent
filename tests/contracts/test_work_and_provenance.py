@@ -1,13 +1,13 @@
 """Current WorkRequest lifecycle, scientific opinions and artifact provenance."""
 
-from resagent2_contracts import RunPermissions, ExecutionLimits
+from sciagent_contracts import RunPermissions, ExecutionLimits
 
 from datetime import UTC, datetime
 
 import pytest
 from pydantic import TypeAdapter, ValidationError
 
-from resagent2_contracts import (AgentOwner, ArtifactId, ArtifactRef, ModuleError, ModuleStatus, ErrorCode, ResearchRequest, RunBudget, RunId, ScientificAssessment, ScientificOpinion, ScientificVerdict, SessionRef, SessionStatus, TaskBudget, WorkResult, WorkRequest, WorkRequestDraft, WorkRequestStatus, WorkTaskResult, QuestionDraft, RecordedAnswer)
+from sciagent_contracts import (AgentOwner, ArtifactId, ArtifactRef, ModuleError, ModuleStatus, ErrorCode, ResearchRequest, RunBudget, RunId, ScientificAssessment, ScientificOpinion, ScientificVerdict, SessionRef, SessionStatus, TaskBudget, WorkResult, WorkRequest, WorkRequestDraft, WorkRequestStatus, WorkTaskResult, QuestionDraft, RecordedAnswer)
 
 NOW = datetime(2026, 8, 28, tzinfo=UTC)
 

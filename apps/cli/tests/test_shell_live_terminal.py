@@ -17,7 +17,7 @@ def test_escape_accepts_interrupt_without_enter(tmp_path):
 from pathlib import Path
 import sys
 Path.home = lambda: Path(sys.argv[1])
-from resagent2_cli.terminal import terminal_input
+from sciagent_cli.terminal import terminal_input
 print('RESULT=' + terminal_input('ready> '), flush=True)
 """
     master, slave = pty.openpty()

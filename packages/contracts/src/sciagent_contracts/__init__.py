@@ -1,0 +1,52 @@
+"""Stable public imports for sciagent cross-module contracts."""
+
+from .evidence import latest_command_results, missing_required_evidence_kinds
+from .identifiers import new_artifact_id, task_session_id
+from .models import (
+    ArtifactIndexEntry, ControlOrigin, WorkResult, WorkTaskResult, WorkAttemptResult,
+    ExecutionRef, ExecutionConfig, ExecutionDefinition, ExecutionPreset, ExecutionCatalogEntry, PresetSelection, NoMatchSelection, ExecutionSelection, execution_config_hash,
+    SCHEMA_VERSION,
+    SCIENTIFIC_ARTIFACT_KINDS, SYSTEM_ARTIFACT_KINDS, SYSTEM_ARTIFACT_PROVENANCE,
+    SYSTEM_GENERATED_ARTIFACT_KINDS,
+    ActionSnapshot, AgentCheckpoint, AgentOwner, AgentPermissions, AgentRequest, AgentResult, BusinessInput,
+    AnswerFieldName, ArtifactCandidate, ArtifactId, ArtifactImport,
+    ArtifactOutput, ArtifactRef, Attempt, AttemptStatus,
+    ConclusionRequirements, ControlSignal, DatasetRef, ExecutionLimits,
+    ErrorCode, FutureArtifactBinding, ModuleError, ModuleStatus,
+    ObservationTrace, OutputName, PendingQuestion, QuestionDraft, QuestionId,
+    RecordedAnswer, RequiredEvidenceKind, ResearchRequest, RunBudget, RunId, RunPermissions,
+    RunStatus, ScientificAssessment, ScientificOpinion, ScientificVerdict,
+    SessionId, SessionRef, SessionStatus, TaskAcceptanceSpec, TaskBudget,
+    TaskId, TaskProposal, TaskStatus, UserAnswer, VerificationResult,
+    WarningRecord, Workflow, WorkflowAgentKind,
+    WorkflowAgentRegistry, WorkflowPatch, WorkflowProposal, WorkflowTask,
+    WorkRequest, WorkRequestDraft, WorkRequestId, WorkTaskDraft, WorkTaskArtifactBinding,
+    WorkRequestStatus, WorkspaceDescriptor, WorkspaceGrant,
+    WorkspaceId, WorkspaceAccess, WorkspaceRecord, WorkspaceSourceKind,
+    WorkspaceSpec,
+)
+
+__all__ = [
+    'ExecutionRef', 'ExecutionConfig', 'ExecutionDefinition', 'ExecutionPreset', 'ExecutionCatalogEntry', 'PresetSelection', 'NoMatchSelection', 'ExecutionSelection', 'execution_config_hash',
+    "new_artifact_id", "ArtifactIndexEntry", "ControlOrigin", "WorkResult", "WorkTaskResult", "WorkAttemptResult",
+    "SCHEMA_VERSION", "latest_command_results", "missing_required_evidence_kinds",
+    "SCIENTIFIC_ARTIFACT_KINDS", "SYSTEM_ARTIFACT_KINDS", "SYSTEM_ARTIFACT_PROVENANCE",
+    "SYSTEM_GENERATED_ARTIFACT_KINDS",
+    "task_session_id", "ActionSnapshot", "AgentOwner", "AgentPermissions", "AgentRequest", "BusinessInput",
+    "AgentCheckpoint", "AgentResult", "AnswerFieldName", "ArtifactCandidate", "ArtifactId",
+    "ArtifactImport", "ArtifactOutput", "ArtifactRef", "Attempt", "AttemptStatus",
+    "ConclusionRequirements", "ControlSignal", "DatasetRef", "ExecutionLimits",
+    "ErrorCode", "FutureArtifactBinding", "ModuleError", "ModuleStatus",
+    "ObservationTrace", "OutputName", "PendingQuestion", "QuestionDraft",
+    "QuestionId", "RecordedAnswer", "RequiredEvidenceKind", "ResearchRequest",
+    "RunBudget", "RunId", "RunPermissions", "RunStatus", "ScientificAssessment", "ScientificOpinion",
+    "ScientificVerdict", "SessionId", "SessionRef", "SessionStatus",
+    "TaskAcceptanceSpec", "TaskBudget", "TaskId", "TaskProposal", "TaskStatus",
+    "UserAnswer", "VerificationResult", "WarningRecord", "Workflow",
+    "WorkflowAgentKind", "WorkflowAgentRegistry",
+    "WorkflowPatch", "WorkflowProposal", "WorkflowTask",
+    "WorkRequest", "WorkRequestDraft", "WorkRequestId", "WorkTaskDraft", "WorkTaskArtifactBinding",
+    "WorkRequestStatus", "WorkspaceDescriptor", "WorkspaceGrant",
+    "WorkspaceId", "WorkspaceAccess", "WorkspaceRecord", "WorkspaceSourceKind",
+    "WorkspaceSpec",
+]

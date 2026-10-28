@@ -1,6 +1,6 @@
 """Parent inspection of completed results and mutable files during active work."""
 from dataclasses import replace
-from resagent2_executor import default_execution_registry
+from sciagent_executor import default_execution_registry
 from e2e.scheduler_fixtures import executor_bindings
 from datetime import UTC, datetime
 import json
@@ -12,27 +12,27 @@ import sys
 import pytest
 
 from e2e.native_fixtures import tool_turns
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner, ResearchRequest, RunBudget, RunPermissions, TaskProposal,
     WorkflowAgentRegistry, WorkflowProposal,
     WorkspaceAccess, WorkspaceSpec, task_session_id,
 )
-from resagent2_components import (
+from sciagent_components import (
     ReadOnlyWorkspaceBoundary, RegisteredArtifactReader, ResourceLayout, WorkspacePermissionError,
 )
-from resagent2_coding import NativeCodingAgent
-from resagent2_experiment import NativeExperimentAgent
-from resagent2_orchestrator import (
+from sciagent_coding import NativeCodingAgent
+from sciagent_experiment import NativeExperimentAgent
+from sciagent_orchestrator import (
     DeterministicWorkflowCompiler, DeterministicWorkInterpreter, InMemoryRunStore,
     ModuleBinding, ResearchController, WorkflowScheduler,
 )
-from resagent2_runtime import (
+from sciagent_runtime import (
     AgentDefinition, AgentLoop, AllowListPermissionPolicy, AskUserTool,
     ApprovalReviewVerdict, CompletionDecision, FinishTool, InMemorySessionStore, ScriptedLLMClient,
 )
-from resagent2_runtime.models import ContextSection
-from resagent2_components.materials import request_task_context
-from resagent2_scientific import ScientificAgent
+from sciagent_runtime.models import ContextSection
+from sciagent_components.materials import request_task_context
+from sciagent_scientific import ScientificAgent
 
 
 def action(name, **arguments):

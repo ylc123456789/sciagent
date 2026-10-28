@@ -3,12 +3,12 @@ from datetime import UTC, datetime
 
 import pytest
 
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner, AgentResult, ErrorCode, ModuleError, ModuleStatus, RunStatus,
     SessionRef, SessionStatus, WorkRequestStatus, WorkflowAgentKind,
 )
-from resagent2_orchestrator import ModuleBinding
-from resagent2_runtime.cancellation import CancellationToken, OperationCancelled, bind_cancellation
+from sciagent_orchestrator import ModuleBinding
+from sciagent_runtime.cancellation import CancellationToken, OperationCancelled, bind_cancellation
 
 from test_controller import build_controller, request_work_action, research_request
 

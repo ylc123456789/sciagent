@@ -2,7 +2,7 @@
 
 Neutral adaptation of kuangliu/pytorch-cifar for the L3 calibration case:
 - ResNet18 (the case's fixed architecture)
-- local dataset via RESAGENT2_DATASET_ROOT, download=False
+- local dataset via SCIAGENT_DATASET_ROOT, download=False
 - trains only on the first 45000 train samples (deterministic split; the last
   5000 are the calibration set, and the official test set is not loaded here)
 - saves the checkpoint; no test evaluation
@@ -39,7 +39,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 # Data (local, no download). Only the 45k train split is used here.
 print('==> Preparing data..')
-dataset_root = json.loads(os.environ.get('RESAGENT2_DATASETS_JSON', '{}')).get('cifar10', os.environ.get('RESAGENT2_DATASET_ROOT', './data'))
+dataset_root = json.loads(os.environ.get('SCIAGENT_DATASETS_JSON', '{}')).get('cifar10', os.environ.get('SCIAGENT_DATASET_ROOT', './data'))
 transform_train = transforms.Compose([
     transforms.RandomCrop(32, padding=4),
     transforms.RandomHorizontalFlip(),

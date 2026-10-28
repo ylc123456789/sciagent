@@ -1,5 +1,5 @@
 from datetime import UTC, datetime
-from resagent2_runtime import AgentState
+from sciagent_runtime import AgentState
 """Native wire protocol, Session continuation and existing execution boundaries."""
 
 import json
@@ -9,17 +9,17 @@ from httpx import DecodingError, TransportError
 
 import pytest
 
-from resagent2_contracts import (AgentOwner, AgentPermissions, ErrorCode, ModuleStatus, AgentRequest, SessionStatus, TaskBudget)
+from sciagent_contracts import (AgentOwner, AgentPermissions, ErrorCode, ModuleStatus, AgentRequest, SessionStatus, TaskBudget)
 from tool_fixtures import WriteValueTool
 
-from resagent2_runtime import (
+from sciagent_runtime import (
     AgentDefinition, AgentLoop, AllowListPermissionPolicy, AskUserTool,
     CompletionDecision, ContextSection, FinishTool, InMemorySessionStore,
     JsonSessionStore, ModelProfile, OpenAICompatibleClient,
 )
-from resagent2_runtime.context import ContextComposer
-from resagent2_runtime.models import NativeToolCall, ToolCallTurn, ToolObservation
-from resagent2_runtime.tool_calling import (
+from sciagent_runtime.context import ContextComposer
+from sciagent_runtime.models import NativeToolCall, ToolCallTurn, ToolObservation
+from sciagent_runtime.tool_calling import (
     native_input_text, native_tool_schemas, tool_messages,
 )
 
@@ -59,7 +59,7 @@ def _request(*, parent=None, calls=10, goal="current task"):
 @pytest.fixture
 def setup(monkeypatch, tmp_path):
     monkeypatch.setenv("TEST_NATIVE_KEY", "private-api-key")
-    monkeypatch.setattr("resagent2_runtime.llm.time.sleep", lambda _: None)
+    monkeypatch.setattr("sciagent_runtime.llm.time.sleep", lambda _: None)
     client = OpenAICompatibleClient(
         model="native-test", api_base="https://example.invalid/v1", api_key_env="TEST_NATIVE_KEY",
         trace_level="full", trace_dir=tmp_path / "traces",
@@ -86,7 +86,7 @@ def setup(monkeypatch, tmp_path):
                 item = item(body)
             return BytesIO(json.dumps(item).encode())
 
-        monkeypatch.setattr("resagent2_runtime.llm.send_request", respond)
+        monkeypatch.setattr("sciagent_runtime.llm.send_request", respond)
 
     return definition, InMemorySessionStore(), requests, install
 
@@ -427,7 +427,7 @@ def test_request_work_pause_is_not_a_completed_execution(setup):
     assert first.control.action == "request_work"
     assert first.artifacts == []
     assert first.control.work_request.request.objective == "measure"
-    from resagent2_contracts import WorkResult
+    from sciagent_contracts import WorkResult
     result = WorkResult(run_id=request.run_id, session_id=first.session.id,
                         work_request_id=first.control.work_request.id, objective="measure", status="stable")
     second = AgentLoop(store=store).run(
@@ -548,12 +548,12 @@ def test_session_rejects_silent_protocol_or_provider_migration(setup, changed, m
         old = store.load("session_native").model_dump()
         old.pop("tool_protocol_key")
         old.pop("tool_turns")
-        from resagent2_runtime import AgentState
+        from sciagent_runtime import AgentState
         store.save(AgentState.model_validate(old))
     elif changed == "endpoint":
         definition.llm_client.endpoint = "https://different-provider.invalid/chat/completions"
     elif changed == "native_rules":
-        from resagent2_runtime import tool_calling
+        from sciagent_runtime import tool_calling
         monkeypatch.setattr(tool_calling, "NATIVE_TOOL_INSTRUCTION", "Updated fixed execution rules")
     else:
         definition.llm_client.model = "different-model"
@@ -644,7 +644,7 @@ def test_later_invalid_parameters_prevent_all_batch_side_effects(setup):
 @pytest.mark.parametrize("deny_after_first", [False, True])
 def test_batch_permissions_are_preflighted_and_rechecked(setup, deny_after_first):
     definition, store, _, install = setup
-    from resagent2_runtime import PermissionDecision
+    from sciagent_runtime import PermissionDecision
 
     class Policy:
         def check(self, action, state, request):
@@ -745,7 +745,7 @@ def test_batch_crash_distinguishes_completed_unknown_and_unstarted(setup, tmp_pa
 
 def test_overlarge_batch_is_rejected_before_execution(setup):
     definition, store, _, install = setup
-    from resagent2_runtime.tool_calling import MAX_TOOL_CALLS_PER_TURN
+    from sciagent_runtime.tool_calling import MAX_TOOL_CALLS_PER_TURN
     install([_reply(_writes(*range(MAX_TOOL_CALLS_PER_TURN + 1))), _reply()])
     result = AgentLoop(store=store).run(definition, _request(), session_id="session_native")
     state = store.load("session_native")
@@ -823,7 +823,7 @@ def _large_receipt_turn(value, *, name="run_shell", ok=True):
 
 
 def test_large_path_receipt_is_bounded_only_in_model_projection():
-    from resagent2_runtime.tool_output import MAX_TOOL_RECEIPT_CHARS
+    from sciagent_runtime.tool_output import MAX_TOOL_RECEIPT_CHARS
 
     paths = [f"venv/lib/python/site-packages/dependency_{i}/" + "x" * 45 for i in range(6260)]
     turn = _large_receipt_turn({"exit_code": 7, "timed_out": False, "changed_paths": paths,
@@ -849,7 +849,7 @@ def test_large_path_receipt_is_bounded_only_in_model_projection():
 
 @pytest.mark.parametrize("content", ["x" * 128000, "\x01" * 128000, "中文\\\"\n" * 32000])
 def test_receipt_projection_read_cursor_tracks_exact_displayed_window(content):
-    from resagent2_runtime.tool_output import MAX_TOOL_RECEIPT_CHARS
+    from sciagent_runtime.tool_output import MAX_TOOL_RECEIPT_CHARS
 
     start = 23
     turn = _large_receipt_turn({
@@ -898,7 +898,7 @@ def test_oversized_opaque_cursor_page_requires_retry_instead_of_skipping_entries
     {"nested": [[["x" * 200000]]]},
 ])
 def test_receipt_hard_bound_handles_large_keys_identities_and_nested_data(value):
-    from resagent2_runtime.tool_output import MAX_TOOL_RECEIPT_CHARS
+    from sciagent_runtime.tool_output import MAX_TOOL_RECEIPT_CHARS
 
     turn = _large_receipt_turn(value)
     shown = tool_messages([turn])[-1]["content"]
@@ -915,8 +915,8 @@ def test_receipt_hard_bound_handles_large_keys_identities_and_nested_data(value)
 
 
 def test_small_receipts_and_material_index_remain_unchanged():
-    from resagent2_runtime.models import ComposedContext
-    from resagent2_runtime.tool_calling import native_input
+    from sciagent_runtime.models import ComposedContext
+    from sciagent_runtime.tool_calling import native_input
 
     turn = _large_receipt_turn({"content": "exact small text", "next_start_char": None})
     material_index = '{"registered_materials":[],"file_spaces":[],"datasets":[]}'
@@ -928,8 +928,8 @@ def test_small_receipts_and_material_index_remain_unchanged():
 
 
 def test_summary_input_reuses_bounded_receipts_without_changing_compaction_policy():
-    from resagent2_runtime.compaction import _summary_prompt
-    from resagent2_runtime.tool_output import MAX_TOOL_RECEIPT_CHARS
+    from sciagent_runtime.compaction import _summary_prompt
+    from sciagent_runtime.tool_output import MAX_TOOL_RECEIPT_CHARS
 
     turn = _large_receipt_turn({"changed_paths": ["p" * 200 for _ in range(6260)]})
     prompt = json.loads(_summary_prompt(None, [turn], target_summary_chars=1000))

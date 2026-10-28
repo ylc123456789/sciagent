@@ -8,27 +8,27 @@ import httpx
 import pytest
 from pydantic import ValidationError
 
-from resagent2_components.approval_review import LLMPermissionReviewer
-from resagent2_components.python_source_evidence import (
+from sciagent_components.approval_review import LLMPermissionReviewer
+from sciagent_components.python_source_evidence import (
     MAX_FILE_BYTES, MAX_FILES, MAX_TOTAL_BYTES, collect_python_source_evidence,
 )
-from resagent2_components.workspace import WorkspaceBoundary
-from resagent2_contracts import (
+from sciagent_components.workspace import WorkspaceBoundary
+from sciagent_contracts import (
     ActionSnapshot, AgentPermissions, AgentRequest, BusinessInput, RecordedAnswer,
     TaskBudget, WorkspaceAccess, WorkspaceGrant, WorkspaceSourceKind,
 )
-from resagent2_runtime import (
+from sciagent_runtime import (
     ApprovalReviewVerdict, NativeToolCall, OpenAICompatibleClient, ScriptedLLMClient,
     ToolCallTurn,
 )
-from resagent2_runtime.budget import (
+from sciagent_runtime.budget import (
     BudgetExhaustedError, DeadlineExceededError, MemoryUsage, UsagePersistenceError, execution_budget,
 )
-from resagent2_runtime.cancellation import (
+from sciagent_runtime.cancellation import (
     CancellationToken, OperationCancelled, bind_cancellation,
 )
-from resagent2_runtime.context import ContextBudgetExceeded
-from resagent2_runtime.tool_calling import NativeToolCallError
+from sciagent_runtime.context import ContextBudgetExceeded
+from sciagent_runtime.tool_calling import NativeToolCallError
 
 
 def _turn(value=None, *, name="review_operation", extra_call=False):
@@ -329,7 +329,7 @@ def test_each_operation_allows_only_one_http_attempt_even_on_reusable_client(ope
             raise httpx.HTTPStatusError("server error", request=wire, response=httpx.Response(500))
         raise httpx.TransportError("connection failed")
 
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", fail)
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", fail)
     with execution_budget(max_llm_calls=8, timeout_seconds=30) as budget:
         for _ in range(2):
             with pytest.raises(RuntimeError, match="after 1 attempts"):
@@ -351,7 +351,7 @@ def test_trace_correlates_exact_operation_and_late_cancelled_verdict_cannot_retu
         token.cancel("interrupted during review")
         return _wire_response()
 
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", respond)
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", respond)
     with bind_cancellation(token), execution_budget(max_llm_calls=3, timeout_seconds=30) as budget:
         with pytest.raises(OperationCancelled, match="interrupted during review"):
             reviewer.review(operation, agent_request)
@@ -378,7 +378,7 @@ def _review_payloads(client):
 
 
 def _checked_result(result, *, decision):
-    from resagent2_runtime.models import ApprovalReviewResult
+    from sciagent_runtime.models import ApprovalReviewResult
 
     assert isinstance(result, ApprovalReviewResult)
     assert result.verdict.decision == decision
@@ -404,7 +404,7 @@ def test_read_code_then_allow_returns_evidence_bound_context_without_executing_o
     def no_approval(*args, **kwargs):
         pytest.fail("review inspection must not recursively request operation approval")
 
-    monkeypatch.setattr("resagent2_capabilities.permissions.OperationPermissionPolicy.check", no_approval)
+    monkeypatch.setattr("sciagent_capabilities.permissions.OperationPermissionPolicy.check", no_approval)
     client = ScriptedLLMClient([_inspection("review_read_file", "helper.py"), _turn()])
     result = _review(client, operation, agent_request)
     context = _checked_result(result, decision="allow")
@@ -480,7 +480,7 @@ def test_denied_or_outside_inspection_records_failure_without_disclosure_or_appr
     def no_approval(*args, **kwargs):
         pytest.fail("an unavailable inspection must not create an operation approval")
 
-    monkeypatch.setattr("resagent2_capabilities.permissions.OperationPermissionPolicy.check", no_approval)
+    monkeypatch.setattr("sciagent_capabilities.permissions.OperationPermissionPolicy.check", no_approval)
     client = ScriptedLLMClient([_inspection(tool, path),
         _turn({"decision": "ask", "reason": "The requested implementation evidence is unavailable"})])
     result = _review(client, operation, agent_request)
@@ -679,8 +679,8 @@ def _inspection_batch(*items):
 def test_inspection_batch_is_sequential_and_fully_paired_before_final_verdict(
     operation, agent_request, tmp_path, monkeypatch, items,
 ):
-    from resagent2_components import approval_review
-    from resagent2_runtime.tool_calling import tool_messages
+    from sciagent_components import approval_review
+    from sciagent_runtime.tool_calling import tool_messages
 
     for name in ("a.txt", "b.txt", "c.txt"):
         (tmp_path / name).write_text("BODY_" + name)
@@ -755,7 +755,7 @@ def test_batch_then_single_inspection_retains_independent_paired_turns(operation
 def test_mixed_final_or_unknown_tool_batch_never_reads_any_path(
     operation, agent_request, monkeypatch, names,
 ):
-    from resagent2_components import approval_review
+    from sciagent_components import approval_review
 
     collect = approval_review.collect_python_source_evidence
 
@@ -813,7 +813,7 @@ def test_batch_larger_than_remaining_inspection_allowance_reads_nothing_from_bat
 def test_batch_prevalidates_all_parameters_before_first_inspection(
     operation, agent_request, monkeypatch, arguments,
 ):
-    from resagent2_components import approval_review
+    from sciagent_components import approval_review
 
     collect = approval_review.collect_python_source_evidence
 
@@ -834,7 +834,7 @@ def test_batch_prevalidates_all_parameters_before_first_inspection(
 def test_mid_batch_failure_keeps_only_latest_completed_binding(
     operation, agent_request, tmp_path, monkeypatch, completed,
 ):
-    from resagent2_components import approval_review
+    from sciagent_components import approval_review
 
     for name in ("a.txt", "b.txt", "c.txt"):
         (tmp_path / name).write_text("BODY_" + name)
@@ -863,7 +863,7 @@ def test_mid_batch_failure_keeps_only_latest_completed_binding(
 def test_mid_batch_drift_preserves_old_binding_and_skips_remaining_inspection(
     operation, agent_request, tmp_path, monkeypatch, changed,
 ):
-    from resagent2_components import approval_review
+    from sciagent_components import approval_review
 
     entry = tmp_path / "entry.py"
     entry.write_text("ORIGINAL = True\n")
@@ -906,7 +906,7 @@ def test_mid_batch_drift_preserves_old_binding_and_skips_remaining_inspection(
 def test_control_failure_inside_batch_propagates_original_exception(
     operation, agent_request, tmp_path, monkeypatch, error_type,
 ):
-    from resagent2_components import approval_review
+    from sciagent_components import approval_review
 
     (tmp_path / "a.txt").write_text("Current evidence")
     error = error_type("Stop before the second inspection")
@@ -974,7 +974,7 @@ def test_directory_receipt_preserves_partial_expansion_and_missing_status(operat
 def test_native_messages_keep_old_judgment_before_new_body_and_never_rewrite_initial_request(
     operation, agent_request, tmp_path,
 ):
-    from resagent2_runtime.tool_calling import native_input
+    from sciagent_runtime.tool_calling import native_input
 
     body = "NEW_OBSERVED_BODY = 42\n"
     (tmp_path / "helper.py").write_text(body)
@@ -1010,7 +1010,7 @@ def test_raw_bytes_within_evidence_quota_still_require_complete_native_request_c
             }}],
         }}]}).encode())
 
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", respond)
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", respond)
     result = LLMPermissionReviewer(client, max_context_tokens=20_000).review(operation, agent_request)
     context = _checked_result(result, decision="ask")
     assert "ContextBudgetExceeded" in result.verdict.reason
@@ -1026,7 +1026,7 @@ def test_raw_bytes_within_evidence_quota_still_require_complete_native_request_c
 def test_drift_during_expanded_recollection_cannot_bind_unseen_changed_body(
     operation, agent_request, tmp_path, monkeypatch, completed,
 ):
-    from resagent2_components import approval_review
+    from sciagent_components import approval_review
 
     source = tmp_path / "entry.py"
     source.write_text("PREVIOUSLY_PROVIDED_BODY = 1\n")

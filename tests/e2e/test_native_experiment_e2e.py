@@ -2,13 +2,13 @@ from e2e.scheduler_fixtures import create_scheduler_run
 
 from e2e.native_fixtures import tool_turns
 
-from resagent2_contracts import WorkspaceAccess, RunPermissions, ExecutionLimits
+from sciagent_contracts import WorkspaceAccess, RunPermissions, ExecutionLimits
 from datetime import UTC, datetime
 import shlex
 import sys
 import subprocess
 
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner,
     WorkflowAgentKind,
     ResearchRequest,
@@ -22,9 +22,9 @@ from resagent2_contracts import (
     WorkspaceSourceKind,
     WorkspaceSpec,
 )
-from resagent2_experiment import NativeExperimentAgent
-from resagent2_runtime import ScriptedLLMClient
-from resagent2_orchestrator import (
+from sciagent_experiment import NativeExperimentAgent
+from sciagent_runtime import ScriptedLLMClient
+from sciagent_orchestrator import (
     InMemoryRunStore,
     ModuleBinding,
     WorkflowScheduler,

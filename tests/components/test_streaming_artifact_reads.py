@@ -8,10 +8,10 @@ from pathlib import Path
 
 import pytest
 
-from resagent2_components import ArtifactReadError, RegisteredArtifactReader
-from resagent2_components.text import decode_text_chunks, slice_text_chunks, slice_text_lines
-from resagent2_contracts import AgentOwner, ArtifactRef
-from resagent2_runtime.cancellation import (
+from sciagent_components import ArtifactReadError, RegisteredArtifactReader
+from sciagent_components.text import decode_text_chunks, slice_text_chunks, slice_text_lines
+from sciagent_contracts import AgentOwner, ArtifactRef
+from sciagent_runtime.cancellation import (
     CancellationToken, OperationCancelled, bind_cancellation,
 )
 
@@ -223,7 +223,7 @@ def test_stream_io_error_is_preserved_without_partial_success(tmp_path, monkeypa
 
 
 def test_stream_checks_shared_deadline_without_charging_model_usage(tmp_path, monkeypatch):
-    from resagent2_runtime.budget import DeadlineExceededError, execution_budget
+    from sciagent_runtime.budget import DeadlineExceededError, execution_budget
 
     path = tmp_path / "deadline.txt"
     path.write_bytes(b"x" * 200000)
@@ -254,7 +254,7 @@ def test_stream_checks_shared_deadline_without_charging_model_usage(tmp_path, mo
 
 
 def test_zero_remaining_model_calls_does_not_prevent_local_stream_read(tmp_path):
-    from resagent2_runtime.budget import execution_budget
+    from sciagent_runtime.budget import execution_budget
 
     path = tmp_path / "local.txt"
     path.write_bytes(b"local text")

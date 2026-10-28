@@ -156,26 +156,26 @@ def test_run_rejects_adversarial_public_manifest_before_model(tmp_path, inputs, 
         manifest.write_text(json.dumps(value), encoding="utf-8")
     def no_model(*args, **kwargs):
         pytest.fail("invalid public input must fail before model transport")
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", no_model)
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", no_model)
     with pytest.raises(ValueError):
         sab.run(manifest=manifest, output=tmp_path / "invalid-run", execution_mode="offline-mechanism")
 
 
 def _native_chain(tmp_path, inputs, monkeypatch, *, root_program=None, fail_child=False):
-    from resagent2_cli.composition import build_application
-    from resagent2_contracts import UserAnswer
-    from resagent2_orchestrator import JsonRunStore
+    from sciagent_cli.composition import build_application
+    from sciagent_contracts import UserAnswer
+    from sciagent_orchestrator import JsonRunStore
 
     manifest = _prepare(tmp_path, inputs)
     output = tmp_path / "run"
     counts = Counter()
-    monkeypatch.setenv("RESAGENT2_MODEL", "offline-sab-mechanism")
-    monkeypatch.setenv("RESAGENT2_API_BASE", "https://example.invalid/v1")
-    monkeypatch.setenv("RESAGENT2_API_KEY_ENV", "SAB_MECHANISM_KEY")
+    monkeypatch.setenv("SCIAGENT_MODEL", "offline-sab-mechanism")
+    monkeypatch.setenv("SCIAGENT_API_BASE", "https://example.invalid/v1")
+    monkeypatch.setenv("SCIAGENT_API_KEY_ENV", "SAB_MECHANISM_KEY")
     monkeypatch.setenv("SAB_MECHANISM_KEY", "dummy-test-only")
-    monkeypatch.setenv("RESAGENT2_WEB_SEARCH_PROVIDER", "off")
-    monkeypatch.setenv("RESAGENT2_LLM_TRACE_LEVEL", "off")
-    monkeypatch.setenv("RESAGENT2_RESOURCE_ROOT", str(tmp_path / "resources"))
+    monkeypatch.setenv("SCIAGENT_WEB_SEARCH_PROVIDER", "off")
+    monkeypatch.setenv("SCIAGENT_LLM_TRACE_LEVEL", "off")
+    monkeypatch.setenv("SCIAGENT_RESOURCE_ROOT", str(tmp_path / "resources"))
 
     def evidence():
         current = JsonRunStore(output / "data/state").load("run_sab_mechanism")
@@ -236,7 +236,7 @@ def _native_chain(tmp_path, inputs, monkeypatch, *, root_program=None, fail_chil
         pytest.fail("offline mechanism tests must never send real network requests")
     monkeypatch.setattr("httpx.Client.send", no_network)
     monkeypatch.setattr("httpx.AsyncClient.send", no_network)
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", reply)
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", reply)
     run = sab.run(manifest=manifest, output=output, run_id="run_sab_mechanism", max_llm_calls=16,
         timeout_seconds=60, execution_mode="offline-mechanism")
     assert run.status.value == "paused", run.terminal_error
@@ -335,7 +335,7 @@ def test_export_rejects_unaccepted_uncited_missing_and_corrupt_programs(tmp_path
 
 
 def test_export_ignores_failed_retry_but_rejects_multiple_accepted_cited_programs(tmp_path, inputs, monkeypatch):
-    from resagent2_contracts import AttemptStatus
+    from sciagent_contracts import AttemptStatus
     run, output, destination = _native_chain(tmp_path, inputs, monkeypatch)
     frozen = next(ref for ref in run.artifacts.values() if ref.output_name == sab.OUTPUT_NAME)
     task = run.task(frozen.task_id)
@@ -419,7 +419,7 @@ def test_prepare_and_run_reject_symlinked_output_ancestors(tmp_path, inputs, mon
     manifest = _prepare(tmp_path, inputs)
     def no_model(*args, **kwargs):
         pytest.fail("unsafe output path must fail before model invocation")
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", no_model)
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", no_model)
     with pytest.raises(ValueError):
         sab.run(manifest=manifest, output=link / "run", execution_mode="offline-mechanism")
     assert not (outside / "run").exists()

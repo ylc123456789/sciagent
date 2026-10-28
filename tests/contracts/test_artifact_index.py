@@ -3,7 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
-from resagent2_contracts import ArtifactIndexEntry, ArtifactRef
+from sciagent_contracts import ArtifactIndexEntry, ArtifactRef
 
 
 def ref(metadata):

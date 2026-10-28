@@ -4,8 +4,8 @@ import pytest
 
 from e2e import real_e2e
 from e2e.native_fixtures import tool_turn
-from resagent2_cli import composition
-from resagent2_contracts import (
+from sciagent_cli import composition
+from sciagent_contracts import (
     AgentOwner,
     AgentResult,
     ModuleStatus,
@@ -13,7 +13,7 @@ from resagent2_contracts import (
     WorkflowAgentKind,
     WorkspaceSourceKind,
 )
-from resagent2_runtime import JsonSessionStore, ScriptedLLMClient, ServiceRequestClient
+from sciagent_runtime import JsonSessionStore, ScriptedLLMClient, ServiceRequestClient
 
 
 @pytest.fixture(autouse=True)
@@ -31,9 +31,9 @@ def isolated_configuration(monkeypatch):
         "WEB_MAX_RESPONSE_BYTES", "DATA_ROOT", "RESOURCE_ROOT",
         "DATASET_ROOT", "ENV_ROOT",
     ):
-        monkeypatch.delenv(f"RESAGENT2_{suffix}", raising=False)
-    monkeypatch.setenv("RESAGENT2_WEB_SEARCH_PROVIDER", "off")
-    monkeypatch.setenv("RESAGENT2_API_KEY_ENV", "E2E_TEST_KEY")
+        monkeypatch.delenv(f"SCIAGENT_{suffix}", raising=False)
+    monkeypatch.setenv("SCIAGENT_WEB_SEARCH_PROVIDER", "off")
+    monkeypatch.setenv("SCIAGENT_API_KEY_ENV", "E2E_TEST_KEY")
     monkeypatch.setenv("E2E_TEST_KEY", "test-only")
     monkeypatch.delenv("OPENALEX_API_KEY", raising=False)
 
@@ -67,7 +67,7 @@ def test_e2e_application_applies_production_configuration(tmp_path, monkeypatch)
         "LLM_TRACE_DIR": str(tmp_path / "traces"),
     }
     for suffix, value in settings.items():
-        monkeypatch.setenv(f"RESAGENT2_{suffix}", value)
+        monkeypatch.setenv(f"SCIAGENT_{suffix}", value)
     monkeypatch.setenv("DEEPSEEK_API_KEY", "test-only-search-key")
     repo = tmp_path / "repo"
     repo.mkdir()

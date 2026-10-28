@@ -2,7 +2,7 @@
 
 from e2e.native_fixtures import tool_turns
 
-from resagent2_contracts import AgentPermissions, RunPermissions, ExecutionLimits
+from sciagent_contracts import AgentPermissions, RunPermissions, ExecutionLimits
 
 import hashlib
 import json
@@ -13,14 +13,14 @@ from pathlib import Path
 import pytest
 from pydantic import TypeAdapter
 
-from resagent2_components import (
+from sciagent_components import (
     ArtifactReadError,
     LiteraturePaper,
     LiteratureSearchResult,
     RegisteredArtifactReader,
     ResourceLayout,
 )
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner,
     ArtifactCandidate,
     ArtifactRef,
@@ -39,15 +39,15 @@ from resagent2_contracts import (
     WorkspaceSourceKind,
     task_session_id,
 )
-from resagent2_coding import NativeCodingAgent
-from resagent2_experiment import NativeExperimentAgent
-from resagent2_orchestrator import (
+from sciagent_coding import NativeCodingAgent
+from sciagent_experiment import NativeExperimentAgent
+from sciagent_orchestrator import (
     DeterministicWorkInterpreter,
     ArtifactRegistry, InMemoryRunStore, JsonRunStore, ResearchController, ResearchRun,
     ScientificArtifactRegistration, WorkflowScheduler,
 )
-from resagent2_runtime import JsonSessionStore, ScriptedLLMClient
-from resagent2_scientific import ScientificAgent
+from sciagent_runtime import JsonSessionStore, ScriptedLLMClient
+from sciagent_scientific import ScientificAgent
 
 
 def _research():

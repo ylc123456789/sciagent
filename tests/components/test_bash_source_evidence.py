@@ -8,9 +8,9 @@ from pathlib import Path
 
 import pytest
 
-from resagent2_components.python_source_evidence import collect_python_source_evidence
-from resagent2_components.workspace import WorkspaceBoundary
-from resagent2_contracts import WorkspaceAccess, WorkspaceGrant
+from sciagent_components.python_source_evidence import collect_python_source_evidence
+from sciagent_components.workspace import WorkspaceBoundary
+from sciagent_contracts import WorkspaceAccess, WorkspaceGrant
 
 
 REAL_FAILURE_COMMAND = '''set -o pipefail
@@ -234,7 +234,7 @@ def test_compound_fingerprint_tracks_dependency_bytes_and_returns_independent_pa
 def test_structure_budget_exhaustion_is_explicit_and_does_not_claim_partial_tree_complete(
     workspace, monkeypatch, budget, value, command,
 ):
-    from resagent2_components import _bash_source_structure
+    from sciagent_components import _bash_source_structure
 
     monkeypatch.setattr(_bash_source_structure, budget, value)
     evidence = collect(workspace, command)

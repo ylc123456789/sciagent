@@ -4,12 +4,12 @@ import json
 from datetime import UTC, datetime
 
 from e2e.native_fixtures import tool_turns
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner, AgentPermissions, AgentRequest, RecordedAnswer, TaskBudget,
     WorkspaceAccess, WorkspaceGrant,
 )
-from resagent2_runtime import ScriptedLLMClient
-from resagent2_scientific import ScientificAgent
+from sciagent_runtime import ScriptedLLMClient
+from sciagent_scientific import ScientificAgent
 
 
 def request(*, grants=(), **kwargs):

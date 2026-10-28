@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from resagent2_components.process import output_preview
-from resagent2_components.text import MAX_WORKSPACE_TEXT_BYTES
+from sciagent_components.process import output_preview
+from sciagent_components.text import MAX_WORKSPACE_TEXT_BYTES
 
 
 def test_output_preview_returns_short_source_complete_with_exact_scale(tmp_path):

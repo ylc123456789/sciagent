@@ -8,10 +8,10 @@ from unittest import mock
 import httpx
 import pytest
 
-from resagent2_runtime import ServiceRequestClient, ServiceRequestError, ServiceRequestHTTPError
-from resagent2_runtime import http
-from resagent2_runtime.budget import DeadlineExceededError, MemoryUsage, execution_budget
-from resagent2_runtime.cancellation import CancellationToken, OperationCancelled, bind_cancellation
+from sciagent_runtime import ServiceRequestClient, ServiceRequestError, ServiceRequestHTTPError
+from sciagent_runtime import http
+from sciagent_runtime.budget import DeadlineExceededError, MemoryUsage, execution_budget
+from sciagent_runtime.cancellation import CancellationToken, OperationCancelled, bind_cancellation
 
 KEY = "PRIVATE_SERVICE_SECRET"
 BODY = {"query": "PUBLIC_QUERY", "count": 10, "need_content": False}
@@ -183,7 +183,7 @@ def test_missing_credentials_does_not_dispatch(client, monkeypatch):
 def test_service_diagnostic_failure_preserves_real_result(client, monkeypatch, caplog, http_error):
     transport(monkeypatch, lambda request: httpx.Response(429 if http_error else 200,
         json={"results": []}, headers={"Retry-After": "17"}))
-    with mock.patch("resagent2_runtime._trace.os.open", side_effect=OSError(f"PRIVATE_PATH {KEY}")):
+    with mock.patch("sciagent_runtime._trace.os.open", side_effect=OSError(f"PRIVATE_PATH {KEY}")):
         if http_error:
             with pytest.raises(ServiceRequestHTTPError) as raised:
                 client.request(BODY)

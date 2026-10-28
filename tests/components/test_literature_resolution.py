@@ -6,7 +6,7 @@ from urllib.parse import parse_qs, urlsplit
 import httpx
 import pytest
 
-from resagent2_components.literature import (
+from sciagent_components.literature import (
     ArxivLiteratureBackend, OpenAlexLiteratureBackend, MultiSourceLiteratureBackend,
     LiteratureSearchError, parse_literature_source,
 )
@@ -16,7 +16,7 @@ from tests.components.test_openalex import work
 
 @pytest.fixture(autouse=True)
 def isolated_http(monkeypatch):
-    from resagent2_components.literature import _http, backends
+    from sciagent_components.literature import _http, backends
     for attribute, name in (("_ARXIV_HTTP", "arXiv"), ("_OPENALEX_HTTP", "OpenAlex")):
         monkeypatch.setattr(backends, attribute, _http.LiteratureHTTP(name, interval_seconds=0))
 
@@ -73,7 +73,7 @@ def test_arxiv_multiple_entries_are_not_a_resolved_paper(monkeypatch):
 
 @pytest.mark.parametrize("source", ["openalex:W123", "doi:10.1234/example"])
 def test_openalex_exact_lookup_preserves_auth_headers(monkeypatch, source):
-    from resagent2_components.literature import backends
+    from sciagent_components.literature import backends
     record = {**work(), "doi": "https://doi.org/10.1234/example"}
     requests = []
     def request(request, *, timeout, max_response_bytes):

@@ -4,10 +4,10 @@ These graphs contain only the work under test, not Controller.create_run's
 complete root Scientific/delegation graph.
 """
 from datetime import UTC, datetime
-from resagent2_contracts import WorkRequest, WorkRequestDraft, AgentOwner, WorkflowAgentKind, task_session_id
-from resagent2_executor import default_execution_registry
-from resagent2_orchestrator import ModuleBinding
-from resagent2_orchestrator import ResearchRun
+from sciagent_contracts import WorkRequest, WorkRequestDraft, AgentOwner, WorkflowAgentKind, task_session_id
+from sciagent_executor import default_execution_registry
+from sciagent_orchestrator import ModuleBinding
+from sciagent_orchestrator import ResearchRun
 
 
 def accept_proposal(engine, run_id, proposal):

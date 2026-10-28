@@ -21,24 +21,24 @@ def test_separate_cli_processes_share_config_and_preserve_arguments(tmp_path):
     config = tmp_path / "deployment config.sh"
     trace_dir = tmp_path / "trace directory"
     config.write_text(
-        "RESAGENT2_LLM_TRACE_LEVEL=full\n"
-        f"RESAGENT2_LLM_TRACE_DIR={shlex.quote(str(trace_dir))}\n",
+        "SCIAGENT_LLM_TRACE_LEVEL=full\n"
+        f"SCIAGENT_LLM_TRACE_DIR={shlex.quote(str(trace_dir))}\n",
         encoding="utf-8",
     )
-    executable = tmp_path / "resagent2"
+    executable = tmp_path / "sciagent"
     executable.write_text(
         f"#!{sys.executable}\n"
         "import json, os, sys\n"
         "print(json.dumps({"
         "'argv': sys.argv[1:], "
-        "'level': os.environ['RESAGENT2_LLM_TRACE_LEVEL'], "
-        "'directory': os.environ['RESAGENT2_LLM_TRACE_DIR']}))\n",
+        "'level': os.environ['SCIAGENT_LLM_TRACE_LEVEL'], "
+        "'directory': os.environ['SCIAGENT_LLM_TRACE_DIR']}))\n",
         encoding="utf-8",
     )
     executable.chmod(0o755)
     env = {
         **os.environ, "PATH": str(tmp_path) + os.pathsep + os.environ.get("PATH", ""),
-        "RESAGENT2_LLM_TRACE_LEVEL": "off", "RESAGENT2_LLM_TRACE_DIR": "/stale",
+        "SCIAGENT_LLM_TRACE_LEVEL": "off", "SCIAGENT_LLM_TRACE_DIR": "/stale",
     }
     for command in ("run", "answer", "resume"):
         args = [command, "run_test", "--field", "decision=a value with spaces"]
@@ -70,7 +70,7 @@ def pinned_launch(tmp_path):
     workspace.mkdir()
     modules = tmp_path / "probe modules"
     modules.mkdir()
-    (modules / "resagent2_cli.py").write_text(
+    (modules / "sciagent_cli.py").write_text(
         """
 import json
 import os
@@ -78,9 +78,9 @@ from pathlib import Path
 import signal
 import sys
 
-from resagent2_components.process import ProcessRunner
-from resagent2_components.workspace import WorkspaceBoundary
-from resagent2_contracts import WorkspaceAccess, WorkspaceGrant
+from sciagent_components.process import ProcessRunner
+from sciagent_components.workspace import WorkspaceBoundary
+from sciagent_contracts import WorkspaceAccess, WorkspaceGrant
 
 runner = ProcessRunner(WorkspaceBoundary(WorkspaceGrant(
     root=os.getcwd(), source="local",
@@ -88,10 +88,10 @@ runner = ProcessRunner(WorkspaceBoundary(WorkspaceGrant(
 )))
 arguments = sys.argv[1:]
 output = {
-    "argv": arguments, "python": sys.executable, "cwd": os.getcwd(),
+    "argv": arguments, "python": sys.executable, "prefix": sys.prefix, "cwd": os.getcwd(),
     "context": runner.shell_context(), "pid": os.getpid(),
-    "level": os.environ["RESAGENT2_LLM_TRACE_LEVEL"],
-    "directory": os.environ["RESAGENT2_LLM_TRACE_DIR"],
+    "level": os.environ["SCIAGENT_LLM_TRACE_LEVEL"],
+    "directory": os.environ["SCIAGENT_LLM_TRACE_DIR"],
 }
 if "--approved-context" in arguments:
     approved = json.loads(Path(arguments[arguments.index("--approved-context") + 1]).read_text())
@@ -116,20 +116,23 @@ if "--probe-exit" in arguments:
 """,
         encoding="utf-8",
     )
-    python = tmp_path / "pinned python"
-    python.symlink_to(sys.executable)
+    # Preserve pyvenv.cfg and site-packages when giving the interpreter a spaced path.
+    # A lone executable symlink outside the environment can fall back to base Python.
+    environment = tmp_path / "pinned environment"
+    environment.symlink_to(sys.prefix, target_is_directory=True)
+    python = environment / Path(sys.executable).relative_to(Path(sys.prefix))
     config = workspace / "deployment config.sh"
     trace_dir = workspace / "trace directory"
     config.write_text(
-        "RESAGENT2_LLM_TRACE_LEVEL=full\n"
-        f"RESAGENT2_LLM_TRACE_DIR={shlex.quote(str(trace_dir))}\n",
+        "SCIAGENT_LLM_TRACE_LEVEL=full\n"
+        f"SCIAGENT_LLM_TRACE_DIR={shlex.quote(str(trace_dir))}\n",
         encoding="utf-8",
     )
     env = {
         **os.environ,
         "PYTHONPATH": str(modules) + os.pathsep + os.environ.get("PYTHONPATH", ""),
         "L3_RUNTIME_FACT": "original",
-        "RESAGENT2_LLM_TRACE_LEVEL": "off", "RESAGENT2_LLM_TRACE_DIR": "/stale",
+        "SCIAGENT_LLM_TRACE_LEVEL": "off", "SCIAGENT_LLM_TRACE_DIR": "/stale",
     }
     # This is the same explicit non-login argv documented for every L3 command.
     argv = ["/bin/bash", "--noprofile", "--norc", str(LAUNCHER),
@@ -163,6 +166,7 @@ def test_pinned_processes_share_real_shell_approval_and_preserve_arguments(pinne
         assert observed["argv"] == arguments
         assert observed["context"] == initial["context"]
         assert observed["python"] == initial["python"] == str(python)
+        assert Path(observed["prefix"]).resolve() == Path(sys.prefix).resolve()
         assert observed["cwd"] == initial["cwd"] == str(workspace)
         assert observed["level"] == initial["level"] == "full"
         assert observed["directory"] == initial["directory"] == str(trace_dir)

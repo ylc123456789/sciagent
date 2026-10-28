@@ -10,16 +10,16 @@
 git clone https://github.com/ylc123456789/sciagent.git
 cd sciagent
 conda env create -f environment.yml
-conda activate ResAgent2
-resagent2 --help
+conda activate sciagent
+sciagent --help
 ```
 
-请在仓库根目录创建环境，`environment.yml` 会安装仓库中的本地包。现阶段环境名为 `ResAgent2`，命令名为 `resagent2`。
+请在仓库根目录创建环境，`environment.yml` 会安装仓库中的本地包。
 
 已有环境可在检查依赖变更后执行：
 
 ```bash
-conda env update -n ResAgent2 -f environment.yml
+conda env update -n sciagent -f environment.yml
 ```
 
 ## 2. 不用模型，先检查安装
@@ -33,19 +33,19 @@ python -m e2e.mock_e2e
 查看 CLI 子命令：
 
 ```bash
-resagent2 run --help
-resagent2 show --help
-resagent2 answer --help
-resagent2 resume --help
+sciagent run --help
+sciagent show --help
+sciagent answer --help
+sciagent resume --help
 ```
 
-## 3. 配置模型与数据目录
+## 3. 配置模型与运行记录目录
 
 最小配置：
 
 ```bash
 export DEEPSEEK_API_KEY="YOUR_API_KEY"
-export RESAGENT2_DATA_ROOT="$HOME/sciagent-data"
+export SCIAGENT_DATA_ROOT="$HOME/sciagent-data"
 ```
 
 密钥只保存在执行环境中，不要写入代码或提交到 Git。默认服务地址为 `https://api.deepseek.com/v1`，默认模型是 `deepseek-v4-flash`。
@@ -53,19 +53,21 @@ export RESAGENT2_DATA_ROOT="$HOME/sciagent-data"
 如需显式设置服务和模型：
 
 ```bash
-export RESAGENT2_API_BASE="https://api.deepseek.com/v1"
-export RESAGENT2_MODEL="deepseek-v4-flash"
-export RESAGENT2_API_KEY_ENV="DEEPSEEK_API_KEY"
+export SCIAGENT_API_BASE="https://api.deepseek.com/v1"
+export SCIAGENT_MODEL="deepseek-v4-flash"
+export SCIAGENT_API_KEY_ENV="DEEPSEEK_API_KEY"
 ```
 
-`RESAGENT2_API_KEY_ENV` 填写保存密钥的环境变量名称，不填密钥本身。更换兼容服务时，需要自行确认其原生 function calling 协议和模型容量配置。
+`SCIAGENT_API_KEY_ENV` 填写保存密钥的环境变量名称，不填密钥本身。更换兼容服务时，需要自行确认其原生 function calling 协议和模型容量配置。
 
-所有命令应使用相同的 `RESAGENT2_DATA_ROOT`，否则后续命令可能找不到之前的 Run。
+`SCIAGENT_DATA_ROOT` 保存 Run 状态、Session 和登记工件。所有命令应使用相同目录，否则后续命令可能找不到之前的 Run；也可用 `--data-root` 显式指定。
+
+实验数据另由 `SCIAGENT_DATASET_ROOT` 和 `SCIAGENT_DATASETS_JSON` 配置，与运行记录目录分开。L3 案例会按已有数据路径生成这两项配置，见 [数据准备说明](e2e/L3_CALIBRATION.md#3-环境与数据准备)。
 
 网页搜索默认使用 DeepSeek 搜索服务。不需要网页搜索时，可在创建任务前关闭：
 
 ```bash
-export RESAGENT2_WEB_SEARCH_PROVIDER="off"
+export SCIAGENT_WEB_SEARCH_PROVIDER="off"
 ```
 
 ## 4. 先运行只读任务
@@ -73,7 +75,7 @@ export RESAGENT2_WEB_SEARCH_PROVIDER="off"
 准备一个含有 README、论文笔记或其他文本材料的目录，替换下面的工作区绝对路径：
 
 ```bash
-resagent2 run \
+sciagent run \
   --workspace /absolute/path/to/project \
   --goal "阅读现有材料，概括研究问题和已有证据，指出哪些结论仍缺少验证。不要执行命令或修改文件。" \
   --read-only \
@@ -98,7 +100,7 @@ printf 'x,y\n1,2\n2,4\n3,6\n' > data.csv
 然后发起任务：
 
 ```bash
-resagent2 run \
+sciagent run \
   --workspace "$HOME/sciagent-demo" \
   --goal "编写并运行 Python 程序读取 data.csv，计算每列的均值和样本标准差（ddof=1），把结果保存为 results/summary.json。交付程序、计算结果和简短说明，不修改输入数据。" \
   --approval-mode manual \
@@ -115,20 +117,20 @@ resagent2 run \
 将 `RUN_ID` 替换为实际运行标识：
 
 ```bash
-resagent2 show RUN_ID
+sciagent show RUN_ID
 ```
 
 如果系统提出业务问题，按照展示的字段名填写：
 
 ```bash
-resagent2 answer RUN_ID --field FIELD_NAME="你的回答"
+sciagent answer RUN_ID --field FIELD_NAME="你的回答"
 ```
 
 如果是具体操作的权限确认：
 
 ```bash
-resagent2 answer RUN_ID yes
-resagent2 answer RUN_ID no --comment "拒绝这次操作的原因"
+sciagent answer RUN_ID yes
+sciagent answer RUN_ID no --comment "拒绝这次操作的原因"
 ```
 
 批准只绑定该次具体操作，不授予通用权限。`answer` 接收回答后会继续同一 Run，通常不需要再紧接着调用 `resume`。
@@ -136,7 +138,7 @@ resagent2 answer RUN_ID no --comment "拒绝这次操作的原因"
 需要继续保存的运行现场时：
 
 ```bash
-resagent2 resume RUN_ID
+sciagent resume RUN_ID
 ```
 
 本版本在创建 Run 时支持 `manual` 和 `auto_review`。后者让 AI 辅助审核具体操作，无法判断或审核故障时仍可能请求人工。没有运行中审批模式切换或 `full_access` 模式。

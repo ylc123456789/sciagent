@@ -9,9 +9,9 @@ import httpx
 
 import pytest
 
-from resagent2_components.literature import _http as http
-from resagent2_components.literature import backends as literature
-from resagent2_runtime import http as transport_http
+from sciagent_components.literature import _http as http
+from sciagent_components.literature import backends as literature
+from sciagent_runtime import http as transport_http
 
 
 @pytest.fixture

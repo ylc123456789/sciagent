@@ -9,9 +9,9 @@ from types import SimpleNamespace
 
 import pytest
 
-from resagent2_contracts import PendingQuestion, ResearchRequest, RunStatus, UserAnswer, RunBudget, RunPermissions
-from resagent2_orchestrator import JsonRunStore, ResearchController, ResearchRun
-from resagent2_runtime.controls import RunControlInbox
+from sciagent_contracts import PendingQuestion, ResearchRequest, RunStatus, UserAnswer, RunBudget, RunPermissions
+from sciagent_orchestrator import JsonRunStore, ResearchController, ResearchRun
+from sciagent_runtime.controls import RunControlInbox
 
 
 @pytest.mark.skipif(os.name != "posix", reason="Controller POSIX owner lock")

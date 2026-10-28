@@ -11,9 +11,9 @@ import pymupdf
 import pymupdf4llm
 import pytest
 
-from resagent2_components.literature import fulltext
-from resagent2_runtime.budget import DeadlineExceededError, execution_budget
-from resagent2_runtime.http import ResponseTooLargeError
+from sciagent_components.literature import fulltext
+from sciagent_runtime.budget import DeadlineExceededError, execution_budget
+from sciagent_runtime.http import ResponseTooLargeError
 
 
 PDF_BYTES = b"%PDF-1.7\nsource bytes"
@@ -38,7 +38,7 @@ def test_download_preserves_pdf_bytes_and_passes_limits(monkeypatch, tmp_path):
     assert target.read_bytes() == PDF_BYTES
     request, kwargs = calls[0]
     assert request.headers["accept"] == "application/pdf"
-    assert "ResAgent2" in request.headers["user-agent"]
+    assert "sciagent" in request.headers["user-agent"]
     assert kwargs == {"timeout": 12, "max_response_bytes": 1024, "follow_redirects": True}
 
 
@@ -185,7 +185,7 @@ def test_parser_preserves_child_io_failure(tmp_path):
 
 
 def test_parser_invokes_only_fixed_module_with_current_python(monkeypatch, tmp_path):
-    monkeypatch.setenv("RESAGENT2_PDF_PARSE_TIMEOUT_SECONDS", "900")
+    monkeypatch.setenv("SCIAGENT_PDF_PARSE_TIMEOUT_SECONDS", "900")
     path = tmp_path / "source.pdf"
     calls = []
     parsed = fulltext.PdfText("## Page 1\ntext", 1, [], "test")
@@ -200,7 +200,7 @@ def test_parser_invokes_only_fixed_module_with_current_python(monkeypatch, tmp_p
     monkeypatch.setattr(fulltext, "run_process", run)
     assert fulltext.parse_pdf(path) == parsed
     assert calls == [([
-        sys.executable, "-m", "resagent2_components.literature.fulltext", str(path.resolve()),
+        sys.executable, "-m", "sciagent_components.literature.fulltext", str(path.resolve()),
     ], {"timeout": 300})]
 
 
@@ -209,7 +209,7 @@ def test_parser_child_stdout_contains_only_json():
     code = """
 import os
 import sys
-from resagent2_components.literature import fulltext
+from sciagent_components.literature import fulltext
 def extract(path):
     print('python parser notice')
     os.write(1, b'native parser notice\\n')
@@ -232,7 +232,7 @@ def test_parser_timeout_terminates_child_and_preserves_original(monkeypatch, tmp
     real_run = fulltext.run_process
 
     def slow_worker(command, **kwargs):
-        assert command[:3] == [sys.executable, "-m", "resagent2_components.literature.fulltext"]
+        assert command[:3] == [sys.executable, "-m", "sciagent_components.literature.fulltext"]
         return real_run([
             sys.executable, "-c",
             "import os, pathlib, time; pathlib.Path(os.environ['TEST_PARSER_PID']).write_text(str(os.getpid())); time.sleep(30)",

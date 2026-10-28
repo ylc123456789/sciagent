@@ -3,7 +3,7 @@
 These inputs intentionally contain only the task graph under test. They do not
 represent Controller.create_run's complete root Scientific/delegation graph.
 """
-from resagent2_contracts import WorkRequest, WorkRequestDraft
+from sciagent_contracts import WorkRequest, WorkRequestDraft
 from e2e.scheduler_fixtures import accept_proposal, create_scheduler_run
 
 
@@ -13,7 +13,7 @@ def add_root_owner(run, session_id):
     Keep the subject tasks first so Scheduler assertions use their original
     positions; Controller tests should select the named task explicitly.
     """
-    from resagent2_contracts import Attempt, SessionRef, Workflow, WorkflowTask
+    from sciagent_contracts import Attempt, SessionRef, Workflow, WorkflowTask
     if run.workflow is None:
         run.workflow = Workflow(run_id=run.run_id, revision=1, created_from="work_root", tasks=[])
     root = next((task for task in run.workflow.tasks if task.id == "task_root"), None)

@@ -6,8 +6,8 @@ from httpx import HTTPStatusError, Request, Response, TransportError
 
 import pytest
 
-from resagent2_runtime import ComposedContext, ModelProfile, OpenAICompatibleClient
-from resagent2_runtime.models import AgentAction
+from sciagent_runtime import ComposedContext, ModelProfile, OpenAICompatibleClient
+from sciagent_runtime.models import AgentAction
 
 
 def _response(content, *, finish_reason="stop", reasoning=None, tokens=10):
@@ -23,7 +23,7 @@ def _response(content, *, finish_reason="stop", reasoning=None, tokens=10):
 @pytest.fixture
 def client(monkeypatch, tmp_path):
     monkeypatch.setenv("TEST_LLM_KEY", "test-secret-not-for-trace")
-    monkeypatch.setattr("resagent2_runtime.llm.time.sleep", lambda _: None)
+    monkeypatch.setattr("sciagent_runtime.llm.time.sleep", lambda _: None)
     return OpenAICompatibleClient(
         model="test", api_base="https://example.invalid/v1",
         api_key_env="TEST_LLM_KEY", trace_dir=tmp_path / "traces",
@@ -59,7 +59,7 @@ def test_empty_length_limited_response_reaches_caller_with_diagnostics(client, m
             reasoning=f"reasoning from attempt {len(requests)}",
         )
 
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", respond)
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", respond)
     with pytest.raises(json.JSONDecodeError):
         _invoke(client)
 
@@ -87,7 +87,7 @@ def test_success_after_bad_json_is_a_new_logical_call(client, monkeypatch):
         _response("broken JSON", finish_reason="length", reasoning="earlier", tokens=40),
         _response('{"tool":"finish"}', reasoning="final", tokens=20),
     ])
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", lambda *a, **k: next(responses))
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", lambda *a, **k: next(responses))
     with pytest.raises(json.JSONDecodeError):
         _invoke(client)
     first = _record(client)
@@ -137,7 +137,7 @@ def test_later_transport_failure_cannot_reuse_earlier_response(
             raise item
         return item
 
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", respond)
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", respond)
     with pytest.raises(json.JSONDecodeError):
         _invoke(client)
     first = _record(client)
@@ -167,7 +167,7 @@ def test_later_transport_failure_cannot_reuse_earlier_response(
 ])
 def test_metadata_does_not_leak_content_through_attempts(client, monkeypatch, content, invalid):
     client.trace_level = "metadata"
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", lambda *a, **k:
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", lambda *a, **k:
                         _response(content, reasoning="PRIVATE_REASONING", tokens=40))
     if invalid:
         with pytest.raises(json.JSONDecodeError):
@@ -187,7 +187,7 @@ def test_metadata_does_not_leak_content_through_attempts(client, monkeypatch, co
 
 def test_missing_optional_provider_metadata_is_not_invented(client, monkeypatch):
     response = BytesIO(b'{"choices":[{"message":{"content":"{\\"tool\\":\\"finish\\"}"}}]}')
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", lambda *a, **k: response)
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", lambda *a, **k: response)
     assert _invoke(client) == {"tool": "finish"}
     record = _record(client)
     assert len(record["attempts"]) == 1
@@ -198,7 +198,7 @@ def test_missing_optional_provider_metadata_is_not_invented(client, monkeypatch)
 
 def test_trace_off_still_keeps_failed_output_accounting_without_files(client, monkeypatch):
     client.trace_level = "off"
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", lambda *a, **k: _response(""))
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", lambda *a, **k: _response(""))
     with pytest.raises(json.JSONDecodeError):
         _invoke(client)
     assert client.last_attempts == 1
@@ -208,7 +208,7 @@ def test_trace_off_still_keeps_failed_output_accounting_without_files(client, mo
 @pytest.mark.parametrize("payload", [[], {"choices": [None]}, {"choices": [{"message": []}]}])
 def test_invalid_response_envelope_remains_a_recorded_failure(client, monkeypatch, payload):
     client.set_attempt_limit(1)
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", lambda *a, **k: BytesIO(json.dumps(payload).encode()))
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", lambda *a, **k: BytesIO(json.dumps(payload).encode()))
     with pytest.raises(RuntimeError, match="after 1 attempts"):
         _invoke(client)
     assert _record(client)["validation_error"]
@@ -217,7 +217,7 @@ def test_invalid_response_envelope_remains_a_recorded_failure(client, monkeypatc
 
 def test_envelope_json_error_still_retries_as_provider_failure(client, monkeypatch):
     responses = iter([BytesIO(b'broken HTTP response'), _response('{"tool":"finish"}')])
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", lambda *a, **k: next(responses))
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", lambda *a, **k: next(responses))
     assert _invoke(client) == {"tool": "finish"}
     record = _record(client)
     assert client.last_attempts == len(record["attempts"]) == 2

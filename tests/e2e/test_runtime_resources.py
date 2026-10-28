@@ -2,7 +2,7 @@
 
 from e2e.native_fixtures import tool_turns
 
-from resagent2_contracts import AgentPermissions
+from sciagent_contracts import AgentPermissions
 
 import json
 import subprocess
@@ -12,16 +12,16 @@ from pathlib import Path
 
 import pytest
 
-from resagent2_components import DatasetCatalog, ResourceLayout, dataset_context, resolve_dataset_refs
-from resagent2_contracts import (
+from sciagent_components import DatasetCatalog, ResourceLayout, dataset_context, resolve_dataset_refs
+from sciagent_contracts import (
     AgentOwner, AgentRequest, ArtifactCandidate, TaskBudget, RecordedAnswer,
     WorkspaceGrant, WorkspaceAccess, WorkspaceSourceKind, task_session_id,
 )
-from resagent2_coding import NativeCodingAgent
-from resagent2_experiment import NativeExperimentAgent
-from resagent2_orchestrator import ArtifactRegistry
-from resagent2_runtime import JsonSessionStore, ScriptedLLMClient
-from resagent2_scientific import ScientificAgent
+from sciagent_coding import NativeCodingAgent
+from sciagent_experiment import NativeExperimentAgent
+from sciagent_orchestrator import ArtifactRegistry
+from sciagent_runtime import JsonSessionStore, ScriptedLLMClient
+from sciagent_scientific import ScientificAgent
 
 
 def _ask(scientific=False):

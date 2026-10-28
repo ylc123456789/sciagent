@@ -6,13 +6,13 @@ import subprocess
 
 import pytest
 
-from resagent2_coding import NativeCodingAgent
-from resagent2_components import ResourceLayout
-from resagent2_contracts import (
+from sciagent_coding import NativeCodingAgent
+from sciagent_components import ResourceLayout
+from sciagent_contracts import (
     AgentOwner, AgentPermissions, AgentRequest, ModuleStatus, TaskBudget,
     WorkspaceAccess, WorkspaceGrant, WorkspaceSpec,
 )
-from resagent2_runtime import ScriptedLLMClient
+from sciagent_runtime import ScriptedLLMClient
 
 
 @pytest.mark.parametrize("source_kind", ["local", "copy"])

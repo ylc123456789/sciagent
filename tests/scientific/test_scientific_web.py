@@ -5,16 +5,16 @@ import json
 
 import pytest
 
-from resagent2_components import (
+from sciagent_components import (
     RegisteredArtifactReader, WebFetchError, WebPage, WebSearchError,
     WebSearchItem, WebSearchResult,
 )
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentPermissions, AgentRequest, ArtifactCandidate, ArtifactRef, TaskBudget,
 )
-from resagent2_orchestrator import ArtifactRegistry
-from resagent2_runtime import NativeToolCall, ToolCallTurn
-from resagent2_scientific import ScientificAgent
+from sciagent_orchestrator import ArtifactRegistry
+from sciagent_runtime import NativeToolCall, ToolCallTurn
+from sciagent_scientific import ScientificAgent
 
 
 RUN_ID = "run_web_integration"
@@ -263,8 +263,8 @@ def test_failed_page_fetch_does_not_create_page_or_observation_record(tmp_path):
 @pytest.mark.parametrize("budget", [1, 2, 3])
 def test_direct_search_uses_service_trace_and_preserves_scientific_model_budget(tmp_path, monkeypatch, budget):
     import httpx
-    from resagent2_components import DeepSeekWebSearchBackend
-    from resagent2_runtime import ServiceRequestClient
+    from sciagent_components import DeepSeekWebSearchBackend
+    from sciagent_runtime import ServiceRequestClient
 
     monkeypatch.setenv("TEST_SEARCH_KEY", "test-only-secret")
     calls = []
@@ -279,7 +279,7 @@ def test_direct_search_uses_service_trace_and_preserves_scientific_model_budget(
             }],
         })
 
-    monkeypatch.setattr("resagent2_runtime.service_request.send_request", send)
+    monkeypatch.setattr("sciagent_runtime.service_request.send_request", send)
     register = Registration(tmp_path / "artifacts")
     direct = ServiceRequestClient(
         endpoint="https://api.test/v1/tools/search", api_key_env="TEST_SEARCH_KEY",

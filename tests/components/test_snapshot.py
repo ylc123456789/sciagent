@@ -7,12 +7,12 @@ from pathlib import Path
 
 import pytest
 
-from resagent2_components import (
+from sciagent_components import (
     WorkspaceBoundary,
     GitBaseline,
 )
-from resagent2_components.git import GitWorkspace, GitWorkspaceError
-from resagent2_contracts import WorkspaceAccess, WorkspaceGrant, WorkspaceSourceKind
+from sciagent_components.git import GitWorkspace, GitWorkspaceError
+from sciagent_contracts import WorkspaceAccess, WorkspaceGrant, WorkspaceSourceKind
 
 
 def _grant(root: Path) -> WorkspaceGrant:
@@ -35,7 +35,7 @@ def _init_repo(root: Path) -> None:
 
 
 def test_git_snapshot_does_not_copy_denied_tracked_files(tmp_path):
-    from resagent2_components.git import GitWorkspace
+    from sciagent_components.git import GitWorkspace
     _init_repo(tmp_path)
     (tmp_path / "visible.txt").write_text("visible")
     grant = _grant(tmp_path)
@@ -173,7 +173,7 @@ def test_git_text_decode_errors_are_normalized(tmp_path, monkeypatch):
     _init_repo(tmp_path)
     def bad_text(*args, **kwargs):
         raise UnicodeDecodeError("utf-8", b"\xac", 0, 1, "invalid start byte")
-    monkeypatch.setattr("resagent2_components.git.run_process", bad_text)
+    monkeypatch.setattr("sciagent_components.git.run_process", bad_text)
     with pytest.raises(GitWorkspaceError) as failure:
         GitWorkspace(WorkspaceBoundary(_grant(tmp_path)))
     assert isinstance(failure.value.__cause__, UnicodeDecodeError)

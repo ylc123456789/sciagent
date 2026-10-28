@@ -2,8 +2,8 @@
 
 import pytest
 
-from resagent2_components import ReadOnlyWorkspaceBoundary, WorkspacePermissionError
-from resagent2_contracts import WorkspaceAccess, WorkspaceGrant
+from sciagent_components import ReadOnlyWorkspaceBoundary, WorkspacePermissionError
+from sciagent_contracts import WorkspaceAccess, WorkspaceGrant
 
 
 def grant(root, *, read=(".",), denied=()):
@@ -32,7 +32,7 @@ def test_parent_requires_absolute_nontraversing_paths(tmp_path, path):
         ReadOnlyWorkspaceBoundary([grant(tmp_path)]).resolve_read_file(path)
 
 
-@pytest.mark.parametrize("restricted", ["private.txt", ".resagent2/state"])
+@pytest.mark.parametrize("restricted", ["private.txt", ".sciagent/state"])
 def test_parent_keeps_denials_and_reserved_paths(tmp_path, restricted):
     path = tmp_path / restricted
     path.parent.mkdir(exist_ok=True)

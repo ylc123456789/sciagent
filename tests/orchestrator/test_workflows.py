@@ -4,14 +4,14 @@ from scheduler_fixtures import create_scheduler_run as _create_run
 from scheduler_fixtures import accept_proposal
 
 from control_fixtures import question_signal, ScopedScriptedModulePort
-from resagent2_contracts import RunPermissions, ExecutionLimits
+from sciagent_contracts import RunPermissions, ExecutionLimits
 from datetime import UTC, datetime
 
 
 import pytest
-from resagent2_orchestrator.handoffs import read_json, system_artifact
+from sciagent_orchestrator.handoffs import read_json, system_artifact
 
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner,
     AgentResult,
     ArtifactCandidate,
@@ -35,7 +35,7 @@ from resagent2_contracts import (
     WorkflowPatch,
     WorkflowProposal,
 )
-from resagent2_orchestrator import (
+from sciagent_orchestrator import (
     InMemoryRunStore,
     ModuleBinding,
     OrchestrationError,
@@ -270,7 +270,7 @@ def test_question_id_keeps_owning_task_scope() -> None:
 
 
 def test_successive_questions_in_one_attempt_reject_the_previous_answer() -> None:
-    from resagent2_orchestrator.scheduler import _validate_answer
+    from sciagent_orchestrator.scheduler import _validate_answer
 
     port = ScopedScriptedModulePort([_ask_result(), _ask_result()])
     engine = WorkflowScheduler(
@@ -317,7 +317,7 @@ def test_successive_questions_in_one_attempt_reject_the_previous_answer() -> Non
 def test_scheduler_preserves_the_tool_allocated_question_identity() -> None:
     from pydantic import TypeAdapter
 
-    from resagent2_contracts import QuestionId
+    from sciagent_contracts import QuestionId
     signal = question_signal("session_child", "Choose metric", ["metric"])
     result = _ask_result().model_copy(update={"control": signal})
     engine = scheduler({"experiment": [result]})
@@ -434,7 +434,7 @@ def test_budget_exhaustion_does_not_persist_a_running_attempt() -> None:
 
 
 def test_task_request_receives_full_remaining_run_budget(monkeypatch) -> None:
-    from resagent2_orchestrator import scheduler as scheduler_module
+    from sciagent_orchestrator import scheduler as scheduler_module
 
     class FixedClock:
         @classmethod
@@ -573,7 +573,7 @@ def test_empty_candidate_is_rejected_without_mutation(tmp_path, kind) -> None:
         created_at=now, updated_at=now,
     )
     if kind == "patch":
-        from resagent2_contracts import (Workflow, ArtifactCandidate, ControlSignal)
+        from sciagent_contracts import (Workflow, ArtifactCandidate, ControlSignal)
         run.workflow = Workflow(
             run_id=run.run_id, revision=1, tasks=[],
             created_from="work_legacy_initial",

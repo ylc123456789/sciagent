@@ -1,8 +1,8 @@
 """Execution choices remain bound across registry changes and delegation gates."""
 import pytest
 
-from resagent2_contracts import ExecutionDefinition, ExecutionLimits, WorkflowAgentRegistry
-from resagent2_orchestrator import FixedWorkflowCompiler, JsonRunStore
+from sciagent_contracts import ExecutionDefinition, ExecutionLimits, WorkflowAgentRegistry
+from sciagent_orchestrator import FixedWorkflowCompiler, JsonRunStore
 from test_recursive_work import Port, complete, conclude, controller, delegate, research_request
 
 

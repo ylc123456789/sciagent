@@ -3,19 +3,19 @@
 import pytest
 
 from e2e.native_fixtures import tool_turn
-from resagent2_cli import composition
-from resagent2_contracts import (
+from sciagent_cli import composition
+from sciagent_contracts import (
     AgentOwner, AgentResult, ExecutionDefinition, ExecutionPreset, ModuleStatus,
     ResearchRequest, RunBudget, RunPermissions, RunStatus, WorkflowAgentKind, WorkflowAgentRegistry,
 )
-from resagent2_executor import NativeExecutorAgent, default_execution_registry
-from resagent2_orchestrator import FixedWorkflowCompiler
-from resagent2_runtime import ScriptedLLMClient
+from sciagent_executor import NativeExecutorAgent, default_execution_registry
+from sciagent_orchestrator import FixedWorkflowCompiler
+from sciagent_runtime import ScriptedLLMClient
 
 
 @pytest.fixture(autouse=True)
 def offline(monkeypatch):
-    monkeypatch.setenv("RESAGENT2_WEB_SEARCH_PROVIDER", "off")
+    monkeypatch.setenv("SCIAGENT_WEB_SEARCH_PROVIDER", "off")
     monkeypatch.setattr("httpx.Client.send", lambda *a, **k: pytest.fail("no HTTP"))
 
 
@@ -101,7 +101,7 @@ def test_parent_choice_is_frozen_and_dispatched_with_original_instruction(monkey
     assert not any(call.name == "route_tasks" for turn in client.histories[-1] for call in turn.tool_calls)
     assert "coding@1" in client.contexts[0].text
     saved_definitions = run.execution_definitions
-    monkeypatch.setenv("RESAGENT2_CODING_CONTEXT_TOKENS", "12000")
+    monkeypatch.setenv("SCIAGENT_CODING_CONTEXT_TOKENS", "12000")
     reopened = composition.build_application(data_root=tmp_path)
     assert reopened.controller.registry.execution_definitions["coding@1"].config.max_context_tokens == 12000
     assert reopened.run_store.load(run.run_id).execution_definitions == saved_definitions

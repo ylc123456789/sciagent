@@ -1,4 +1,4 @@
-name: ResAgent2
+name: sciagent
 channels:
   - defaults
 dependencies:

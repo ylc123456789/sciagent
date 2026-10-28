@@ -8,16 +8,16 @@ from types import SimpleNamespace
 import pytest
 from pydantic import BaseModel
 
-from resagent2_capabilities import DeletePathTool
-from resagent2_capabilities.permissions import OperationPermissionPolicy
-from resagent2_components.workspace import WorkspaceBoundary
-from resagent2_components.process import ProcessRunner
-from resagent2_contracts import (
+from sciagent_capabilities import DeletePathTool
+from sciagent_capabilities.permissions import OperationPermissionPolicy
+from sciagent_components.workspace import WorkspaceBoundary
+from sciagent_components.process import ProcessRunner
+from sciagent_contracts import (
     AgentOwner, AgentPermissions, AgentRequest, ArtifactCandidate, QuestionDraft,
     RecordedAnswer, TaskBudget, WorkspaceAccess, WorkspaceGrant,
 )
-from resagent2_orchestrator.artifacts import ArtifactRegistry
-from resagent2_runtime import (
+from sciagent_orchestrator.artifacts import ArtifactRegistry
+from sciagent_runtime import (
     AgentDefinition, AgentLoop, CompletionDecision, FinishTool, JsonSessionStore,
     ScriptedLLMClient, ToolObservation,
 )

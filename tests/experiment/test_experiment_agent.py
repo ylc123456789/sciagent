@@ -8,14 +8,14 @@ from types import SimpleNamespace
 
 import pytest
 
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner, AgentPermissions, AgentRequest, ArtifactCandidate, ErrorCode,
     ModuleStatus, QuestionDraft, RecordedAnswer, TaskBudget, VerificationResult,
     WorkspaceGrant, WorkspaceAccess, WorkspaceSourceKind,
 )
-from resagent2_experiment import NativeExperimentAgent
-from resagent2_orchestrator import ArtifactRegistry
-from resagent2_runtime import ScriptedLLMClient
+from sciagent_experiment import NativeExperimentAgent
+from sciagent_orchestrator import ArtifactRegistry
+from sciagent_runtime import ScriptedLLMClient
 
 
 def request(root, *, writable=False, **updates):
@@ -29,7 +29,7 @@ def request(root, *, writable=False, **updates):
 def test_existing_result_analysis_finishes_without_new_execution(tmp_path, monkeypatch, writable):
     def reject_scan(*args, **kwargs):
         raise AssertionError("analysis must not scan unrelated workspace files")
-    monkeypatch.setattr("resagent2_components.WorkspaceBoundary.iter_files", reject_scan)
+    monkeypatch.setattr("sciagent_components.WorkspaceBoundary.iter_files", reject_scan)
     (tmp_path / "metrics.json").write_text('{"accuracy": 0.9}')
     client = ScriptedLLMClient(tool_turns([
         {"tool": "read_file", "arguments": {"path": "metrics.json"}},
@@ -68,7 +68,7 @@ def test_shell_default_mode_requires_approval_before_execution(tmp_path, monkeyp
             stdout_path="out.stdout", stderr_path="out.stderr", duration_seconds=0.1,
         )
 
-    monkeypatch.setattr("resagent2_components.ProcessRunner.run_shell", run_shell)
+    monkeypatch.setattr("sciagent_components.ProcessRunner.run_shell", run_shell)
     action = {"tool": "run_shell", "arguments": {"command": "ls | sort"}}
     agent = NativeExperimentAgent(ScriptedLLMClient(tool_turns([
         action, {"tool": "finish", "arguments": {"report": "Inspected the files."}},

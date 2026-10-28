@@ -4,13 +4,13 @@ from datetime import UTC, datetime
 
 import pytest
 
-from resagent2_capabilities import FetchLiteratureInput, FetchLiteratureTool
-from resagent2_components import ArtifactReadError, RegisteredArtifactReader
-from resagent2_components.literature import LiteraturePaper, LiteratureSearchError
-from resagent2_components.literature.fulltext import PdfFetchError, PdfParseError, PdfText
-from resagent2_contracts import AgentOwner, ArtifactCandidate, SessionStatus
-from resagent2_orchestrator import ArtifactRegistry
-from resagent2_runtime import AgentState
+from sciagent_capabilities import FetchLiteratureInput, FetchLiteratureTool
+from sciagent_components import ArtifactReadError, RegisteredArtifactReader
+from sciagent_components.literature import LiteraturePaper, LiteratureSearchError
+from sciagent_components.literature.fulltext import PdfFetchError, PdfParseError, PdfText
+from sciagent_contracts import AgentOwner, ArtifactCandidate, SessionStatus
+from sciagent_orchestrator import ArtifactRegistry
+from sciagent_runtime import AgentState
 
 
 class Registration:
@@ -141,8 +141,8 @@ def test_parse_failure_preserves_pdf_and_retry_reuses_frozen_original(tmp_path):
 
 @pytest.mark.parametrize("failure", ["download", "parse"])
 def test_filesystem_error_returns_already_frozen_materials_through_live_port(tmp_path, failure):
-    from resagent2_contracts import ResearchRequest
-    from resagent2_orchestrator import JsonRunStore, ResearchRun, ScientificArtifactRegistration
+    from sciagent_contracts import ResearchRequest
+    from sciagent_orchestrator import JsonRunStore, ResearchRun, ScientificArtifactRegistration
 
     state = _state()
     store = JsonRunStore(tmp_path / "runs")
@@ -268,7 +268,7 @@ def test_invalid_or_unqualified_source_rejected_before_fetch(source):
 
 
 def test_old_fulltext_tool_and_input_are_removed():
-    import resagent2_capabilities as capabilities
+    import sciagent_capabilities as capabilities
     from pydantic import ValidationError
     assert not hasattr(capabilities, "FetchLiteratureFulltextTool")
     with pytest.raises(ValidationError):

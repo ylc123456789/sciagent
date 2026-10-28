@@ -12,19 +12,19 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from resagent2_components import (
+from sciagent_components import (
     ArtifactReadError,
     RegisteredArtifactReader,
     WorkspaceBoundary,
     WorkspacePermissionError,
 )
-from resagent2_capabilities import (
+from sciagent_capabilities import (
     ReadArtifactTool,
     ReadFileTool,
     SearchTextTool,
 )
-from resagent2_contracts import AgentOwner, ArtifactRef, WorkspaceAccess, WorkspaceGrant
-from resagent2_runtime import AgentState
+from sciagent_contracts import AgentOwner, ArtifactRef, WorkspaceAccess, WorkspaceGrant
+from sciagent_runtime import AgentState
 
 
 def _state():
@@ -179,7 +179,7 @@ def test_search_accepts_a_single_file_or_directory(tmp_path):
     assert {item["path"] for item in both.value["matches"]} == {str(tmp_path / "train.py"), str(tmp_path / "other.py")}
 
 
-@pytest.mark.parametrize("query_path", ["denied/secret.py", "alias.py", "escape.py", "../outside.py", ".resagent2/state"])
+@pytest.mark.parametrize("query_path", ["denied/secret.py", "alias.py", "escape.py", "../outside.py", ".sciagent/state"])
 def test_single_file_search_cannot_bypass_path_scope(tmp_path, query_path):
     root = tmp_path / "repo"
     root.mkdir()
@@ -213,7 +213,7 @@ def test_search_guidance_matches_bounded_input_schema(tmp_path):
 
 
 def test_search_pipe_is_literal_and_guidance_does_not_promise_regex(tmp_path):
-    from resagent2_runtime.tool_calling import native_tool_schemas
+    from sciagent_runtime.tool_calling import native_tool_schemas
 
     (tmp_path / "names.txt").write_text("alpha\nbeta\nALPHA|BETA\n", encoding="utf-8")
     tool = SearchTextTool(_boundary(tmp_path))
@@ -229,7 +229,7 @@ def test_search_pipe_is_literal_and_guidance_does_not_promise_regex(tmp_path):
     ]["query"]["description"]
 
 def test_artifact_tool_pages_long_json_without_rewriting_source(tmp_path):
-    from resagent2_components.materials import read_artifact_json
+    from sciagent_components.materials import read_artifact_json
 
     path = tmp_path / "feedback.json"
     body = json.dumps({"report": "原报告\\n" * 40_000 + "UNIQUE_TAIL"}, ensure_ascii=False, indent=2)
@@ -334,8 +334,8 @@ def test_text_reads_preserve_valid_utf8_regardless_of_file_label(tmp_path, body)
 
 @pytest.mark.parametrize("registered", [False, True])
 def test_failed_binary_read_recovers_without_recording_it_as_read(tmp_path, registered):
-    from resagent2_contracts import AgentPermissions, AgentRequest, ModuleStatus, TaskBudget
-    from resagent2_runtime import (
+    from sciagent_contracts import AgentPermissions, AgentRequest, ModuleStatus, TaskBudget
+    from sciagent_runtime import (
         AgentAction, AgentDefinition, AgentLoop, AllowListPermissionPolicy,
         CompletionDecision, ContextSection, FinishTool, InMemorySessionStore,
         ScriptedLLMClient,
@@ -383,7 +383,7 @@ def test_failed_binary_read_recovers_without_recording_it_as_read(tmp_path, regi
         session_id="session_reader",
     )
     assert result.status == ModuleStatus.COMPLETED
-    from resagent2_runtime.tool_calling import native_input_text
+    from sciagent_runtime.tool_calling import native_input_text
     wire = native_input_text(llm.contexts[1], llm.schemas[1], llm.histories[1])
     assert "Cannot read as UTF-8 text" in wire
     assert "\ufffd" not in wire

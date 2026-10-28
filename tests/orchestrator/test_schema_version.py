@@ -1,19 +1,19 @@
 """A schema break rejects old runs without rewriting their audit records."""
 
-from resagent2_contracts import RunPermissions, ExecutionLimits
+from sciagent_contracts import RunPermissions, ExecutionLimits
 
 from datetime import UTC, datetime
 
 import pytest
 from pydantic import ValidationError
 
-from resagent2_contracts import (
+from sciagent_contracts import (
     ResearchRequest,
     RunBudget,
     RunStatus,
     SCHEMA_VERSION,
 )
-from resagent2_orchestrator import JsonRunStore, ResearchRun
+from sciagent_orchestrator import JsonRunStore, ResearchRun
 
 
 @pytest.mark.parametrize("old_version", ["7.0", "13.0", "14.0", "15.0", "16.0", "20.0", "21.0", "22.0", "23.0", "24.0", "25.0", "26.0", "27.0", "28.0", "29.0", "30.0"])

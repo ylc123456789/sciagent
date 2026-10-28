@@ -4,10 +4,10 @@ import subprocess
 
 import pytest
 
-from resagent2_coding import NativeCodingAgent
-from resagent2_experiment import NativeExperimentAgent
-from resagent2_contracts import AgentPermissions, AgentRequest, TaskBudget, WorkspaceAccess, WorkspaceGrant
-from resagent2_runtime import ScriptedLLMClient
+from sciagent_coding import NativeCodingAgent
+from sciagent_experiment import NativeExperimentAgent
+from sciagent_contracts import AgentPermissions, AgentRequest, TaskBudget, WorkspaceAccess, WorkspaceGrant
+from sciagent_runtime import ScriptedLLMClient
 
 
 class DefinitionCaptured(Exception):

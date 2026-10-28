@@ -122,8 +122,8 @@ def prepare_workspace(root: Path, dataset_root: Path) -> dict:
         'Epochs and training choices are for the research task to determine; '
         'the program default is not a required research budget.\n\n'
         f'Dataset ID: cifar10. Torchvision data root: {dataset_root}\n'
-        'Read the cifar10 entry in RESAGENT2_DATASETS_JSON; '
-        'RESAGENT2_DATASET_ROOT is the parent deployment directory.\n\n'
+        'Read the cifar10 entry in SCIAGENT_DATASETS_JSON; '
+        'SCIAGENT_DATASET_ROOT is the parent deployment directory.\n\n'
         'Concatenate data_batch_1 through data_batch_5 in official order. '
         'Indices 0..44999 are train; 45000..49999 are calibration. '
         'The official test_batch contains the 10000 final-test examples. '
@@ -153,11 +153,11 @@ def prepare_workspace(root: Path, dataset_root: Path) -> dict:
         'commit', '-qm', 'Neutral public L3 baseline',
     )
     settings = {
-        'RESAGENT2_MODEL': os.environ.get('RESAGENT2_MODEL', 'deepseek-v4-flash'),
-        'RESAGENT2_DATASET_ROOT': str(dataset_root.parent),
-        'RESAGENT2_DATASETS_JSON': json.dumps({'cifar10': str(dataset_root)}, ensure_ascii=False),
-        'RESAGENT2_LLM_TRACE_LEVEL': 'full',
-        'RESAGENT2_LLM_TRACE_DIR': str(root / 'traces'),
+        'SCIAGENT_MODEL': os.environ.get('SCIAGENT_MODEL', 'deepseek-v4-flash'),
+        'SCIAGENT_DATASET_ROOT': str(dataset_root.parent),
+        'SCIAGENT_DATASETS_JSON': json.dumps({'cifar10': str(dataset_root)}, ensure_ascii=False),
+        'SCIAGENT_LLM_TRACE_LEVEL': 'full',
+        'SCIAGENT_LLM_TRACE_DIR': str(root / 'traces'),
     }
     (root / 'run-config.sh').write_text(
         '# Non-secret deployment settings. Provide API keys through the environment.\n'

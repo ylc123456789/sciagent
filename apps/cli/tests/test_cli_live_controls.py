@@ -9,10 +9,10 @@ from types import SimpleNamespace
 
 import pytest
 
-from resagent2_cli.main import cli
-from resagent2_cli.shell import Shell
-from resagent2_contracts import RunStatus
-from resagent2_runtime.controls import RunControlInbox
+from sciagent_cli.main import cli
+from sciagent_cli.shell import Shell
+from sciagent_contracts import RunStatus
+from sciagent_runtime.controls import RunControlInbox
 
 
 def _run(status=RunStatus.RUNNING):
@@ -67,8 +67,8 @@ def test_watch_accepts_input_and_waits_for_owner_after_interrupt(tmp_path, monke
     shell._input_queue = queue.Queue()
     shell._input_queue.put("  preserve these user words  ")
     shell._input_queue.put("/interrupt")
-    monkeypatch.setattr("resagent2_cli.render.render_live", lambda *a: [])
-    monkeypatch.setattr("resagent2_cli.render.render_final", lambda *a: [])
+    monkeypatch.setattr("sciagent_cli.render.render_live", lambda *a: [])
+    monkeypatch.setattr("sciagent_cli.render.render_final", lambda *a: [])
 
     def owner():
         deadline = time.monotonic() + 2
@@ -100,8 +100,8 @@ def test_quit_cannot_abandon_running_local_owner(tmp_path):
 
 
 def test_one_shot_ctrl_c_waits_for_owner_confirmation(tmp_path, monkeypatch):
-    from resagent2_cli.main import _owner_call
-    from resagent2_cli.shell import Runner
+    from sciagent_cli.main import _owner_call
+    from sciagent_cli.shell import Runner
 
     inbox = RunControlInbox(tmp_path / "controls")
     stopped = threading.Event()
@@ -148,8 +148,8 @@ def test_interrupt_supplement_resumes_only_after_confirmed_stop(tmp_path, monkey
         application_builder=lambda **kwargs: SimpleNamespace(controller=SimpleNamespace(resume_run=resume)),
         store=SimpleNamespace(load=lambda run_id: run), stream=io.StringIO())
     shell.current_run_id = run.run_id
-    monkeypatch.setattr("resagent2_cli.render.render_live", lambda *a: [])
-    monkeypatch.setattr("resagent2_cli.render.render_final", lambda *a: [])
+    monkeypatch.setattr("sciagent_cli.render.render_live", lambda *a: [])
+    monkeypatch.setattr("sciagent_cli.render.render_final", lambda *a: [])
     def owner():
         deadline = time.monotonic() + 2
         while time.monotonic() < deadline:
@@ -175,15 +175,15 @@ def test_cli_revalidates_stale_running_snapshot_before_publication(tmp_path):
 
 
 def test_ctrl_c_after_terminal_commit_does_not_publish_stale_interrupt(tmp_path, monkeypatch):
-    from resagent2_cli.main import _owner_call
-    from resagent2_cli.shell import Runner
+    from sciagent_cli.main import _owner_call
+    from sciagent_cli.shell import Runner
 
     committed = _run(RunStatus.COMPLETED)
     finish = threading.Event()
     actual_wait = Runner.wait
     first_wait = True
     import importlib
-    monkeypatch.setattr(importlib.import_module("resagent2_cli.main"), "_run_store", lambda root: SimpleNamespace(
+    monkeypatch.setattr(importlib.import_module("sciagent_cli.main"), "_run_store", lambda root: SimpleNamespace(
         exists=lambda run_id: True, load=lambda run_id: committed))
     def interrupt_after_commit(self, timeout=0.1):
         nonlocal first_wait
@@ -208,8 +208,8 @@ def test_attach_exit_does_not_interrupt_external_owner(tmp_path, monkeypatch, li
                   store=SimpleNamespace(load=lambda run_id: run), stream=io.StringIO())
     shell._input_queue = queue.Queue()
     shell._input_queue.put(line)
-    monkeypatch.setattr("resagent2_cli.render.render_live", lambda *a: [])
-    monkeypatch.setattr("resagent2_cli.shell.time.sleep", lambda _: pytest.fail(
+    monkeypatch.setattr("sciagent_cli.render.render_live", lambda *a: [])
+    monkeypatch.setattr("sciagent_cli.shell.time.sleep", lambda _: pytest.fail(
         "an observer must exit without waiting for the external Run to finish"))
 
     assert shell._cmd_attach([run.run_id]) is True

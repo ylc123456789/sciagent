@@ -9,7 +9,7 @@ import hashlib
 import json
 from pathlib import Path
 
-from resagent2_capabilities import (
+from sciagent_capabilities import (
     CreateFileTool,
     DeletePathTool,
     GitDiffTool,
@@ -23,15 +23,15 @@ from resagent2_capabilities import (
     WebFetchTool,
     WebSearchTool,
 )
-from resagent2_capabilities import RunShellTool
-from resagent2_runtime import AskUserTool, FinishTool
-from resagent2_scientific.models import ScientificFinishInput
-from resagent2_executor.completion import ExecutionFinishInput
-from resagent2_runtime.tool_calling import native_tool_schemas
-from resagent2_capabilities.delegation import (
+from sciagent_capabilities import RunShellTool
+from sciagent_runtime import AskUserTool, FinishTool
+from sciagent_scientific.models import ScientificFinishInput
+from sciagent_executor.completion import ExecutionFinishInput
+from sciagent_runtime.tool_calling import native_tool_schemas
+from sciagent_capabilities.delegation import (
     RequestWorkTool as GenericRequestWorkTool, UpdateWorkTool, AbandonWorkTool,
 )
-from resagent2_scientific.tools import (
+from sciagent_scientific.tools import (
     AskUserTool as ScientificAskUserTool,
     FinishTool as ScientificFinishTool,
     RequestWorkTool,

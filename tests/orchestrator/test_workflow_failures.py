@@ -1,5 +1,5 @@
 """Task input and dependency failures terminate with persistent, factual outcomes."""
-from resagent2_executor import default_execution_registry
+from sciagent_executor import default_execution_registry
 from e2e.scheduler_fixtures import executor_bindings
 
 from scheduler_fixtures import add_root_owner, execution_tasks
@@ -8,11 +8,11 @@ from datetime import UTC, datetime
 
 import pytest
 
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner, AgentResult, ArtifactCandidate, ModuleError, ResearchRequest, RunBudget,
     RunPermissions, TaskProposal, WorkRequest, WorkRequestDraft, WorkflowProposal,
 )
-from resagent2_orchestrator import (
+from sciagent_orchestrator import (
     InMemoryRunStore, JsonRunStore, ModuleBinding, ResearchRun, ScriptedModulePort, WorkflowScheduler,
 )
 
@@ -65,7 +65,7 @@ def test_boundary_exceptions_persist_failed_attempt(tmp_path, monkeypatch, stage
     elif stage == "invoke":
         monkeypatch.setattr(port, "invoke", reject)
     else:
-        monkeypatch.setattr("resagent2_orchestrator.scheduler.receive_artifacts", reject)
+        monkeypatch.setattr("sciagent_orchestrator.scheduler.receive_artifacts", reject)
 
     result = engine.run_until_stable(run_id)
     persisted = JsonRunStore(store.root).load(run_id)
@@ -102,7 +102,7 @@ def test_empty_reception_error_preserves_original_agent_failure(tmp_path, monkey
     def reject(*args, **kwargs):
         raise RuntimeError()
 
-    monkeypatch.setattr("resagent2_orchestrator.scheduler.receive_artifacts", reject)
+    monkeypatch.setattr("sciagent_orchestrator.scheduler.receive_artifacts", reject)
     result = engine.run_until_stable(run_id)
     assert result == engine.store.load(run_id)
     attempt = result.workflow.tasks[0].attempts[0]

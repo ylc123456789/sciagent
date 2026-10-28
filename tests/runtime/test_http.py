@@ -7,8 +7,8 @@ import socket
 import httpx
 import pytest
 
-from resagent2_runtime import http
-from resagent2_runtime.budget import DeadlineExceededError, execution_budget
+from sciagent_runtime import http
+from sciagent_runtime.budget import DeadlineExceededError, execution_budget
 
 
 class Body(httpx.AsyncByteStream):

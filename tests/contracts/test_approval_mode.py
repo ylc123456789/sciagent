@@ -3,7 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
-from resagent2_contracts import AgentPermissions, RunPermissions
+from sciagent_contracts import AgentPermissions, RunPermissions
 
 
 @pytest.mark.parametrize("permission_type", [RunPermissions, AgentPermissions])

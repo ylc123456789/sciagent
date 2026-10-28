@@ -111,21 +111,21 @@ def test_public_manifest_rejects_extra_files_and_private_fields(tmp_path, inputs
 
 
 def _native_chain(tmp_path, inputs, monkeypatch, *, root_report=None, fail_child=False):
-    from resagent2_cli.composition import build_application
-    from resagent2_contracts import UserAnswer
+    from sciagent_cli.composition import build_application
+    from sciagent_contracts import UserAnswer
     manifest = corebench.prepare(**inputs, output=tmp_path / "public")
     output = tmp_path / "run"
     counts = Counter()
-    monkeypatch.setenv("RESAGENT2_MODEL", "offline-corebench-mechanism")
-    monkeypatch.setenv("RESAGENT2_API_BASE", "https://example.invalid/v1")
-    monkeypatch.setenv("RESAGENT2_API_KEY_ENV", "COREBENCH_MECHANISM_KEY")
+    monkeypatch.setenv("SCIAGENT_MODEL", "offline-corebench-mechanism")
+    monkeypatch.setenv("SCIAGENT_API_BASE", "https://example.invalid/v1")
+    monkeypatch.setenv("SCIAGENT_API_KEY_ENV", "COREBENCH_MECHANISM_KEY")
     monkeypatch.setenv("COREBENCH_MECHANISM_KEY", "dummy-test-only")
-    monkeypatch.setenv("RESAGENT2_WEB_SEARCH_PROVIDER", "off")
-    monkeypatch.setenv("RESAGENT2_LLM_TRACE_LEVEL", "off")
-    monkeypatch.setenv("RESAGENT2_RESOURCE_ROOT", str(tmp_path / "resources"))
+    monkeypatch.setenv("SCIAGENT_WEB_SEARCH_PROVIDER", "off")
+    monkeypatch.setenv("SCIAGENT_LLM_TRACE_LEVEL", "off")
+    monkeypatch.setenv("SCIAGENT_RESOURCE_ROOT", str(tmp_path / "resources"))
 
     def evidence():
-        from resagent2_orchestrator import JsonRunStore
+        from sciagent_orchestrator import JsonRunStore
         current = JsonRunStore(output / "data" / "state").load("run_corebench_mechanism")
         return next(ref.id for ref in current.artifacts.values() if ref.output_name == corebench.OUTPUT_NAME)
 
@@ -174,7 +174,7 @@ def _native_chain(tmp_path, inputs, monkeypatch, *, root_report=None, fail_child
         pytest.fail("offline mechanism tests must not send network requests")
     monkeypatch.setattr("httpx.Client.send", no_http)
     monkeypatch.setattr("httpx.AsyncClient.send", no_http)
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", reply)
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", reply)
     run = corebench.run(manifest=manifest, output=output, run_id="run_corebench_mechanism", max_llm_calls=12, timeout_seconds=60, execution_mode="offline-mechanism")
     if run.status.value == "paused":
         assert run.pending_question.action.tool == "run_shell"
@@ -261,7 +261,7 @@ def test_top_level_inline_report_wins_with_truthful_provenance(tmp_path, inputs,
 
 
 def test_export_ignores_failed_retry_output_but_rejects_successful_cited_ambiguity(tmp_path, inputs, monkeypatch):
-    from resagent2_contracts import AttemptStatus
+    from sciagent_contracts import AttemptStatus
     run, output = _native_chain(tmp_path, inputs, monkeypatch)
     retried = run.model_copy(deep=True)
     frozen = next(ref for ref in retried.artifacts.values() if ref.output_name == corebench.OUTPUT_NAME)

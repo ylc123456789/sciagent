@@ -6,8 +6,8 @@ import time
 import httpx
 import pytest
 
-from resagent2_runtime import http
-from resagent2_runtime.cancellation import (
+from sciagent_runtime import http
+from sciagent_runtime.cancellation import (
     CancellationToken, OperationCancelled, bind_cancellation, check_cancelled,
     current_cancellation,
 )
@@ -91,8 +91,8 @@ def test_cancelled_http_never_dispatches(monkeypatch):
 
 def test_native_model_cancel_keeps_charge_and_explicit_trace(monkeypatch, tmp_path):
     import json
-    from resagent2_runtime import ComposedContext, OpenAICompatibleClient, llm
-    from resagent2_runtime.budget import execution_budget
+    from sciagent_runtime import ComposedContext, OpenAICompatibleClient, llm
+    from sciagent_runtime.budget import execution_budget
 
     token = CancellationToken()
     monkeypatch.setenv("CANCELLATION_TEST_KEY", "dummy")
@@ -136,7 +136,7 @@ def test_retry_wait_is_interrupted_without_waiting_for_its_timeout():
 
 @pytest.mark.parametrize("waiting_on", ["source_lock", "request_interval"])
 def test_literature_local_wait_is_interruptible(waiting_on):
-    from resagent2_components.literature._http import LiteratureHTTP
+    from sciagent_components.literature._http import LiteratureHTTP
 
     policy = LiteratureHTTP("test", interval_seconds=30)
     token = CancellationToken()

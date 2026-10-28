@@ -8,16 +8,16 @@ from httpx import ConnectError
 import pytest
 from pydantic import ValidationError
 
-from resagent2_contracts import (AgentOwner, ErrorCode, ModuleStatus, SessionStatus)
-from resagent2_runtime import AgentLoop, JsonSessionStore, ModelProfile, OpenAICompatibleClient
-from resagent2_runtime.context import ContextComposer
-from resagent2_runtime.models import (
+from sciagent_contracts import (AgentOwner, ErrorCode, ModuleStatus, SessionStatus)
+from sciagent_runtime import AgentLoop, JsonSessionStore, ModelProfile, OpenAICompatibleClient
+from sciagent_runtime.context import ContextComposer
+from sciagent_runtime.models import (
     AgentState,
     HistoryCheckpoint,
     NativeToolCall,
     ToolCallTurn,
 )
-from resagent2_runtime.tool_calling import contract_fingerprint, native_input_text, native_tool_schemas
+from sciagent_runtime.tool_calling import contract_fingerprint, native_input_text, native_tool_schemas
 from tests.runtime.test_native_tool_calls import (
     _call,
     _reply,

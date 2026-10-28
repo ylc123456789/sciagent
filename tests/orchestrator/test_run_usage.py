@@ -3,11 +3,11 @@ from datetime import UTC, datetime
 
 import pytest
 
-from resagent2_contracts import ArtifactCandidate, ResearchRequest, RunBudget, RunPermissions
-from resagent2_orchestrator import JsonRunStore, ResearchRun
-from resagent2_orchestrator.artifacts import ArtifactRegistry, ScientificArtifactRegistration
-from resagent2_orchestrator.usage import RunUsagePort
-from resagent2_runtime.budget import (
+from sciagent_contracts import ArtifactCandidate, ResearchRequest, RunBudget, RunPermissions
+from sciagent_orchestrator import JsonRunStore, ResearchRun
+from sciagent_orchestrator.artifacts import ArtifactRegistry, ScientificArtifactRegistration
+from sciagent_orchestrator.usage import RunUsagePort
+from sciagent_runtime.budget import (
     BudgetExhaustedError, UsagePersistenceError, execution_budget, invoke_model,
 )
 

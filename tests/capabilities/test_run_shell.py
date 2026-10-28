@@ -8,12 +8,12 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from resagent2_capabilities import RunShellInput, RunShellTool
-from resagent2_components import GitWorkspace, ProcessRunner, WorkspaceBoundary
-from resagent2_components.workspace import ReadOnlyWorkspaceBoundary
-from resagent2_contracts import AgentOwner, WorkspaceAccess, WorkspaceGrant
-from resagent2_runtime import AgentState
-from resagent2_runtime.cancellation import OperationCancelled
+from sciagent_capabilities import RunShellInput, RunShellTool
+from sciagent_components import GitWorkspace, ProcessRunner, WorkspaceBoundary
+from sciagent_components.workspace import ReadOnlyWorkspaceBoundary
+from sciagent_contracts import AgentOwner, WorkspaceAccess, WorkspaceGrant
+from sciagent_runtime import AgentState
+from sciagent_runtime.cancellation import OperationCancelled
 
 
 pytestmark = pytest.mark.skipif(sys.platform != "linux", reason="fixed Linux Bash execution")
@@ -37,7 +37,7 @@ def _boundary(root, access=None):
 
 def _tool(root, **kwargs):
     return RunShellTool(
-        ProcessRunner(_boundary(root)), log_dir=str(root / ".resagent2" / "shell"),
+        ProcessRunner(_boundary(root)), log_dir=str(root / ".sciagent" / "shell"),
         timeout_seconds=kwargs.pop("timeout_seconds", 3), **kwargs,
     )
 
@@ -68,7 +68,7 @@ def test_shell_input_rejects_empty_or_nul_commands(command):
 def test_shell_denies_before_execution(tmp_path, access, allowed):
     tool = RunShellTool(
         ProcessRunner(_boundary(tmp_path, access)),
-        log_dir=str(tmp_path / ".resagent2"), timeout_seconds=3, allowed=allowed,
+        log_dir=str(tmp_path / ".sciagent"), timeout_seconds=3, allowed=allowed,
     )
     with pytest.raises(PermissionError):
         tool.execute(_state(), RunShellInput(command="touch should_not_exist"))
@@ -89,12 +89,12 @@ def test_shell_runs_without_environment_binding_and_records_startup(tmp_path):
 
 
 def test_shell_state_is_not_preserved_between_calls(tmp_path, monkeypatch):
-    monkeypatch.delenv("RESAGENT_TEMP_STATE", raising=False)
+    monkeypatch.delenv("SCIAGENT_TEMP_STATE", raising=False)
     (tmp_path / "sub").mkdir()
     tool = _tool(tmp_path)
-    assert tool.execute(_state(), RunShellInput(command="export RESAGENT_TEMP_STATE=old; cd sub")).ok
+    assert tool.execute(_state(), RunShellInput(command="export SCIAGENT_TEMP_STATE=old; cd sub")).ok
     second = tool.execute(_state(), RunShellInput(
-        command='printf "%s\\n" "${RESAGENT_TEMP_STATE-unset}" "$PWD"',
+        command='printf "%s\\n" "${SCIAGENT_TEMP_STATE-unset}" "$PWD"',
     ))
     assert second.value["stdout_tail"].splitlines() == ["unset", str(tmp_path)]
 
@@ -159,47 +159,47 @@ def test_shell_retains_receipt_when_change_diagnostic_fails(tmp_path, monkeypatc
 
 
 def test_prepared_shell_refuses_changed_startup_before_side_effects(tmp_path):
-    tool = _tool(tmp_path, extra_env={"RESAGENT_LAUNCH_VALUE": "first"})
+    tool = _tool(tmp_path, extra_env={"SCIAGENT_LAUNCH_VALUE": "first"})
     approved = tool.prepare(RunShellInput(command="touch never"))
-    tool.extra_env["RESAGENT_LAUNCH_VALUE"] = "second"
+    tool.extra_env["SCIAGENT_LAUNCH_VALUE"] = "second"
     result = tool.execute_prepared(_state(), RunShellInput(command="touch never"), approved)
     assert not result.ok and result.value["execution_status"] == "not_executed"
     assert "changed after approval" in result.summary
     assert not (tmp_path / "never").exists()
-    assert not (tmp_path / ".resagent2").exists()
+    assert not (tmp_path / ".sciagent").exists()
 
 
 def test_receipt_records_actual_startup_instead_of_an_earlier_observation(tmp_path, monkeypatch):
-    tool = _tool(tmp_path, extra_env={"RESAGENT_LAUNCH_VALUE": "before"})
+    tool = _tool(tmp_path, extra_env={"SCIAGENT_LAUNCH_VALUE": "before"})
     before = tool.approval_context()
     original_run = tool.runner.run_shell
 
     def changed_startup(script, **kwargs):
-        kwargs["extra_env"]["RESAGENT_LAUNCH_VALUE"] = "actual"
+        kwargs["extra_env"]["SCIAGENT_LAUNCH_VALUE"] = "actual"
         return original_run(script, **kwargs)
 
     monkeypatch.setattr(tool.runner, "run_shell", changed_startup)
-    result = tool.execute(_state(), RunShellInput(command='printf "%s" "$RESAGENT_LAUNCH_VALUE"'))
+    result = tool.execute(_state(), RunShellInput(command='printf "%s" "$SCIAGENT_LAUNCH_VALUE"'))
     assert result.ok and result.value["stdout_tail"] == "actual"
     assert result.value["environment_fingerprint"] == tool.approval_context()["environment_fingerprint"]
     assert result.value["environment_fingerprint"] != before["environment_fingerprint"]
 
 
 def test_prepared_shell_passes_the_checked_environment_unchanged_to_child(tmp_path, monkeypatch):
-    monkeypatch.setenv("RESAGENT_LAUNCH_VALUE", "checked")
+    monkeypatch.setenv("SCIAGENT_LAUNCH_VALUE", "checked")
     tool = _tool(tmp_path)
     approved = tool.prepare(RunShellInput(
-        command='printf "%s" "$RESAGENT_LAUNCH_VALUE"',
+        command='printf "%s" "$SCIAGENT_LAUNCH_VALUE"',
     ))
     original_run = tool.runner._run_argv
 
     def change_parent_after_check(*args, **kwargs):
-        monkeypatch.setenv("RESAGENT_LAUNCH_VALUE", "later-parent-value")
+        monkeypatch.setenv("SCIAGENT_LAUNCH_VALUE", "later-parent-value")
         return original_run(*args, **kwargs)
 
     monkeypatch.setattr(tool.runner, "_run_argv", change_parent_after_check)
     result = tool.execute_prepared(_state(), RunShellInput(
-        command='printf "%s" "$RESAGENT_LAUNCH_VALUE"',
+        command='printf "%s" "$SCIAGENT_LAUNCH_VALUE"',
     ), approved)
     assert result.ok and result.value["stdout_tail"] == "checked"
     assert result.value["environment_fingerprint"] == approved["environment_fingerprint"]

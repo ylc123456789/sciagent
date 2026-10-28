@@ -8,9 +8,9 @@ from pathlib import Path
 
 import pytest
 
-from resagent2_components import RepoMaterializer, RepoMaterializerError, WorkspaceBoundary
-from resagent2_components.git import GitWorkspace, GitWorkspaceError
-from resagent2_contracts import WorkspaceAccess, WorkspaceGrant, WorkspaceSourceKind, WorkspaceSpec
+from sciagent_components import RepoMaterializer, RepoMaterializerError, WorkspaceBoundary
+from sciagent_components.git import GitWorkspace, GitWorkspaceError
+from sciagent_contracts import WorkspaceAccess, WorkspaceGrant, WorkspaceSourceKind, WorkspaceSpec
 
 
 def git(root, *arguments, text=True):
@@ -219,7 +219,7 @@ def test_clone_checks_actual_checkout_filters_and_does_not_execute_them(tmp_path
         with pytest.raises(RepoMaterializerError, match="external smudge/process"):
             RepoMaterializer().materialize(workspace=destination, source=spec)
         assert not destination.exists()
-        assert not (tmp_path / ".clone.resagent2-staging").exists()
+        assert not (tmp_path / ".clone.sciagent-staging").exists()
     else:
         result = RepoMaterializer().materialize(workspace=destination, source=spec)
         assert result.commit

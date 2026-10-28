@@ -5,12 +5,12 @@ from pathlib import Path
 
 import pytest
 
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner, VerificationResult, WorkspaceGrant, WorkspaceAccess, WorkspaceSourceKind,
 )
-from resagent2_components import WorkspaceBoundary
-from resagent2_runtime import AgentState
-from resagent2_capabilities import RunShellTool
+from sciagent_components import WorkspaceBoundary
+from sciagent_runtime import AgentState
+from sciagent_capabilities import RunShellTool
 
 
 def _state() -> AgentState:
@@ -65,9 +65,9 @@ def test_run_shell_enforces_permission_before_any_execution(tmp_path, writable, 
 def test_environment_and_execution_commands_need_no_system_binding(tmp_path, command):
     runner = FakeRunner(tmp_path)
     tool = RunShellTool(runner, timeout_seconds=30, log_dir=str(tmp_path / "logs"),
-                        extra_env={"RESAGENT2_DATASET_ROOT": "/datasets"})
+                        extra_env={"SCIAGENT_DATASET_ROOT": "/datasets"})
     observation = tool.execute(_state(), tool.input_model(command=command))
-    assert runner.calls == [(command, {"RESAGENT2_DATASET_ROOT": "/datasets"})]
+    assert runner.calls == [(command, {"SCIAGENT_DATASET_ROOT": "/datasets"})]
     assert observation.ok
     assert observation.value["command"] == command
     assert observation.value["stdout_tail"] == "actual stdout"

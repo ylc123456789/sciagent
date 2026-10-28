@@ -5,13 +5,13 @@ from datetime import UTC, datetime
 
 import pytest
 
-from resagent2_components import RegisteredArtifactReader, material_index_context, request_task_context
-from resagent2_contracts import (
+from sciagent_components import RegisteredArtifactReader, material_index_context, request_task_context
+from sciagent_contracts import (
     AgentOwner, AgentPermissions, AgentRequest, ArtifactCandidate, ResearchRequest, RunBudget, RunPermissions, TaskBudget,
 )
-from resagent2_orchestrator import JsonRunStore, ResearchRun
-from resagent2_orchestrator.artifacts import ArtifactRegistry, ScientificArtifactRegistration
-from resagent2_runtime import (
+from sciagent_orchestrator import JsonRunStore, ResearchRun
+from sciagent_orchestrator.artifacts import ArtifactRegistry, ScientificArtifactRegistration
+from sciagent_runtime import (
     AgentDefinition, AgentLoop, AllowListPermissionPolicy, CompletionDecision,
     ContextSection, FinishTool, JsonSessionStore, NativeToolCall, ScriptedLLMClient, ToolCallTurn, ToolObservation,
 )
@@ -84,7 +84,7 @@ def test_reopen_consumes_registration_once_without_replaying_the_tool(tmp_path, 
     with monkeypatch.context() as patch:
         acknowledge = port.acknowledge_registration
         if cut_point == "allocation_before_freeze":
-            patch.setattr("resagent2_orchestrator.artifacts.tempfile.mkdtemp", lambda **kwargs: stop())
+            patch.setattr("sciagent_orchestrator.artifacts.tempfile.mkdtemp", lambda **kwargs: stop())
         else:
             acknowledge = stop
         with pytest.raises(_ProcessStopped):

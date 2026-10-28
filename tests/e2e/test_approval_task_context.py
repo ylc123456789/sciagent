@@ -1,4 +1,4 @@
-from resagent2_executor import default_execution_registry
+from sciagent_executor import default_execution_registry
 """An operation approval resumes execution without becoming task dialogue."""
 
 import json
@@ -10,21 +10,21 @@ from datetime import UTC, datetime
 import pytest
 
 from e2e.native_fixtures import tool_turns, ParentQuestionClient
-from resagent2_components import ResourceLayout
-from resagent2_contracts import (
+from sciagent_components import ResourceLayout
+from sciagent_contracts import (
     AgentOwner, ExecutionLimits, ResearchRequest, RunBudget, RunPermissions,
     TaskProposal, UserAnswer, WorkflowAgentKind,
     WorkflowAgentRegistry, WorkflowPatch, WorkflowProposal, WorkspaceAccess, WorkspaceSourceKind,
     WorkspaceSpec,
 )
-from resagent2_coding import NativeCodingAgent
-from resagent2_experiment import NativeExperimentAgent
-from resagent2_orchestrator import (
+from sciagent_coding import NativeCodingAgent
+from sciagent_experiment import NativeExperimentAgent
+from sciagent_orchestrator import (
     CompilationResult, DeterministicWorkInterpreter, JsonRunStore, ModuleBinding,
     ResearchController, WorkflowScheduler,
 )
-from resagent2_runtime import JsonSessionStore, ScriptedLLMClient
-from resagent2_scientific import ScientificAgent
+from sciagent_runtime import JsonSessionStore, ScriptedLLMClient
+from sciagent_scientific import ScientificAgent
 
 
 @pytest.mark.parametrize("kind", ["coding", "experiment"])

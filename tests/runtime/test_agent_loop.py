@@ -1,13 +1,13 @@
 import json
 from e2e.native_fixtures import tool_turns
 
-from resagent2_contracts import AgentPermissions
-from resagent2_contracts import ArtifactCandidate, QuestionDraft
+from sciagent_contracts import AgentPermissions
+from sciagent_contracts import ArtifactCandidate, QuestionDraft
 
-from resagent2_contracts import (AgentOwner, ErrorCode, ModuleError, ModuleStatus, AgentRequest, TaskBudget)
+from sciagent_contracts import (AgentOwner, ErrorCode, ModuleError, ModuleStatus, AgentRequest, TaskBudget)
 from tool_fixtures import ReadValueTool, WriteValueTool
 
-from resagent2_runtime import (
+from sciagent_runtime import (
     AgentAction,
     AgentDefinition,
     AgentLoop,
@@ -308,7 +308,7 @@ def test_rejection_receipt_survives_an_intervening_observation() -> None:
 def test_recoverable_tool_error_sets_feedback_and_continues() -> None:
     """A Tool that raises (recoverable) must not kill the session immediately:
     it becomes a historical rejection receipt and the next scripted action still runs."""
-    from resagent2_runtime import ToolObservation
+    from sciagent_runtime import ToolObservation
 
     class FailingOnceTool:
         name = "flaky"
@@ -352,7 +352,7 @@ def test_recoverable_tool_error_sets_feedback_and_continues() -> None:
 
 
 def test_consecutive_failures_stop_before_budget() -> None:
-    from resagent2_runtime import ToolObservation
+    from sciagent_runtime import ToolObservation
 
     class AlwaysFailTool:
         name = "always_fail"
@@ -445,7 +445,7 @@ def test_completion_rejection_counts_as_failure() -> None:
 
 def test_native_history_preserves_all_error_bodies() -> None:
     """Full paired history preserves both errors without a second preview path."""
-    from resagent2_runtime import ToolObservation
+    from sciagent_runtime import ToolObservation
 
     pad = "x" * 600
     errors = ["AlphaError: alpha broke", "BravoError: bravo broke"]
@@ -547,7 +547,7 @@ def test_deterministic_failure_exit_returns_failed() -> None:
 
 
 def test_failure_details_preserve_latest_observation_and_historical_receipt():
-    from resagent2_runtime import AgentState, ToolObservation
+    from sciagent_runtime import AgentState, ToolObservation
     from datetime import UTC, datetime
     now = datetime.now(UTC)
     state = AgentState(session_id="session_failure", agent_name="executor", owner=AgentOwner.EXECUTOR,

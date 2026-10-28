@@ -1,24 +1,24 @@
 """Deterministic scientific -> execution -> evidence -> conclusion loop."""
 
-from resagent2_contracts import RunPermissions, ExecutionLimits
+from sciagent_contracts import RunPermissions, ExecutionLimits
 
 import json
 import tempfile
 from pathlib import Path
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner, AgentResult, ArtifactCandidate, ModuleStatus, ResearchRequest,
     RunBudget, RunStatus, TaskAcceptanceSpec, TaskProposal, WorkflowAgentKind,
     WorkflowProposal,
 )
-from resagent2_orchestrator import (
+from sciagent_orchestrator import (
     DeterministicWorkInterpreter,
     FixedWorkflowCompiler, JsonRunStore, ModuleBinding, ResearchController,
     ScriptedModulePort, WorkflowScheduler,
 )
-from resagent2_executor import default_execution_registry
-from resagent2_runtime import InMemorySessionStore, ScriptedLLMClient
+from sciagent_executor import default_execution_registry
+from sciagent_runtime import InMemorySessionStore, ScriptedLLMClient
 from e2e.native_fixtures import tool_turn, tool_turns
-from resagent2_scientific import ScientificAgent
+from sciagent_scientific import ScientificAgent
 
 RUN_ID = "run_golden"
 WORK_REQUEST_ID = "work_1"
@@ -57,7 +57,7 @@ def finish_action(artifact_id):
 
 
 def run_mock_e2e(*, workdir: Path | None = None):
-    workdir = workdir or Path(tempfile.mkdtemp(prefix="resagent2-e2e-"))
+    workdir = workdir or Path(tempfile.mkdtemp(prefix="sciagent-e2e-"))
     scheduler = WorkflowScheduler(
         bindings={WorkflowAgentKind.EXECUTOR: ModuleBinding(
             owner=AgentOwner.EXECUTOR, port=ScriptedModulePort([

@@ -10,9 +10,9 @@ import shlex
 
 import pytest
 
-from resagent2_cli.main import _parser, _request_from_args, _workspace_specs, cli
-from resagent2_cli.shell import _NoExitParser
-from resagent2_orchestrator import InMemoryRunStore
+from sciagent_cli.main import _parser, _request_from_args, _workspace_specs, cli
+from sciagent_cli.shell import _NoExitParser
+from sciagent_orchestrator import InMemoryRunStore
 
 
 def test_request_from_args_builds_request(tmp_path):
@@ -65,10 +65,10 @@ def test_cli_no_arguments_routes_to_shell(monkeypatch, tmp_path):
 def test_shell_answer_reaches_controller_and_resumes_same_session(
     tmp_path, monkeypatch, answer_tokens, repeat_workspace,
 ):
-    from resagent2_cli import composition
-    from resagent2_cli.shell import Shell
-    from resagent2_contracts import RunStatus, SessionStatus
-    from resagent2_runtime import ScriptedLLMClient
+    from sciagent_cli import composition
+    from sciagent_cli.shell import Shell
+    from sciagent_contracts import RunStatus, SessionStatus
+    from sciagent_runtime import ScriptedLLMClient
 
     actions = [
         {"tool": "ask_user", "arguments": {
@@ -122,8 +122,8 @@ def test_shell_answer_reaches_controller_and_resumes_same_session(
 def test_shell_prompt_accepts_free_text_for_each_business_field(tmp_path, monkeypatch):
     from datetime import UTC, datetime
     from types import SimpleNamespace
-    from resagent2_cli.shell import Shell
-    from resagent2_contracts import PendingQuestion
+    from sciagent_cli.shell import Shell
+    from sciagent_contracts import PendingQuestion
 
     question = PendingQuestion(
         id="question_details", run_id="run_prompt", session_id="session_prompt",
@@ -158,8 +158,8 @@ def test_shell_prompt_accepts_free_text_for_each_business_field(tmp_path, monkey
 def test_shell_operation_prompt_keeps_decision_separate(tmp_path, monkeypatch, decision, comment):
     from datetime import UTC, datetime
     from types import SimpleNamespace
-    from resagent2_cli.shell import Shell
-    from resagent2_contracts import ActionSnapshot, PendingQuestion
+    from sciagent_cli.shell import Shell
+    from sciagent_contracts import ActionSnapshot, PendingQuestion
 
     action = ActionSnapshot(action_id="action_prompt", tool="run_shell",
         arguments={"command": "python evaluate.py"}, context={"cwd": "/workspace", "environment": "/bound/env"},
@@ -188,7 +188,7 @@ def test_shell_operation_prompt_keeps_decision_separate(tmp_path, monkeypatch, d
 
 def test_shell_run_passes_same_literature_option_as_one_shot_cli(tmp_path):
     from types import SimpleNamespace
-    from resagent2_cli.shell import Shell
+    from sciagent_cli.shell import Shell
 
     manifest = tmp_path / "papers.json"
     manifest.write_text(json.dumps({"papers": [{"title": "External shell paper"}]}))

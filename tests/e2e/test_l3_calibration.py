@@ -135,7 +135,7 @@ def test_prepare_records_reproducible_neutral_workspace(tmp_path, prepared_input
     dataset, catalog, verified = prepared_inputs
     root = tmp_path / "fresh-run"
     original_catalog = catalog.read_bytes()
-    monkeypatch.setenv("RESAGENT2_MODEL", "offline-fixture-model")
+    monkeypatch.setenv("SCIAGENT_MODEL", "offline-fixture-model")
     manifest = l3.prepare_workspace(root, dataset)
     workspace = root / "workspace"
     source = Path(l3.__file__).resolve().parent
@@ -180,7 +180,7 @@ def test_prepare_records_reproducible_neutral_workspace(tmp_path, prepared_input
     assert not any(path.suffix in {".pt", ".pth", ".npz", ".csv"} for path in workspace.rglob("*"))
 
     # Source only the generated assignment file, never the training entrypoint.
-    script = 'source "$1"; printf "%s\\n" "$RESAGENT2_MODEL" "$RESAGENT2_DATASET_ROOT" "$RESAGENT2_DATASETS_JSON"'
+    script = 'source "$1"; printf "%s\\n" "$SCIAGENT_MODEL" "$SCIAGENT_DATASET_ROOT" "$SCIAGENT_DATASETS_JSON"'
     config = subprocess.check_output(["bash", "--noprofile", "--norc", "-c", script, "l3-test", str(root / "run-config.sh")])
     model, shared_root, mapping = config.decode().splitlines()
     assert model == "offline-fixture-model"
@@ -211,14 +211,14 @@ def fake_launcher(tmp_path, monkeypatch, prepared_inputs):
     """The executable records arguments instead of importing any production CLI."""
     root = tmp_path / "run root with spaces"
     dataset, _, _ = prepared_inputs
-    monkeypatch.setenv("RESAGENT2_MODEL", "frozen fixture model")
+    monkeypatch.setenv("SCIAGENT_MODEL", "frozen fixture model")
     l3.prepare_workspace(root, dataset)
     interpreter = tmp_path / "fake python"
     capture = tmp_path / "invocation.bin"
     interpreter.write_text(
         '#!/bin/bash\n'
         'if [ "${1-}" = "$L3_TEST_PREPARE" ]; then exec "$L3_TEST_REAL_PYTHON" "$@"; fi\n'
-        'printf "%s\\0" "$PWD" "$RESAGENT2_MODEL" "$@" > "$L3_TEST_CAPTURE"\n'
+        'printf "%s\\0" "$PWD" "$SCIAGENT_MODEL" "$@" > "$L3_TEST_CAPTURE"\n'
         'exit "$L3_TEST_EXIT"\n',
         encoding="utf-8",
     )
@@ -249,7 +249,7 @@ def test_run_launcher_preserves_protocol_arguments_and_failure_exit(fake_launche
     root, invoke = fake_launcher
     result, argv = invoke("run", exit_code=7)
     assert result.returncode == 7
-    assert argv[:3] == ["-m", "resagent2_cli", "run"]
+    assert argv[:3] == ["-m", "sciagent_cli", "run"]
     expected = {
         "--run-id": "run_public_l3",
         "--workspace": str(root / "workspace"),
@@ -276,7 +276,7 @@ def test_answer_launcher_forwards_fields_with_spaces_and_exit_code(fake_launcher
     result, argv = invoke("answer", *answer, exit_code=3)
     assert result.returncode == 3
     assert argv == [
-        "-m", "resagent2_cli", "answer", "run_public_l3", "--data-root", str(root / "data"), *answer,
+        "-m", "sciagent_cli", "answer", "run_public_l3", "--data-root", str(root / "data"), *answer,
     ]
 
 
@@ -284,7 +284,7 @@ def test_resume_launcher_reuses_original_root_and_failure_exit(fake_launcher):
     root, invoke = fake_launcher
     result, argv = invoke("resume", exit_code=7)
     assert result.returncode == 7
-    assert argv == ["-m", "resagent2_cli", "resume", "run_public_l3", "--data-root", str(root / "data")]
+    assert argv == ["-m", "sciagent_cli", "resume", "run_public_l3", "--data-root", str(root / "data")]
 
 
 @pytest.mark.parametrize("changed_input", ["goal", "ignored_checkpoint"])

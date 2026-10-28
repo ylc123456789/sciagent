@@ -6,11 +6,11 @@ import subprocess
 import pytest
 
 from e2e.native_fixtures import tool_turns
-from resagent2_components import ResourceLayout
-from resagent2_contracts import AgentPermissions, AgentRequest, ScientificOpinion, TaskBudget, WorkspaceAccess, WorkspaceGrant, task_session_id
-from resagent2_executor import NativeExecutorAgent, build_coding_definition, build_experiment_definition
-from resagent2_runtime import JsonSessionStore, ScriptedLLMClient
-from resagent2_scientific import ScientificAgent
+from sciagent_components import ResourceLayout
+from sciagent_contracts import AgentPermissions, AgentRequest, ScientificOpinion, TaskBudget, WorkspaceAccess, WorkspaceGrant, task_session_id
+from sciagent_executor import NativeExecutorAgent, build_coding_definition, build_experiment_definition
+from sciagent_runtime import JsonSessionStore, ScriptedLLMClient
+from sciagent_scientific import ScientificAgent
 
 
 class _ProcessStopped(BaseException):

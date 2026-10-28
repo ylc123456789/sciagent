@@ -8,14 +8,14 @@ from pathlib import Path
 import httpx
 import pytest
 
-from resagent2_coding import NativeCodingAgent
-from resagent2_contracts import (
+from sciagent_coding import NativeCodingAgent
+from sciagent_contracts import (
     AgentPermissions, AgentRequest, ArtifactCandidate, ModuleStatus, QuestionDraft,
     RecordedAnswer, TaskBudget, WorkspaceAccess, WorkspaceGrant,
 )
-from resagent2_components import RegisteredArtifactReader, ResourceLayout
-from resagent2_orchestrator.artifacts import ArtifactRegistry
-from resagent2_runtime import JsonSessionStore, OpenAICompatibleClient
+from sciagent_components import RegisteredArtifactReader, ResourceLayout
+from sciagent_orchestrator.artifacts import ArtifactRegistry
+from sciagent_runtime import JsonSessionStore, OpenAICompatibleClient
 
 
 def setup(tmp_path, monkeypatch, actions):
@@ -42,7 +42,7 @@ def setup(tmp_path, monkeypatch, actions):
             }]},
         }]})
 
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", send)
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", send)
     layout = ResourceLayout.from_env(data_root=tmp_path / "data")
 
     def agent():

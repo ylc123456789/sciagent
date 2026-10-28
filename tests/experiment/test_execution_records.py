@@ -2,7 +2,7 @@
 
 from e2e.native_fixtures import tool_turns
 
-from resagent2_contracts import AgentPermissions, ErrorCode
+from sciagent_contracts import AgentPermissions, ErrorCode
 
 from datetime import UTC, datetime
 from dataclasses import replace
@@ -11,19 +11,19 @@ from types import SimpleNamespace
 
 import pytest
 
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner, AgentRequest, ArtifactCandidate, QuestionDraft, RecordedAnswer,
     TaskBudget, WorkspaceGrant, WorkspaceAccess, WorkspaceSourceKind,
 )
-from resagent2_components import WorkspaceBoundary
-from resagent2_capabilities.permissions import OperationPermissionPolicy
-from resagent2_orchestrator import ArtifactRegistry
-from resagent2_experiment.completion import ExperimentCompletionCheck
-from resagent2_runtime import (
+from sciagent_components import WorkspaceBoundary
+from sciagent_capabilities.permissions import OperationPermissionPolicy
+from sciagent_orchestrator import ArtifactRegistry
+from sciagent_experiment.completion import ExperimentCompletionCheck
+from sciagent_runtime import (
     AgentDefinition, AgentLoop, AgentState,
     FinishCandidate, FinishTool, ScriptedLLMClient, ToolObservation,
 )
-from resagent2_runtime.models import RuntimeModel
+from sciagent_runtime.models import RuntimeModel
 
 
 class CommandInput(RuntimeModel):
@@ -127,8 +127,8 @@ def test_loop_preserves_command_facts_independently_of_task_status(tmp_path, exi
      ("python train.py", 0, False)],
 ])
 def test_command_history_is_preserved_without_inferred_task_failure(tmp_path, commands):
-    from resagent2_runtime.models import NativeToolCall, ToolCallTurn
-    from resagent2_runtime.tool_calling import tool_receipt
+    from sciagent_runtime.models import NativeToolCall, ToolCallTurn
+    from sciagent_runtime.tool_calling import tool_receipt
     now = datetime.now(UTC)
     state = AgentState(
         session_id="session_test", agent_name="experiment", owner=AgentOwner.EXECUTOR,

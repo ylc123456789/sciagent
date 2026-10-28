@@ -8,13 +8,13 @@ from urllib.request import url2pathname
 
 import pytest
 
-from resagent2_contracts import (
+from sciagent_contracts import (
     ActionSnapshot, AgentResult, ControlSignal, ErrorCode, ModuleError, ModuleStatus,
     PendingQuestion, RunStatus, SessionStatus, TaskProposal, TaskStatus,
     UserAnswer, WorkRequestDraft, WorkRequestStatus, WorkflowAgentKind, WorkflowPatch,
 )
-from resagent2_orchestrator import CompilationResult, JsonRunStore
-from resagent2_runtime.cancellation import OperationCancelled
+from sciagent_orchestrator import CompilationResult, JsonRunStore
+from sciagent_runtime.cancellation import OperationCancelled
 
 from test_recursive_work import (
     Port, complete, conclude, controller, delegate, research_request, session,
@@ -304,7 +304,7 @@ def test_root_terminal_commit_recovers_only_remaining_acknowledgements(tmp_path,
     fresh = disk_controller(tmp_path, root)
     if expired:
         from datetime import timedelta
-        from resagent2_orchestrator import controller as controller_module, scheduler as scheduler_module
+        from sciagent_orchestrator import controller as controller_module, scheduler as scheduler_module
 
         class Clock:
             @classmethod
@@ -539,7 +539,7 @@ def test_interrupt_after_saved_unconfirmed_stop_preserves_terminal_failure(tmp_p
     fresh = disk_controller(tmp_path, root, coding, sibling)
     if expired:
         from datetime import timedelta
-        from resagent2_orchestrator import controller as controller_module, scheduler as scheduler_module
+        from sciagent_orchestrator import controller as controller_module, scheduler as scheduler_module
 
         class Clock:
             @classmethod

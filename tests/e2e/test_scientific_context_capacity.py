@@ -2,7 +2,7 @@
 
 from e2e.native_fixtures import tool_turns
 
-from resagent2_contracts import AgentPermissions
+from sciagent_contracts import AgentPermissions
 
 import hashlib
 import json
@@ -10,16 +10,16 @@ from datetime import UTC, datetime
 
 import pytest
 
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner, ArtifactRef, ErrorCode, ResearchRequest, RunBudget, AgentRequest,
     TaskBudget, RecordedAnswer, task_session_id,
 )
-from resagent2_runtime import (
+from sciagent_runtime import (
     DEFAULT_AGENT_CONTEXT_TOKENS, ContextComposer, InMemorySessionStore, ScriptedLLMClient,
 )
-from resagent2_scientific import ScientificAgent
+from sciagent_scientific import ScientificAgent
 
-from resagent2_runtime.tool_calling import native_input, native_input_text
+from sciagent_runtime.tool_calling import native_input, native_input_text
 
 
 class _UnusedLiteratureServices:

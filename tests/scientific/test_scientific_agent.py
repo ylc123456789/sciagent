@@ -9,13 +9,13 @@ from datetime import UTC, datetime
 import pytest
 from pydantic import ValidationError
 
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner, AgentPermissions, AgentRequest, ArtifactRef, ErrorCode,
     ScientificOpinion, TaskBudget, RecordedAnswer, WorkResult, WorkTaskResult, task_session_id,
 )
-from resagent2_scientific import ScientificAgent
-from resagent2_scientific.tools import RequestWorkTool
-from resagent2_runtime import AgentState, ScriptedLLMClient, ToolRegistry
+from sciagent_scientific import ScientificAgent
+from sciagent_scientific.tools import RequestWorkTool
+from sciagent_runtime import AgentState, ScriptedLLMClient, ToolRegistry
 
 
 def request(*, artifacts=(), parent=None, budget=10, request_work=True, **extra):
@@ -120,7 +120,7 @@ def test_unanswered_resume_does_not_cache_away_a_later_business_answer():
 
 
 def test_failed_work_without_tasks_requires_limitations_and_corrects_in_same_session():
-    from resagent2_contracts import ModuleError
+    from sciagent_contracts import ModuleError
     client = ScriptedLLMClient(tool_turns([
         work(), finish(), finish(limitations=["Requested implementation could not be compiled"]),
     ]))
@@ -178,7 +178,7 @@ def test_imported_literature_can_satisfy_requirements_after_reading(tmp_path):
 
 
 def test_literature_search_returns_temporary_candidates_without_registration(tmp_path):
-    from resagent2_components import LiteraturePaper
+    from sciagent_components import LiteraturePaper
     class Backend:
         def search(self, query, **kwargs):
             return _search_result([LiteraturePaper(paper_id="arxiv:1234.5678", title="Paper", authors=["Author"],abstract="Result",source_url="https://arxiv.org/abs/1234.5678")])
@@ -203,8 +203,8 @@ def test_question_pauses_with_content_reference():
 
 
 def test_question_schema_retains_visible_background_guidance():
-    from resagent2_scientific.models import AskUserInput
-    from resagent2_runtime.tools import AskUserToolInput
+    from sciagent_scientific.models import AskUserInput
+    from sciagent_runtime.tools import AskUserToolInput
     assert AskUserInput.model_fields["text"].description == AskUserToolInput.model_fields["text"].description
     assert "background" in AskUserInput.model_fields["text"].description
 
@@ -260,7 +260,7 @@ def test_unread_citation_can_be_recovered_by_reading(tmp_path):
 
 
 def test_failed_work_requires_limitation_in_opinion(tmp_path):
-    from resagent2_contracts import ModuleError
+    from sciagent_contracts import ModuleError
     agent=ScientificAgent(ScriptedLLMClient(tool_turns([work(),finish()])))
     first=agent.invoke(request())
     failed=WorkTaskResult(task_id="task_failed",workflow_agent_kind="executor",instruction="Measure",status="failed",
@@ -324,7 +324,7 @@ def test_obsolete_opinion_fields_are_rejected():
 
 
 def _search_result(papers):
-    from resagent2_components import LiteratureSearchResult
+    from sciagent_components import LiteratureSearchResult
     return LiteratureSearchResult(papers=papers, source="arxiv", executed_query="test query",
                                   page=1, next_page=None, source_attempts=[{
                                       "source": "arxiv", "status": "success",
@@ -346,8 +346,8 @@ def test_standalone_role_permissions_do_not_imply_a_run_execution_grant():
 
 
 def test_finish_schema_uses_canonical_opinion_and_serializes_before_completion():
-    from resagent2_runtime import FinishTool
-    from resagent2_runtime.tool_calling import native_tool_schemas
+    from sciagent_runtime import FinishTool
+    from sciagent_runtime.tool_calling import native_tool_schemas
 
     client = ScriptedLLMClient(tool_turns([finish(statement="不确定的结论")]))
     agent = ScientificAgent(client)
@@ -405,9 +405,9 @@ def test_structured_opinion_keeps_registered_citation_checks_and_failed_rejectio
 
 
 def test_legacy_finish_schema_session_is_rejected_without_rewriting_saved_record():
-    from resagent2_runtime.tools import FinishInput
-    from resagent2_runtime.tool_calling import contract_fingerprint
-    from resagent2_scientific.context import SCIENTIFIC_PROMPT
+    from sciagent_runtime.tools import FinishInput
+    from sciagent_runtime.tool_calling import contract_fingerprint
+    from sciagent_scientific.context import SCIENTIFIC_PROMPT
 
     client = ScriptedLLMClient(tool_turns([work()]))
     agent = ScientificAgent(client)
@@ -428,9 +428,9 @@ def test_legacy_finish_schema_session_is_rejected_without_rewriting_saved_record
 
 @pytest.mark.parametrize("content", [None, "Ordinary UTF-8 text"])
 def test_scientific_adapter_preserves_ordinary_file_and_text_candidate_semantics(content):
-    from resagent2_contracts import ArtifactCandidate
-    from resagent2_runtime import FinishInput
-    from resagent2_scientific.models import ScientificFinishInput
+    from sciagent_contracts import ArtifactCandidate
+    from sciagent_runtime import FinishInput
+    from sciagent_scientific.models import ScientificFinishInput
 
     ordinary = ArtifactCandidate(
         kind="scientific_assessment", path="reports/assessment.json",

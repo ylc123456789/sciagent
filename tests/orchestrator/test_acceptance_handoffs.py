@@ -3,14 +3,14 @@ from e2e.scheduler_fixtures import executor_bindings
 
 from scheduler_fixtures import accept_proposal
 
-from resagent2_contracts import RunPermissions, ExecutionLimits, WorkspaceAccess
+from sciagent_contracts import RunPermissions, ExecutionLimits, WorkspaceAccess
 
 import json
 from datetime import UTC, datetime
 
 import pytest
 
-from resagent2_contracts import (
+from sciagent_contracts import (
     AgentOwner,
     AgentResult,
     ArtifactCandidate,
@@ -20,11 +20,11 @@ from resagent2_contracts import (
     TaskProposal,
     WorkflowProposal,
 )
-from resagent2_orchestrator import (
+from sciagent_orchestrator import (
     ArtifactRegistrationError, InMemoryRunStore, ModuleBinding, ResearchRun,
     ScriptedModulePort, WorkflowScheduler,
 )
-from resagent2_orchestrator.handoffs import check_acceptance, read_json
+from sciagent_orchestrator.handoffs import check_acceptance, read_json
 
 
 def metrics(value=0.9, *, output_name="scores", path="metrics.json"):
@@ -136,8 +136,8 @@ def test_acceptance_checks_delivery_without_inferring_task_semantics(tmp_path, e
 
 
 def test_registry_derives_required_paths_and_ignores_claimed_metadata(tmp_path):
-    from resagent2_contracts import WorkspaceGrant
-    from resagent2_orchestrator import ArtifactRegistry
+    from sciagent_contracts import WorkspaceGrant
+    from sciagent_orchestrator import ArtifactRegistry
     workspace = tmp_path / "workspace"
     workspace.mkdir()
     (workspace / "actual.json").write_text('{"accuracy":0.9}')
@@ -151,8 +151,8 @@ def test_registry_derives_required_paths_and_ignores_claimed_metadata(tmp_path):
 
 
 def test_registry_accepts_controlled_output_files_but_rejects_escape_and_ambiguity(tmp_path):
-    from resagent2_contracts import WorkspaceGrant
-    from resagent2_orchestrator import ArtifactRegistry
+    from sciagent_contracts import WorkspaceGrant
+    from sciagent_orchestrator import ArtifactRegistry
     workspace, output = tmp_path / "workspace", tmp_path / "output"
     workspace.mkdir()
     output.mkdir()

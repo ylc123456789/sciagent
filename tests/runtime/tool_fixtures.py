@@ -6,8 +6,8 @@ from typing import cast
 
 from pydantic import BaseModel, JsonValue
 
-from resagent2_runtime import AgentState, ToolObservation
-from resagent2_runtime.models import NonEmptyStr, RuntimeModel
+from sciagent_runtime import AgentState, ToolObservation
+from sciagent_runtime.models import NonEmptyStr, RuntimeModel
 
 
 class ReadValueInput(RuntimeModel):

@@ -7,7 +7,7 @@ from httpx import TransportError
 import pytest
 from pydantic import BaseModel
 
-from resagent2_runtime import (
+from sciagent_runtime import (
     AgentAction, ContextBudgetExceeded, ModelProfile, OpenAICompatibleClient,
     PromptLLMClient,
 )
@@ -126,8 +126,8 @@ def test_plain_prompt_forwards_retry_limit_trace_and_real_attempt_count(
     responses = [TransportError("transient"), _Response() if succeeds else TransportError("again")]
 
     with (
-        mock.patch("resagent2_runtime.llm.time.sleep"),
-        mock.patch("resagent2_runtime.llm.send_request", side_effect=responses) as request,
+        mock.patch("sciagent_runtime.llm.time.sleep"),
+        mock.patch("sciagent_runtime.llm.send_request", side_effect=responses) as request,
     ):
         if succeeds:
             assert adapter.next_action("Complete", AgentAction) == {"tool": "finish"}
@@ -171,12 +171,12 @@ def _output_response(calls):
 
 @pytest.mark.parametrize("stateless_output", [False, True])
 def test_native_output_and_agent_wire_have_distinct_protocols_with_shared_retry_budget(monkeypatch, tmp_path, stateless_output):
-    from resagent2_runtime import ComposedContext
-    from resagent2_runtime.budget import execution_budget
-    from resagent2_runtime.tool_calling import NATIVE_TOOL_INSTRUCTION
+    from sciagent_runtime import ComposedContext
+    from sciagent_runtime.budget import execution_budget
+    from sciagent_runtime.tool_calling import NATIVE_TOOL_INSTRUCTION
 
     monkeypatch.setenv("PROMPT_TEST_KEY", "dummy-test-key")
-    monkeypatch.setattr("resagent2_runtime.llm.time.sleep", lambda _: None)
+    monkeypatch.setattr("sciagent_runtime.llm.time.sleep", lambda _: None)
     client = OpenAICompatibleClient(
         model="test", api_base="https://example.invalid/v1", api_key_env="PROMPT_TEST_KEY",
         trace_dir=tmp_path / "traces", trace_level="full",
@@ -193,7 +193,7 @@ def test_native_output_and_agent_wire_have_distinct_protocols_with_shared_retry_
             raise TransportError("transient")
         return _output_response([("return_decision", {"value": 7})])
 
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", respond)
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", respond)
     with execution_budget(max_llm_calls=9, timeout_seconds=60) as budget:
         budget.charge("earlier_request", 0)
         if stateless_output:
@@ -234,8 +234,8 @@ def test_native_output_and_agent_wire_have_distinct_protocols_with_shared_retry_
 ])
 def test_native_output_keeps_exactly_one_named_typed_result_validation(monkeypatch, calls, error):
     from pydantic import ValidationError
-    from resagent2_runtime.budget import execution_budget
-    from resagent2_runtime.tool_calling import NativeToolCallError
+    from sciagent_runtime.budget import execution_budget
+    from sciagent_runtime.tool_calling import NativeToolCallError
 
     monkeypatch.setenv("PROMPT_TEST_KEY", "dummy-test-key")
     client = OpenAICompatibleClient(
@@ -249,7 +249,7 @@ def test_native_output_keeps_exactly_one_named_typed_result_validation(monkeypat
         bodies.append(json.loads(request.content))
         return _output_response(calls)
 
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", respond)
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", respond)
     expected_error = NativeToolCallError if error == "tool" else ValidationError
     with execution_budget(max_llm_calls=3, timeout_seconds=60) as budget:
         with pytest.raises(expected_error):
@@ -261,7 +261,7 @@ def test_native_output_keeps_exactly_one_named_typed_result_validation(monkeypat
 
 def test_native_output_schema_and_budget_are_counted_before_transport(monkeypatch):
     from pydantic import Field
-    from resagent2_runtime.budget import execution_budget
+    from sciagent_runtime.budget import execution_budget
 
     class LargeOutput(BaseModel):
         value: str = Field(description="Complete output contract. " * 1000)
@@ -272,7 +272,7 @@ def test_native_output_schema_and_budget_are_counted_before_transport(monkeypatc
     )
     adapter = PromptLLMClient(client, system_prompt="Return one typed result.", max_context_tokens=1000,
                               output_tool_name="return_decision")
-    monkeypatch.setattr("resagent2_runtime.llm.send_request", lambda *a, **kw: pytest.fail("must not send"))
+    monkeypatch.setattr("sciagent_runtime.llm.send_request", lambda *a, **kw: pytest.fail("must not send"))
     with execution_budget(max_llm_calls=3, timeout_seconds=60) as budget:
         with pytest.raises(ContextBudgetExceeded):
             adapter.next_action("Assess the supplied data", LargeOutput)

@@ -5,8 +5,8 @@ import json
 
 import pytest
 
-from resagent2_cli.approval_context import approval_context
-from resagent2_contracts import (
+from sciagent_cli.approval_context import approval_context
+from sciagent_contracts import (
     ActionSnapshot,
     BusinessInput,
     PendingQuestion,
@@ -20,7 +20,7 @@ from resagent2_contracts import (
     WorkRequest,
     WorkRequestDraft,
 )
-from resagent2_orchestrator import InMemoryRunStore, ResearchRun
+from sciagent_orchestrator import InMemoryRunStore, ResearchRun
 
 
 NOW = datetime(2026, 10, 16, 3, 0, tzinfo=UTC)
@@ -366,7 +366,7 @@ def test_reviewer_requires_one_actual_root_scientific_task(invalid):
     elif invalid == "multiple_root_tasks":
         run.workflow.tasks.append(run.workflow.tasks[0].model_copy(update={"id": "task_other"}))
     else:
-        from resagent2_contracts import WorkflowAgentKind
+        from sciagent_contracts import WorkflowAgentKind
         run.workflow.tasks[0].workflow_agent_kind = WorkflowAgentKind.EXECUTOR
 
     with pytest.raises(ValueError, match="one root Scientific"):
